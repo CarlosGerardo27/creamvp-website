@@ -1,0 +1,128 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Container from "@/components/container.astro";
+import { Picture } from "astro:assets";
+import heroImage from "@/assets/hero.png";
+---
+
+<Layout title="Servicios">
+  <Container>
+    <div class="mx-auto max-w-4xl mt-16 text-center mb-20">
+      <h1 class="text-4xl lg:text-5xl font-bold lg:tracking-tight mb-6">
+        Soluciones para crecer tu negocio
+      </h1>
+      <p class="text-lg leading-relaxed text-slate-600">
+        Analisamos y entendemos cómo funciona tu negocio, qué retos enfrentas y qué objetivos quieres lograr para diseñar soluciones a medida que se integran sin fricciones y generan resultados reales.
+      </p>
+    </div>
+
+    <!-- Servicios -->
+    <div class="space-y-24 mt-24">
+      <!-- Servicio 1: 60/40 -->
+      <div class="grid md:grid-cols-5 gap-8 items-center">
+        <div class="md:col-span-3">
+          <h2 class="text-3xl lg:text-4xl font-bold mb-4">
+            Automatizaciones e IA que te ahorran tiempo y esfuerzo
+          </h2>
+          <p class="text-lg leading-relaxed text-slate-600">
+            Optimiza tus procesos con automatizaciones inteligentes que conectan tus sistemas y eliminan tareas repetitivas. Implemento soluciones con IA como bots, asistentes de citas o agentes de ventas autónomos que trabajan 24/7 para ayudarte a escalar sin complicaciones.
+          </p>
+        </div>
+        <div class="md:col-span-2">
+          <Picture
+            src={heroImage}
+            alt="Automatizaciones e IA"
+            class="w-full rounded-lg"
+            width={400}
+            height={300}
+          />
+        </div>
+      </div>
+
+      <!-- Servicio 2: 40/60 -->
+      <div class="grid md:grid-cols-5 gap-8 items-center">
+        <div class="md:col-span-2 order-2 md:order-1">
+          <Picture
+            src={heroImage}
+            alt="Dashboards"
+            class="w-full rounded-lg"
+            width={400}
+            height={300}
+          />
+        </div>
+        <div class="md:col-span-3 order-1 md:order-2">
+          <h2 class="text-3xl lg:text-4xl font-bold mb-4">
+            Dashboards que te muestran lo que importa
+          </h2>
+          <p class="text-lg leading-relaxed text-slate-600">
+            Visualiza el estado de tu negocio en tiempo real. Creo tableros personalizados para que puedas tomar decisiones informadas, descubrir oportunidades y tener siempre el control, sin necesidad de depender de hojas de cálculo sobrecargadas y muchas veces desactualizadas.
+          </p>
+        </div>
+      </div>
+
+      <!-- Servicio 3: 60/40 -->
+      <div class="grid md:grid-cols-5 gap-8 items-center">
+        <div class="md:col-span-3">
+          <h2 class="text-3xl lg:text-4xl font-bold mb-4">
+            Aplicaciones internas que potencian a tu equipo
+          </h2>
+          <p class="text-lg leading-relaxed text-slate-600">
+            Si tu equipo sigue usando mil archivos distintos o procesos manuales, es hora de un sistema propio. Puedo diseñar aplicaciones internas personalizadas que se adapten a cómo ya trabajan, pero mejor.
+          </p>
+        </div>
+        <div class="md:col-span-2">
+          <Picture
+            src={heroImage}
+            alt="Aplicaciones internas"
+            class="w-full rounded-lg"
+            width={400}
+            height={300}
+          />
+        </div>
+      </div>
+
+      <!-- Servicio 4: 40/60 -->
+      <div class="grid md:grid-cols-5 gap-8 items-center">
+        <div class="md:col-span-2 order-2 md:order-1">
+          <Picture
+            src={heroImage}
+            alt="MVPs"
+            class="w-full rounded-lg"
+            width={400}
+            height={300}
+          />
+        </div>
+        <div class="md:col-span-3 order-1 md:order-2">
+          <h2 class="text-3xl lg:text-4xl font-bold mb-4">
+            MVPs listos para escalar sin barreras técnicas
+          </h2>
+          <p class="text-lg leading-relaxed text-slate-600">
+            ¿Tienes una idea para una app con miles de usuarios? Con herramientas No-Code y Low-Code, puedo ayudarte a lanzar rápido, validar y escalar sin necesidad de largos procesos de desarrollo tradicional.
+          </p>
+        </div>
+      </div>
+
+      <!-- Servicio 5: 60/40 -->
+      <div class="grid md:grid-cols-5 gap-8 items-center">
+        <div class="md:col-span-3">
+          <h2 class="text-3xl lg:text-4xl font-bold mb-4">
+            Agentes conversacionales
+          </h2>
+          <p class="text-lg leading-relaxed text-slate-600">
+            Servicio al cliente, ventas, información sobre tus servicios, todo desde whatsapp o interfaces de chat que puedes poner en cualquier sitio donde requieras brindar una respuesta rápida y clara para tus usuarios o incluso para tu propio equipo.
+          </p>
+        </div>
+        <div class="md:col-span-2">
+          <Picture
+            src={heroImage}
+            alt="Agentes conversacionales"
+            class="w-full rounded-lg"
+            width={400}
+            height={300}
+          />
+        </div>
+      </div>
+    </div>
+  </Container>
+</Layout>
+
