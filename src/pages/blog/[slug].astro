@@ -3,6 +3,8 @@ import { getCollection } from "astro:content";
 import { Picture } from "astro:assets";
 import Layout from "@/layouts/Layout.astro";
 import Container from "@/components/container.astro";
+import ReadingProgress from "@/components/ReadingProgress.astro";
+import BlogFAQs from "@/components/BlogFAQs.astro";
 
 // Generate a new path for every collection entry
 export async function getStaticPaths() {
@@ -28,49 +30,67 @@ function formatDateSpanish(date: Date): string {
 // Get the entry directly from the prop on render
 const { entry } = Astro.props;
 const { Content } = await entry.render();
+
+// Preparar datos para SEO - resolver imagen completa para Open Graph
+const articleImage = entry.data.image.src.startsWith('http')
+  ? entry.data.image.src
+  : new URL(entry.data.image.src, Astro.site).toString();
 ---
 
-<Layout title={entry.data.title}>
+<Layout 
+  title={entry.data.title}
+  description={entry.data.snippet}
+  image={articleImage}
+  type="article"
+  author={entry.data.author}
+  publishDate={entry.data.publishDate}
+  siteName="CreaMVP"
+>
+  <ReadingProgress />
   <Container>
-    <div class="mx-auto max-w-3xl mt-14">
-      <span class="text-blue-400 uppercase tracking-wider text-sm font-medium">
-        {entry.data.category}
-      </span>
-      <h1
-        class="text-4xl lg:text-5xl font-bold lg:tracking-tight mt-1 lg:leading-tight">
-        {entry.data.title}
-      </h1>
-      
-      <!-- Idea central del artículo -->
-      <p class="text-lg text-slate-600 mt-4 leading-relaxed">
-        {entry.data.snippet}
-      </p>
-
-      <div class="flex gap-2 mt-4 items-center flex-wrap md:flex-nowrap">
-        <span class="text-gray-400">
-          {entry.data.author}
+    <article itemscope itemtype="https://schema.org/BlogPosting">
+      <div class="mx-auto max-w-3xl mt-14">
+        <span class="text-blue-400 uppercase tracking-wider text-sm font-medium">
+          {entry.data.category}
         </span>
-        <span class="text-gray-400">•</span>
-        <time
-          class="text-gray-400"
-          datetime={entry.data.publishDate.toISOString()}>
-          {formatDateSpanish(entry.data.publishDate)}
-        </time>
-        <span class="text-gray-400 hidden md:block">•</span>
-        <div class="w-full md:w-auto flex flex-wrap gap-3">
-          {
-            entry.data.tags.map((tag) => (
-              <span class="text-sm text-gray-500">#{tag}</span>
-            ))
-          }
+        <h1
+          itemprop="headline"
+          class="text-4xl lg:text-5xl font-bold lg:tracking-tight mt-1 lg:leading-tight">
+          {entry.data.title}
+        </h1>
+        
+        <!-- Idea central del artículo -->
+        <p itemprop="description" class="text-lg text-slate-600 mt-4 leading-relaxed">
+          {entry.data.snippet}
+        </p>
+
+        <div class="flex gap-2 mt-4 items-center flex-wrap md:flex-nowrap">
+          <span itemprop="author" itemscope itemtype="https://schema.org/Person" class="text-gray-400">
+            <span itemprop="name">{entry.data.author}</span>
+          </span>
+          <span class="text-gray-400">•</span>
+          <time
+            itemprop="datePublished"
+            class="text-gray-400"
+            datetime={entry.data.publishDate.toISOString()}>
+            {formatDateSpanish(entry.data.publishDate)}
+          </time>
+          <span class="text-gray-400 hidden md:block">•</span>
+          <div class="w-full md:w-auto flex flex-wrap gap-3">
+            {
+              entry.data.tags.map((tag) => (
+                <span class="text-sm text-gray-500">#{tag}</span>
+              ))
+            }
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Imagen principal del artículo -->
-    <div class="mx-auto max-w-3xl mt-8">
+      <!-- Imagen principal del artículo -->
+    <div itemprop="image" itemscope itemtype="https://schema.org/ImageObject" class="mx-auto max-w-3xl mt-8">
       {entry.data.image.src.startsWith('http') ? (
         <img
+          itemprop="url"
           src={entry.data.image.src}
           alt={entry.data.image.alt}
           class="w-full rounded-lg"
@@ -85,11 +105,17 @@ const { Content } = await entry.render();
           sizes="(max-width: 800px) 100vw, 1200px"
         />
       )}
+      <meta itemprop="caption" content={entry.data.image.alt} />
     </div>
 
-    <div class="mx-auto prose prose-lg mt-8 max-w-3xl">
+    <div itemprop="articleBody" class="mx-auto prose prose-lg mt-8 max-w-3xl">
       <Content />
     </div>
+
+    <!-- Sección de preguntas frecuentes -->
+    <BlogFAQs faqs={entry.data.faqs} />
+    </article>
+
     <div class="text-center mt-8">
       <a
         href="/blog"

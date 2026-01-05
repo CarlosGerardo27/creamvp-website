@@ -8,24 +8,40 @@ import "../styles/global.css";
 
 export interface Props {
   title: string;
+  description?: string;
+  image?: string;
+  type?: "article" | "website";
+  author?: string;
+  publishDate?: Date;
+  siteName?: string;
 }
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site).toString();
 
-const resolvedImageWithDomain = new URL(
-  "/opengraph.jpg",
-  Astro.site
-).toString();
-
-const { title } = Astro.props;
+const {
+  title,
+  description = "CreaMVP - Soluciones de automatización, No-Code e IA para hacer crecer tu negocio sin contratar más personal.",
+  image,
+  type = "website",
+  author,
+  publishDate,
+  siteName = "CreaMVP",
+} = Astro.props;
 
 const makeTitle = title
-  ? title + " | " + "Astroship"
-  : "Astroship - Starter Template for Astro with Tailwind CSS";
+  ? title + " | " + siteName
+  : `${siteName} - Soluciones de automatización, No-Code e IA`;
+
+// Resolver imagen para Open Graph
+const resolvedImage = image
+  ? image.startsWith('http')
+    ? image
+    : new URL(image, Astro.site).toString()
+  : new URL("/opengraph.jpg", Astro.site).toString();
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
@@ -35,25 +51,56 @@ const makeTitle = title
     <!-- <link rel="preload" as="image" href={src} alt="Hero" /> -->
     <SEO
       title={makeTitle}
-      description="Astroship is a starter website template for Astro built with TailwindCSS."
+      description={description}
       canonical={canonicalURL}
       twitter={{
-        creator: "@surjithctly",
-        site: "@web3templates",
         card: "summary_large_image",
       }}
       openGraph={{
         basic: {
           url: canonicalURL,
-          type: "website",
-          title: `Astroship - Starter Template for Astro`,
-          image: resolvedImageWithDomain,
+          type: type,
+          title: title,
+          image: resolvedImage,
         },
         image: {
-          alt: "Astroship Homepage Screenshot",
+          alt: image ? "Imagen del artículo" : "CreaMVP - Automatización y No-Code",
         },
+        article: type === "article" ? {
+          author: author || "CreaMVP",
+          publishedTime: publishDate?.toISOString(),
+        } : undefined,
       }}
     />
+
+    {/* Schema.org JSON-LD para artículos */}
+    {type === "article" && (
+      <script type="application/ld+json" set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": title,
+        "description": description,
+        "image": resolvedImage,
+        "author": {
+          "@type": "Person",
+          "name": author || "CreaMVP"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": siteName,
+          "logo": {
+            "@type": "ImageObject",
+            "url": new URL("/logo.png", Astro.site).toString()
+          }
+        },
+        "datePublished": publishDate?.toISOString(),
+        "dateModified": publishDate?.toISOString(),
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": canonicalURL
+        }
+      }, null, 2)} />
+    )}
   </head>
   <body>
     <Navbar />

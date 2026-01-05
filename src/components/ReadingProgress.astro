@@ -1,0 +1,66 @@
+---
+// Componente de progreso de lectura
+---
+
+<div id="reading-progress" class="fixed top-0 left-0 h-1 bg-gray-200 w-full z-50">
+  <div
+    id="reading-progress-bar"
+    class="h-full bg-blue-600 transition-all duration-150"
+    style="width: 0%"
+  ></div>
+</div>
+
+<script>
+  function updateReadingProgress() {
+    // Buscar el contenido del artículo
+    const article = document.querySelector('.prose') || document.querySelector('main');
+    if (!article) return;
+
+    const articleTop = article.offsetTop;
+    const articleHeight = article.scrollHeight;
+    const windowHeight = window.innerHeight;
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+    // Calcular el progreso basado en cuánto del artículo ha sido visto
+    const articleBottom = articleTop + articleHeight;
+    const windowBottom = scrollTop + windowHeight;
+
+    let progress = 0;
+    
+    if (windowBottom >= articleTop) {
+      const scrolled = windowBottom - articleTop;
+      const totalHeight = articleHeight;
+      progress = Math.min((scrolled / totalHeight) * 100, 100);
+    }
+
+    const progressBar = document.getElementById('reading-progress-bar');
+    if (progressBar) {
+      progressBar.style.width = `${Math.max(0, Math.min(100, progress))}%`;
+    }
+  }
+
+  // Actualizar al hacer scroll (con throttling para mejor rendimiento)
+  let ticking = false;
+  function onScroll() {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        updateReadingProgress();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', updateReadingProgress);
+  
+  // Actualizar al cargar la página y después de un pequeño delay para asegurar que el DOM esté listo
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(updateReadingProgress, 100);
+    });
+  } else {
+    setTimeout(updateReadingProgress, 100);
+  }
+</script>
+

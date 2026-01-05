@@ -15,6 +15,10 @@ const blogCollection = defineCollection({
     author: z.string().default('Astroship'),
     category: z.string(),
     tags: z.array(z.string()),
+    faqs: z.array(z.object({
+      question: z.string(),
+      answer: z.string(),
+    })).optional(),
   }),
 });
 

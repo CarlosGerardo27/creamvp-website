@@ -1,0 +1,28 @@
+---
+interface Props {
+  faqs?: Array<{ question: string; answer: string }>;
+}
+
+const { faqs = [] } = Astro.props;
+---
+
+{faqs && faqs.length > 0 && (
+  <div class="mx-auto max-w-3xl mt-16 border-t border-gray-200 pt-12" itemscope itemtype="https://schema.org/FAQPage">
+    <h2 class="text-3xl font-bold mb-8">Claves del artículo</h2>
+    <div class="space-y-6">
+      {faqs.map((faq) => (
+        <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question" class="border-b border-gray-100 pb-6 last:border-b-0">
+          <h3 itemprop="name" class="text-xl font-semibold text-gray-900 mb-2">
+            {faq.question}
+          </h3>
+          <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+            <p itemprop="text" class="text-gray-600 leading-relaxed">
+              {faq.answer}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
