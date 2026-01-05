@@ -1,5 +1,6 @@
 ---
 import { getCollection } from "astro:content";
+import { Picture } from "astro:assets";
 import Layout from "@/layouts/Layout.astro";
 import Container from "@/components/container.astro";
 
@@ -10,6 +11,18 @@ export async function getStaticPaths() {
     params: { slug: entry.slug },
     props: { entry },
   }));
+}
+
+// Función para formatear fechas en español
+function formatDateSpanish(date: Date): string {
+  const months = [
+    "enero", "febrero", "marzo", "abril", "mayo", "junio",
+    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+  ];
+  const day = date.getDate();
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+  return `${day} de ${month}, ${year}`;
 }
 
 // Get the entry directly from the prop on render
@@ -27,7 +40,13 @@ const { Content } = await entry.render();
         class="text-4xl lg:text-5xl font-bold lg:tracking-tight mt-1 lg:leading-tight">
         {entry.data.title}
       </h1>
-      <div class="flex gap-2 mt-3 items-center flex-wrap md:flex-nowrap">
+      
+      <!-- Idea central del artículo -->
+      <p class="text-lg text-slate-600 mt-4 leading-relaxed">
+        {entry.data.snippet}
+      </p>
+
+      <div class="flex gap-2 mt-4 items-center flex-wrap md:flex-nowrap">
         <span class="text-gray-400">
           {entry.data.author}
         </span>
@@ -35,7 +54,7 @@ const { Content } = await entry.render();
         <time
           class="text-gray-400"
           datetime={entry.data.publishDate.toISOString()}>
-          {entry.data.publishDate.toDateString()}
+          {formatDateSpanish(entry.data.publishDate)}
         </time>
         <span class="text-gray-400 hidden md:block">•</span>
         <div class="w-full md:w-auto flex flex-wrap gap-3">
@@ -48,14 +67,34 @@ const { Content } = await entry.render();
       </div>
     </div>
 
-    <div class="mx-auto prose prose-lg mt-6 max-w-3xl">
+    <!-- Imagen principal del artículo -->
+    <div class="mx-auto max-w-3xl mt-8">
+      {entry.data.image.src.startsWith('http') ? (
+        <img
+          src={entry.data.image.src}
+          alt={entry.data.image.alt}
+          class="w-full rounded-lg"
+        />
+      ) : (
+        <Picture
+          src={entry.data.image.src}
+          alt={entry.data.image.alt}
+          class="w-full rounded-lg"
+          width={1200}
+          height={600}
+          sizes="(max-width: 800px) 100vw, 1200px"
+        />
+      )}
+    </div>
+
+    <div class="mx-auto prose prose-lg mt-8 max-w-3xl">
       <Content />
     </div>
     <div class="text-center mt-8">
       <a
         href="/blog"
         class="bg-gray-100 px-5 py-3 rounded-xl hover:bg-gray-200 transition"
-        >← Back to Blog</a
+        >← Volver al Blog</a
       >
     </div>
   </Container>

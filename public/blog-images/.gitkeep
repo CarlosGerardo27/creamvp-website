@@ -1,0 +1,12 @@
+# Blog Images
+
+Coloca aquí las imágenes principales de tus entradas del blog.
+
+Las imágenes se referencian desde los archivos markdown usando:
+```
+image: {
+    src: "/blog-images/nombre-imagen.jpg",
+    alt: "Descripción de la imagen"
+}
+```
+

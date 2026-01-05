@@ -5,6 +5,18 @@ import Layout from "@/layouts/Layout.astro";
 import Container from "@/components/container.astro";
 import Sectionhead from "@/components/sectionhead.astro";
 
+// Función para formatear fechas en español
+function formatDateSpanish(date: Date): string {
+  const months = [
+    "enero", "febrero", "marzo", "abril", "mayo", "junio",
+    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+  ];
+  const day = date.getDate();
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+  return `${day} de ${month}, ${year}`;
+}
+
 // Filter blog entries with 'draft: false' & date before current date
 const publishedBlogEntries = await getCollection("blog", ({ data }) => {
   return !data.draft && data.publishDate < new Date();
@@ -19,9 +31,9 @@ publishedBlogEntries.sort(function (a, b) {
 <Layout title="Blog">
   <Container>
     <Sectionhead>
-      <Fragment slot="title">Our Blog</Fragment>
+      <Fragment slot="title">Blog</Fragment>
       <Fragment slot="desc">
-        We write about building startups and thoughts going on our mind.
+        Aprende sobre automatización, No-Code e IA para hacer crecer tu negocio. Casos reales, ejemplos prácticos y estrategias que funcionan.
       </Fragment>
     </Sectionhead>
     <main class="mt-16">
@@ -58,7 +70,7 @@ publishedBlogEntries.sort(function (a, b) {
                       <time
                         class="text-gray-400"
                         datetime={blogPostEntry.data.publishDate.toISOString()}>
-                        {blogPostEntry.data.publishDate.toDateString()}
+                        {formatDateSpanish(blogPostEntry.data.publishDate)}
                       </time>
                     </div>
                   </div>

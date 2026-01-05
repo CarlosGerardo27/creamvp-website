@@ -1,7 +1,17 @@
 ---
-return Astro.redirect("/nosotros", 301);
+import { getCollection } from "astro:content";
+import { Picture } from "astro:assets";
+import Layout from "@/layouts/Layout.astro";
+import Container from "@/components/container.astro";
+import Sectionhead from "@/components/sectionhead.astro";
+
+// Filter team entries with 'draft: false' & date before current date
+const publishedTeamMembers = await getCollection("team", ({ data }) => {
+  return !data.draft && data.publishDate < new Date();
+});
 ---
 
+<Layout title="Nosotros">
   <Container>
     <Sectionhead>
       <Fragment slot="title">Nosotros</Fragment>
@@ -45,3 +55,4 @@ return Astro.redirect("/nosotros", 301);
     </div>
   </Container>
 </Layout>
+
