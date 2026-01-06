@@ -16,7 +16,19 @@ export interface Props {
   siteName?: string;
 }
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site).toString();
+// Normalizar el pathname para el canonical URL
+// Asegurar que siempre sea consistente (sin trailing slash excepto para la raíz)
+let pathname = Astro.url.pathname;
+// Normalizar: remover trailing slash excepto para la raíz
+if (pathname !== '/' && pathname.endsWith('/')) {
+  pathname = pathname.slice(0, -1);
+}
+// Asegurar que la raíz siempre tenga trailing slash
+if (pathname === '') {
+  pathname = '/';
+}
+
+const canonicalURL = new URL(pathname, Astro.site).toString();
 
 const {
   title,
@@ -37,7 +49,7 @@ const resolvedImage = image
   ? image.startsWith('http')
     ? image
     : new URL(image, Astro.site).toString()
-  : new URL("/opengraph.jpg", Astro.site).toString();
+  : new URL("/opengraph.png", Astro.site).toString();
 ---
 
 <!doctype html>
