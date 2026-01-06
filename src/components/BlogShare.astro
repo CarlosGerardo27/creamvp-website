@@ -17,6 +17,7 @@ const shareLinks = {
   facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
   whatsapp: `https://wa.me/?text=${encodedTitle} ${encodedUrl}`,
   twitter: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
+  threads: `https://threads.net/intent/post?text=${encodedTitle} ${encodedUrl}`,
 };
 
 const shareButtons = [
@@ -43,6 +44,12 @@ const shareButtons = [
     url: shareLinks.twitter,
     icon: "simple-icons:x",
     ariaLabel: "Compartir en X (Twitter)",
+  },
+  {
+    name: "Threads",
+    url: shareLinks.threads,
+    icon: "simple-icons:threads",
+    ariaLabel: "Compartir en Threads",
   },
 ];
 ---
