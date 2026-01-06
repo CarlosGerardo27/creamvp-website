@@ -8,126 +8,234 @@ import dashboardImage from "@/assets/dashboard.png";
 import aplicacionesInternasImage from "@/assets/aplicaciones-internas.png";
 import mvpsImage from "@/assets/mvps.png";
 import agentesConversacionalesImage from "@/assets/agentes-conversacionales.png";
+
+// SEO metadata
+const pageTitle = "Servicios de Automatización, No-Code e IA | CreaMVP";
+const pageDescription = "Automatizaciones inteligentes, dashboards personalizados, aplicaciones internas, MVPs y agentes conversacionales. Soluciones No-Code e IA que escalan tu negocio sin aumentar tu equipo.";
+// Usar opengraph.jpg que está en public, o la imagen de automatización si está disponible públicamente
+const pageImage = Astro.site ? new URL("/opengraph.jpg", Astro.site).toString() : "/opengraph.jpg";
 ---
 
-<Layout title="Servicios">
+<Layout 
+  title={pageTitle}
+  description={pageDescription}
+  image={pageImage}
+  type="website"
+>
+  {/* Schema.org JSON-LD para página de servicios */}
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Servicios de Automatización, No-Code e IA",
+    "description": pageDescription,
+    "provider": {
+      "@type": "Organization",
+      "name": "CreaMVP",
+      "url": Astro.site?.toString(),
+      "logo": new URL("/logo.png", Astro.site).toString()
+    },
+    "areaServed": {
+      "@type": "Country",
+      "name": "México"
+    },
+    "serviceType": [
+      "Automatización de procesos",
+      "Dashboards y análisis de datos",
+      "Aplicaciones internas",
+      "Desarrollo de MVPs",
+      "Agentes conversacionales con IA"
+    ],
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Servicios CreaMVP",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Automatizaciones e IA",
+            "description": "Automatizaciones inteligentes que conectan tus sistemas y eliminan tareas repetitivas"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Dashboards personalizados",
+            "description": "Visualiza el estado de tu negocio en tiempo real con tableros personalizados"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Aplicaciones internas",
+            "description": "Aplicaciones internas personalizadas que potencian a tu equipo"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "MVPs",
+            "description": "MVPs listos para escalar sin barreras técnicas usando herramientas No-Code y Low-Code"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Agentes conversacionales",
+            "description": "Agentes de IA para servicio al cliente, ventas e información"
+          }
+        }
+      ]
+    }
+  }, null, 2)} />
+
+  {/* Breadcrumbs Schema */}
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Inicio",
+        "item": Astro.site?.toString()
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Servicios",
+        "item": new URL("/servicios", Astro.site).toString()
+      }
+    ]
+  }, null, 2)} />
+
   <Container>
-    <div class="mx-auto max-w-4xl mt-16 text-center mb-20">
-      <h1 class="text-4xl lg:text-5xl font-bold lg:tracking-tight mb-6">
-        Soluciones para crecer tu negocio
-      </h1>
-      <p class="text-lg leading-relaxed text-slate-600">
-        Analisamos y entendemos cómo funciona tu negocio, qué retos enfrentas y qué objetivos quieres lograr para diseñar soluciones a medida que se integran sin fricciones y generan resultados reales.
-      </p>
-    </div>
+    <article itemscope itemtype="https://schema.org/Service">
+      <header class="mx-auto max-w-4xl mt-16 text-center mb-20">
+        <h1 itemprop="name" class="text-4xl lg:text-5xl font-bold lg:tracking-tight mb-6">
+          Soluciones para crecer tu negocio
+        </h1>
+        <p itemprop="description" class="text-lg leading-relaxed text-slate-600">
+          Analisamos y entendemos cómo funciona tu negocio, qué retos enfrentas y qué objetivos quieres lograr para diseñar soluciones a medida que se integran sin fricciones y generan resultados reales.
+        </p>
+      </header>
 
-    <!-- Servicios -->
-    <div class="space-y-40 mt-24">
-      <!-- Servicio 1: 60/40 -->
-      <div id="automatizaciones" class="grid md:grid-cols-5 gap-8 items-center">
-        <div class="md:col-span-3">
-          <h2 class="text-3xl lg:text-4xl font-bold mb-4">
-            Automatizaciones e IA que te ahorran tiempo y esfuerzo
-          </h2>
-          <p class="text-lg leading-relaxed text-slate-600">
-            Optimiza tus procesos con automatizaciones inteligentes que conectan tus sistemas y eliminan tareas repetitivas para que puedas concentrarte en las cosas que mas suman a tu negocio.
-          </p>
-        </div>
-        <div class="md:col-span-2">
-          <Picture
-            src={automatizacionImage}
-            alt="Automatizaciones e IA"
-            class="w-full rounded-lg"
-            width={400}
-            height={300}
-          />
-        </div>
-      </div>
+      <!-- Servicios -->
+      <div class="space-y-40 mt-24">
+        <!-- Servicio 1: 60/40 -->
+        <section id="automatizaciones" itemscope itemtype="https://schema.org/Service" class="grid md:grid-cols-5 gap-8 items-center">
+          <div class="md:col-span-3">
+            <h2 itemprop="name" class="text-3xl lg:text-4xl font-bold mb-4">
+              Automatizaciones e IA que te ahorran tiempo y esfuerzo
+            </h2>
+            <p itemprop="description" class="text-lg leading-relaxed text-slate-600">
+              Optimiza tus procesos con automatizaciones inteligentes que conectan tus sistemas y eliminan tareas repetitivas para que puedas concentrarte en las cosas que mas suman a tu negocio.
+            </p>
+          </div>
+          <div class="md:col-span-2">
+            <Picture
+              src={automatizacionImage}
+              alt="Automatizaciones inteligentes con IA para optimizar procesos de negocio y eliminar tareas repetitivas"
+              class="w-full rounded-lg"
+              width={400}
+              height={300}
+              loading="lazy"
+            />
+          </div>
+        </section>
 
-      <!-- Servicio 2: 40/60 -->
-      <div id="dashboards" class="grid md:grid-cols-5 gap-8 items-center">
-        <div class="md:col-span-2 order-2 md:order-1">
-          <Picture
-            src={dashboardImage}
-            alt="Dashboards"
-            class="w-full rounded-lg"
-            width={400}
-            height={300}
-          />
-        </div>
-        <div class="md:col-span-3 order-1 md:order-2">
-          <h2 class="text-3xl lg:text-4xl font-bold mb-4">
-            Dashboards que te muestran lo que importa
-          </h2>
-          <p class="text-lg leading-relaxed text-slate-600">
-            Visualiza el estado de tu negocio en tiempo real. Creo tableros personalizados para que puedas tomar decisiones informadas, descubrir oportunidades y tener siempre el control, sin necesidad de depender de hojas de cálculo sobrecargadas y muchas veces desactualizadas.
-          </p>
-        </div>
-      </div>
+        <!-- Servicio 2: 40/60 -->
+        <section id="dashboards" itemscope itemtype="https://schema.org/Service" class="grid md:grid-cols-5 gap-8 items-center">
+          <div class="md:col-span-2 order-2 md:order-1">
+            <Picture
+              src={dashboardImage}
+              alt="Dashboards personalizados para visualizar métricas de negocio en tiempo real y tomar decisiones informadas"
+              class="w-full rounded-lg"
+              width={400}
+              height={300}
+              loading="lazy"
+            />
+          </div>
+          <div class="md:col-span-3 order-1 md:order-2">
+            <h2 itemprop="name" class="text-3xl lg:text-4xl font-bold mb-4">
+              Dashboards que te muestran lo que importa
+            </h2>
+            <p itemprop="description" class="text-lg leading-relaxed text-slate-600">
+              Visualiza el estado de tu negocio en tiempo real. Creo tableros personalizados para que puedas tomar decisiones informadas, descubrir oportunidades y tener siempre el control, sin necesidad de depender de hojas de cálculo sobrecargadas y muchas veces desactualizadas.
+            </p>
+          </div>
+        </section>
 
-      <!-- Servicio 3: 60/40 -->
-      <div id="aplicaciones-internas" class="grid md:grid-cols-5 gap-8 items-center">
-        <div class="md:col-span-3">
-          <h2 class="text-3xl lg:text-4xl font-bold mb-4">
-            Aplicaciones internas que potencian a tu equipo
-          </h2>
-          <p class="text-lg leading-relaxed text-slate-600">
-            Si tu equipo sigue usando mil archivos distintos o procesos manuales, es hora de un sistema propio. Puedo diseñar aplicaciones internas personalizadas que se adapten a cómo ya trabajan, pero mejor.
-          </p>
-        </div>
-        <div class="md:col-span-2">
-          <Picture
-            src={aplicacionesInternasImage}
-            alt="Aplicaciones internas"
-            class="w-full rounded-lg"
-            width={400}
-            height={300}
-          />
-        </div>
-      </div>
+        <!-- Servicio 3: 60/40 -->
+        <section id="aplicaciones-internas" itemscope itemtype="https://schema.org/Service" class="grid md:grid-cols-5 gap-8 items-center">
+          <div class="md:col-span-3">
+            <h2 itemprop="name" class="text-3xl lg:text-4xl font-bold mb-4">
+              Aplicaciones internas que potencian a tu equipo
+            </h2>
+            <p itemprop="description" class="text-lg leading-relaxed text-slate-600">
+              Si tu equipo sigue usando mil archivos distintos o procesos manuales, es hora de un sistema propio. Puedo diseñar aplicaciones internas personalizadas que se adapten a cómo ya trabajan, pero mejor.
+            </p>
+          </div>
+          <div class="md:col-span-2">
+            <Picture
+              src={aplicacionesInternasImage}
+              alt="Aplicaciones internas personalizadas para mejorar la productividad y eficiencia de equipos de trabajo"
+              class="w-full rounded-lg"
+              width={400}
+              height={300}
+              loading="lazy"
+            />
+          </div>
+        </section>
 
-      <!-- Servicio 4: 40/60 -->
-      <div id="mvp" class="grid md:grid-cols-5 gap-8 items-center">
-        <div class="md:col-span-2 order-2 md:order-1">
-          <Picture
-            src={mvpsImage}
-            alt="MVPs"
-            class="w-full rounded-lg"
-            width={400}
-            height={300}
-          />
-        </div>
-        <div class="md:col-span-3 order-1 md:order-2">
-          <h2 class="text-3xl lg:text-4xl font-bold mb-4">
-            MVPs listos para escalar sin barreras técnicas
-          </h2>
-          <p class="text-lg leading-relaxed text-slate-600">
-            ¿Tienes una idea para una app con miles de usuarios? Con herramientas No-Code y Low-Code, puedo ayudarte a lanzar rápido, validar y escalar sin necesidad de largos procesos de desarrollo tradicional.
-          </p>
-        </div>
-      </div>
+        <!-- Servicio 4: 40/60 -->
+        <section id="mvp" itemscope itemtype="https://schema.org/Service" class="grid md:grid-cols-5 gap-8 items-center">
+          <div class="md:col-span-2 order-2 md:order-1">
+            <Picture
+              src={mvpsImage}
+              alt="Desarrollo de MVPs con herramientas No-Code y Low-Code para validar ideas rápidamente"
+              class="w-full rounded-lg"
+              width={400}
+              height={300}
+              loading="lazy"
+            />
+          </div>
+          <div class="md:col-span-3 order-1 md:order-2">
+            <h2 itemprop="name" class="text-3xl lg:text-4xl font-bold mb-4">
+              MVPs listos para escalar sin barreras técnicas
+            </h2>
+            <p itemprop="description" class="text-lg leading-relaxed text-slate-600">
+              ¿Tienes una idea para una app con miles de usuarios? Con herramientas No-Code y Low-Code, puedo ayudarte a lanzar rápido, validar y escalar sin necesidad de largos procesos de desarrollo tradicional.
+            </p>
+          </div>
+        </section>
 
-      <!-- Servicio 5: 60/40 -->
-      <div id="agentes" class="grid md:grid-cols-5 gap-8 items-center">
-        <div class="md:col-span-3">
-          <h2 class="text-3xl lg:text-4xl font-bold mb-4">
-            Agentes conversacionales
-          </h2>
-          <p class="text-lg leading-relaxed text-slate-600">
-            Servicio al cliente, ventas, información sobre tus servicios, todo desde whatsapp o interfaces de chat que puedes poner en cualquier sitio donde requieras brindar una respuesta rápida y clara para tus usuarios o incluso para tu propio equipo.
-          </p>
-        </div>
-        <div class="md:col-span-2">
-          <Picture
-            src={agentesConversacionalesImage}
-            alt="Agentes conversacionales"
-            class="w-full rounded-lg"
-            width={400}
-            height={300}
-          />
-        </div>
+        <!-- Servicio 5: 60/40 -->
+        <section id="agentes" itemscope itemtype="https://schema.org/Service" class="grid md:grid-cols-5 gap-8 items-center">
+          <div class="md:col-span-3">
+            <h2 itemprop="name" class="text-3xl lg:text-4xl font-bold mb-4">
+              Agentes conversacionales
+            </h2>
+            <p itemprop="description" class="text-lg leading-relaxed text-slate-600">
+              Servicio al cliente, ventas, información sobre tus servicios, todo desde whatsapp o interfaces de chat que puedes poner en cualquier sitio donde requieras brindar una respuesta rápida y clara para tus usuarios o incluso para tu propio equipo.
+            </p>
+          </div>
+          <div class="md:col-span-2">
+            <Picture
+              src={agentesConversacionalesImage}
+              alt="Agentes conversacionales con IA para atención al cliente, ventas y soporte automatizado"
+              class="w-full rounded-lg"
+              width={400}
+              height={300}
+              loading="lazy"
+            />
+          </div>
+        </section>
       </div>
-    </div>
+    </article>
   </Container>
 </Layout>
-
