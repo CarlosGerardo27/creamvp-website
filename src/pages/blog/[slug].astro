@@ -5,6 +5,7 @@ import Layout from "@/layouts/Layout.astro";
 import Container from "@/components/container.astro";
 import ReadingProgress from "@/components/ReadingProgress.astro";
 import BlogFAQs from "@/components/BlogFAQs.astro";
+import BlogShare from "@/components/BlogShare.astro";
 
 // Generate a new path for every collection entry
 export async function getStaticPaths() {
@@ -35,6 +36,9 @@ const { Content } = await entry.render();
 const articleImage = entry.data.image.src.startsWith('http')
   ? entry.data.image.src
   : new URL(entry.data.image.src, Astro.site).toString();
+
+// Generar URL completa del artículo para compartir
+const articleUrl = new URL(Astro.url.pathname, Astro.site).toString();
 ---
 
 <Layout 
@@ -114,6 +118,9 @@ const articleImage = entry.data.image.src.startsWith('http')
 
     <!-- Sección de preguntas frecuentes -->
     <BlogFAQs faqs={entry.data.faqs} />
+    
+    <!-- Componente de compartir -->
+    <BlogShare title={entry.data.title} url={articleUrl} />
     </article>
 
     <div class="text-center mt-8">

@@ -1,0 +1,67 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  title: string;
+  url: string;
+}
+
+const { title, url } = Astro.props;
+
+// URLs codificadas para compartir
+const encodedUrl = encodeURIComponent(url);
+const encodedTitle = encodeURIComponent(title);
+
+const shareLinks = {
+  linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+  facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+  whatsapp: `https://wa.me/?text=${encodedTitle} ${encodedUrl}`,
+  twitter: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
+};
+
+const shareButtons = [
+  {
+    name: "LinkedIn",
+    url: shareLinks.linkedin,
+    icon: "simple-icons:linkedin",
+    ariaLabel: "Compartir en LinkedIn",
+  },
+  {
+    name: "Facebook",
+    url: shareLinks.facebook,
+    icon: "simple-icons:facebook",
+    ariaLabel: "Compartir en Facebook",
+  },
+  {
+    name: "WhatsApp",
+    url: shareLinks.whatsapp,
+    icon: "simple-icons:whatsapp",
+    ariaLabel: "Compartir en WhatsApp",
+  },
+  {
+    name: "X",
+    url: shareLinks.twitter,
+    icon: "simple-icons:x",
+    ariaLabel: "Compartir en X (Twitter)",
+  },
+];
+---
+
+<div class="mx-auto max-w-2xl mt-16 border-t border-gray-200 pt-12">
+  <h2 class="text-2xl font-bold mb-6">Compartir artículo</h2>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-md">
+    {shareButtons.map((button) => (
+      <a
+        href={button.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={button.ariaLabel}
+        class="flex flex-col items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-black hover:bg-gray-100 transition focus-visible:ring-2 ring-offset-2 ring-gray-200"
+      >
+        <Icon name={button.icon} class="w-5 h-5" />
+        <span class="text-xs font-medium">{button.name}</span>
+      </a>
+    ))}
+  </div>
+</div>
+
