@@ -47,21 +47,85 @@ const shareButtons = [
 ];
 ---
 
-<div class="mx-auto max-w-2xl mt-16 border-t border-gray-200 pt-12">
-  <h2 class="text-2xl font-bold mb-6">Compartir artículo</h2>
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-md">
+<!-- Barra de compartir desktop (siempre visible) -->
+<div class="fixed left-4 top-1/2 -translate-y-1/2 z-50 hidden md:block">
+  <div class="flex flex-col gap-3 bg-white rounded-xl shadow-lg p-2 border border-gray-200">
     {shareButtons.map((button) => (
       <a
         href={button.url}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={button.ariaLabel}
-        class="flex flex-col items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-black hover:bg-gray-100 transition focus-visible:ring-2 ring-offset-2 ring-gray-200"
+        class="flex items-center justify-center w-10 h-10 rounded-lg text-black hover:bg-gray-100 transition focus-visible:ring-2 ring-offset-2 ring-gray-200"
+        title={button.name}
       >
         <Icon name={button.icon} class="w-5 h-5" />
-        <span class="text-xs font-medium">{button.name}</span>
       </a>
     ))}
   </div>
 </div>
+
+<!-- Barra de compartir móvil (con botón desplegable) -->
+<div class="fixed bottom-4 left-4 z-50 md:hidden">
+  <!-- Botón para abrir/cerrar -->
+  <button
+    id="share-toggle"
+    aria-label="Compartir artículo"
+    aria-expanded="false"
+    class="flex items-center justify-center w-14 h-14 bg-black text-white rounded-full shadow-lg hover:bg-slate-900 transition focus-visible:ring-2 ring-offset-2 ring-gray-200"
+  >
+    <Icon name="bx:share-alt" class="w-6 h-6" />
+  </button>
+  
+  <!-- Barra de compartir (oculta por defecto) -->
+  <div
+    id="share-bar"
+    class="absolute bottom-16 left-0 flex flex-col gap-3 bg-white rounded-xl shadow-lg p-2 border border-gray-200 opacity-0 invisible translate-y-2 transition-all duration-200"
+  >
+    {shareButtons.map((button) => (
+      <a
+        href={button.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={button.ariaLabel}
+        class="flex items-center justify-center w-10 h-10 rounded-lg text-black hover:bg-gray-100 transition focus-visible:ring-2 ring-offset-2 ring-gray-200"
+        title={button.name}
+      >
+        <Icon name={button.icon} class="w-5 h-5" />
+      </a>
+    ))}
+  </div>
+</div>
+
+<script>
+  const toggleButton = document.getElementById('share-toggle');
+  const shareBar = document.getElementById('share-bar');
+  let isOpen = false;
+
+  if (toggleButton && shareBar) {
+    toggleButton.addEventListener('click', () => {
+      isOpen = !isOpen;
+      
+      if (isOpen) {
+        shareBar.classList.remove('opacity-0', 'invisible', 'translate-y-2');
+        shareBar.classList.add('opacity-100', 'visible', 'translate-y-0');
+        toggleButton.setAttribute('aria-expanded', 'true');
+      } else {
+        shareBar.classList.remove('opacity-100', 'visible', 'translate-y-0');
+        shareBar.classList.add('opacity-0', 'invisible', 'translate-y-2');
+        toggleButton.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Cerrar al hacer click fuera
+    document.addEventListener('click', (e) => {
+      if (isOpen && !shareBar.contains(e.target) && !toggleButton.contains(e.target)) {
+        isOpen = false;
+        shareBar.classList.remove('opacity-100', 'visible', 'translate-y-0');
+        shareBar.classList.add('opacity-0', 'invisible', 'translate-y-2');
+        toggleButton.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+</script>
 
