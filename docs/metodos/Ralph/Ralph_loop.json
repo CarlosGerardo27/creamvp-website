@@ -1,0 +1,669 @@
+{
+  "document": {
+    "name": "Ralph Loop - Guia de Ejecucion para Agentes Autonomos",
+    "version": "1.0.0-creamvp-website",
+    "scope": "CreaMVP Website (Astro + roadmap CMS Supabase)",
+    "purpose": "Metodo de ejecucion autonoma para agentes sin memoria conversacional, usando el filesystem como unica fuente de estado y respetando reglas del proyecto.",
+    "designed_for": [
+      "Evolucion de paginas y componentes en Astro",
+      "Implementacion incremental del CMS tipo Webflow definido en docs/roadmap/cms.md",
+      "Migracion gradual de contenido Markdown hacia CMS",
+      "Refactorizacion y documentacion tecnica trazable"
+    ]
+  },
+  "principles": [
+    {
+      "id": "P1",
+      "name": "Ejecuciones sin estado",
+      "rules": [
+        "Cada iteracion comienza sin memoria previa.",
+        "El agente no debe asumir contexto fuera de los archivos del proyecto."
+      ]
+    },
+    {
+      "id": "P2",
+      "name": "Estado externo persistente",
+      "rules": [
+        "Todo el progreso vive en archivos (.md, codigo, configuracion).",
+        "La memoria del trabajo esta en el filesystem, no en el prompt."
+      ]
+    },
+    {
+      "id": "P3",
+      "name": "Iteraciones acotadas",
+      "rules": [
+        "Cada objetivo se trabaja en un maximo de 5 iteraciones.",
+        "Se prioriza progreso incremental y revisable."
+      ]
+    },
+    {
+      "id": "P4",
+      "name": "Trazabilidad total",
+      "rules": [
+        "Cada ciclo de trabajo debe quedar registrado en docs/metodos/Ralph/Ralph_WIP.json.",
+        "Nada importante queda implicito o solo en la cabeza del agente."
+      ]
+    },
+    {
+      "id": "P5",
+      "name": "Cumplimiento de reglas del proyecto",
+      "rules": [
+        "docs/metodos/agentrules.json se consulta al inicio de cada objetivo y antes de modificar codigo.",
+        "Si hay conflicto, agentrules.json tiene prioridad sobre cualquier referencia legacy."
+      ]
+    }
+  ],
+  "files": {
+    "ralph": {
+      "loop_doc": {
+        "path": "docs/metodos/Ralph/Ralph_loop.json",
+        "type": "json",
+        "purpose": "Documento fuente que define reglas, limites y convenciones del metodo para este repo."
+      },
+      "wip": {
+        "path": "docs/metodos/Ralph/Ralph_WIP.json",
+        "type": "json",
+        "purpose": "Registro vivo del trabajo. Unica memoria permitida entre loops. Debe ser JSON valido siempre.",
+        "constraints": [
+          "Sin comentarios",
+          "Sin trailing commas",
+          "Sin markdown",
+          "Debe parsear como JSON valido en todo momento"
+        ]
+      },
+      "history_dir": {
+        "path": "docs/metodos/Ralph/history/",
+        "type": "directory",
+        "purpose": "Auditoria completa del trabajo realizado. Cada objetivo completado se guarda como .md."
+      }
+    },
+    "system_docs": {
+      "agentrules": {
+        "path": "docs/metodos/agentrules.json",
+        "type": "json",
+        "priority": "highest",
+        "purpose": "Fuente de verdad de reglas de desarrollo, patrones y testing. Consulta obligatoria en cada objetivo."
+      },
+      "cms_roadmap": {
+        "path": "docs/roadmap/cms.md",
+        "type": "markdown",
+        "purpose": "Arquitectura y roadmap del CMS tipo Webflow para este proyecto. Obligatorio si el cambio toca CMS, contenido o integraciones."
+      },
+      "readme": {
+        "path": "README.md",
+        "type": "markdown",
+        "purpose": "Contexto base del proyecto y comandos disponibles."
+      },
+      "package_json": {
+        "path": "package.json",
+        "type": "json",
+        "purpose": "Scripts, dependencias y restricciones reales del runtime/build."
+      }
+    },
+    "code_rules": {
+      "agentrules": {
+        "path": "docs/metodos/agentrules.json",
+        "type": "json",
+        "priority": "highest",
+        "purpose": "Estandares y restricciones tecnicas del proyecto. Debe cumplirse sin excepcion."
+      }
+    }
+  },
+  "objective_identifier": {
+    "format": "<objetivo>_<YYYYMMDD>",
+    "objective_naming": {
+      "style": "camelCase",
+      "requirements": [
+        "Claro y descriptivo",
+        "No generico"
+      ]
+    },
+    "examples": [
+      "cmsBlockRegistry_20260310",
+      "supabaseContentAdapter_20260310",
+      "blogMigrationScript_20260310",
+      "seoCanonicalRefactor_20260310"
+    ]
+  },
+  "flow": {
+    "limits": {
+      "base_iterations": 5,
+      "max_iterations_with_extension": 8,
+      "hard_rule": "El agente no inicia una sexta iteracion sin un proceso de extension aprobado (maximo total 8)."
+    },
+    "objective_tiers": {
+      "purpose": "Evitar burocracia en cambios pequenos sin perder trazabilidad ni disciplina. El rigor del loop se ajusta segun riesgo tecnico/negocio.",
+      "tiers": {
+        "A": {
+          "name": "Critico",
+          "criteria": [
+            "Afecta DB/RPC de Supabase, schema CMS o integridad de contenido",
+            "Afecta autenticacion/autorizacion, preview tokens o roles editoriales",
+            "Afecta render SEO core (canonical, sitemap, JSON-LD, OpenGraph)",
+            "Afecta pipeline de publicacion (webhooks, rebuild, despliegue)",
+            "Afecta contratos de bloques CMS o migraciones de contenido"
+          ],
+          "rules": [
+            "Iteracion 1 OBLIGATORIA: exploracion documentada (bloque exploration en WIP).",
+            "Iteracion 2 OBLIGATORIA: plan de trabajo documentado (bloque plan en WIP) antes de implementar cambios significativos.",
+            "Implementacion significativa solo a partir de iteracion 3."
+          ]
+        },
+        "B": {
+          "name": "Medio",
+          "criteria": [
+            "Refactors de componentes/layouts/paginas Astro con impacto acotado",
+            "Cambios UX relevantes sin tocar schema CMS ni seguridad",
+            "Ajustes en content collections, utilidades o adaptadores no criticos",
+            "Mejoras de rendimiento u organizacion sin migraciones estructurales"
+          ],
+          "rules": [
+            "Iteracion 1: exploracion breve documentada (bloque exploration en WIP).",
+            "Iteracion 2: plan corto documentado (bloque plan en WIP).",
+            "Implementacion puede iniciar en iteracion 2 si el plan esta documentado y el cambio es acotado; preferible iteracion 3 para cambios medianos."
+          ]
+        },
+        "C": {
+          "name": "Micro",
+          "criteria": [
+            "Cambios de copy/textos",
+            "Cambios visuales aislados (CSS/Tailwind) sin logica",
+            "Ajustes pequenos en UI sin afectar datos o contratos CMS",
+            "Pequenos fixes locales (null checks) sin cambiar comportamiento de negocio"
+          ],
+          "rules": [
+            "Se permite fusionar exploracion + plan + implementacion minima en una sola iteracion.",
+            "La iteracion debe documentar quick_scan y micro_plan dentro de WIP.",
+            "No se permite usar Tier C si el cambio toca DB/RPC, seguridad, contratos CMS o SEO core."
+          ]
+        }
+      },
+      "tier_selection_rule": "OBLIGATORIO: Al iniciar un objetivo, seleccionar tier A/B/C y registrarlo en active_objective.tier dentro de Ralph_WIP.json con una justificacion breve.",
+      "anti_abuse_rule": "Si durante la exploracion se detecta que el cambio es mas riesgoso de lo pensado, el agente debe escalar el tier (C->B o B->A) y documentarlo en WIP antes de continuar."
+    },
+    "iteration_policy": {
+      "iteration_1_mandatory_goal": "Exploracion del modulo/funcion/elemento a intervenir: entender como esta hecho hoy y como encaja en la arquitectura (segun tier aplicable).",
+      "iteration_2_mandatory_goal": "Planificacion: definir el plan de trabajo (segun tier aplicable) antes de ejecutar cambios significativos.",
+      "mandatory_wip_documentation": {
+        "iteration_1": [
+          "Registrar archivos leidos y consultados",
+          "Resumen de la arquitectura actual y flujo de datos",
+          "Puntos de acoplamiento (pages/layouts/components/adapters/content collections)",
+          "Riesgos, dependencias y edge cases detectados",
+          "Recomendacion de enfoque (sin implementar todavia salvo cambios triviales)"
+        ],
+        "iteration_2": [
+          "Plan por pasos (orden y estrategia)",
+          "Lista de archivos a modificar/crear",
+          "Estrategia de validacion (build, checklist, retrocompatibilidad)",
+          "Estrategia de tests segun docs/metodos/agentrules.json.testing_rules",
+          "Criterios de done para el objetivo"
+        ],
+        "tier_c_iteration_1": [
+          "Quick scan (que existe hoy, touch points, riesgos)",
+          "Micro plan (pasos minimos, archivos a tocar, validacion, done criteria)",
+          "Implementacion minima (si aplica) sin introducir riesgo arquitectonico"
+        ]
+      },
+      "tier_overrides": {
+        "A": {
+          "rule": "Iteracion 1 = exploration obligatorio. Iteracion 2 = plan obligatorio. Implementacion significativa solo desde iteracion 3."
+        },
+        "B": {
+          "rule": "Iteracion 1 = exploration breve. Iteracion 2 = plan corto. Implementacion puede iniciar en iteracion 2 si el plan esta documentado y el cambio es acotado."
+        },
+        "C": {
+          "rule": "Iteracion 1 puede incluir quick_scan + micro_plan + implementacion minima (en una sola). No aplica si toca DB/RPC/seguridad/SEO core/contratos CMS."
+        }
+      },
+      "hard_rule": "Si la iteracion requerida por el tier no incluye su documentacion minima en WIP, la iteracion se considera invalida."
+    },
+    "steps": [
+      {
+        "step": 1,
+        "name": "Inicio de un nuevo objetivo",
+        "trigger": "Prompt inicial del usuario",
+        "actions": [
+          "Crear o actualizar una entrada en docs/metodos/Ralph/Ralph_WIP.json",
+          "Registrar objetivo solicitado por el usuario",
+          "Generar y registrar identificador unico del objetivo",
+          "Seleccionar tier A/B/C y registrar active_objective.tier + tier_justification",
+          "Consultar docs/metodos/agentrules.json antes de iniciar cambios"
+        ],
+        "occurrence": "Una sola vez por objetivo (antes de iniciar iteraciones)."
+      },
+      {
+        "step": 2,
+        "name": "Definición del identificador",
+        "actions": [
+          "Asignar identificador único en formato <objetivo>_<YYYYMMDD>"
+        ],
+        "note": "El identificador será base para nombrar iteraciones en WIP."
+      },
+      {
+        "step": 3,
+        "name": "Iteraciones del agente",
+        "rules": [
+          "Ejecutar hasta 5 iteraciones maximo (salvo extension aprobada).",
+          "En cada iteracion: analizar estado, consultar archivos relevantes, hacer cambios incrementales, documentar lo realizado.",
+          "La politica de iteraciones depende del tier seleccionado (A/B/C) y debe respetarse sin excepcion.",
+          "Tier A (CRITICO): Iteracion 1 = exploracion documentada (exploration). Iteracion 2 = plan documentado (plan). Implementacion significativa solo desde iteracion 3.",
+          "Tier B (MEDIO): Iteracion 1 = exploracion breve documentada (exploration). Iteracion 2 = plan corto documentado (plan). Implementacion puede iniciar en iteracion 2 si el plan esta documentado y el cambio es acotado.",
+          "Tier C (MICRO): Se permite fusionar exploracion + plan + implementacion minima en iteracion 1, documentando quick_scan + micro_plan. Prohibido si toca DB/RPC/seguridad/SEO core/contratos CMS."
+        ]
+      },
+      {
+        "step": 4,
+        "name": "Registro en Ralph_WIP.json",
+        "when": "Al finalizar cada iteración",
+        "rules": [
+          "Agregar una nueva entrada a iterations[] en docs/metodos/Ralph/Ralph_WIP.json",
+          "Nombrar iteracion como <identificador>_<numeroDeIteracion>",
+          "Registrar acciones, archivos impactados, decisiones y pendientes",
+          "Si tier A o B y es iteracion 1: debe existir bloque exploration",
+          "Si tier A o B y es iteracion 2: debe existir bloque plan",
+          "Si tier C: debe existir quick_scan y micro_plan (tipicamente en iteracion 1)",
+          "Registrar explicitamente que se consulto docs/metodos/agentrules.json"
+        ]
+      },
+      {
+        "step": 4.5,
+        "name": "Validación por iteración",
+        "when": "Al finalizar cada iteración, antes de continuar",
+        "validation_checklist_required": true,
+        "checklist": [
+          "Codigo sin errores de build/check relevantes",
+          "No se rompieron funciones existentes",
+          "Se consultaron archivos de referencia necesarios (docs/metodos/agentrules.json, docs/roadmap/cms.md, package.json, etc.)",
+          "Se respetaron las reglas de docs/metodos/agentrules.json",
+          "Los cambios son retrocompatibles (o se notifico breaking change)",
+          "Se aplico defensive coding (null checks, fallbacks, validaciones)",
+          "Se actualizaron pruebas relacionadas cuando aplica",
+          "Si tier A o B y la iteracion es 1: existe exploration documentado en WIP",
+          "Si tier A o B y la iteracion es 2: existe plan documentado en WIP",
+          "Si tier C: existe quick_scan y micro_plan documentados en WIP"
+        ],
+        "critical_rule": "Si algún item no se puede marcar como cumplido, el agente debe resolver el problema antes de continuar.",
+        "note": "CHANGELOG.md se actualiza al completar el objetivo, no en cada iteracion."
+      },
+      {
+        "step": 5,
+        "name": "Cierre del ciclo",
+        "end_conditions": [
+          "Se alcanzan 5 iteraciones",
+          "El objetivo esta suficientemente completo y validable por el humano"
+        ],
+        "hard_rule": "No iniciar un sexto loop bajo ninguna circunstancia sin extension aprobada."
+      },
+      {
+        "step": 5.5,
+        "name": "Definicion y ejecucion de tests obligatorios",
+        "trigger": "Cuando el objetivo esta funcionalmente completo y antes del archivado",
+        "when": "Despues del cierre tecnico y antes de paso 6",
+        "mandatory_action": "Aplicar reglas de testing de docs/metodos/agentrules.json.testing_rules para todo nuevo modulo o cambio funcional.",
+        "context": "agentrules.json exige pruebas por tipo de modulo y quality gates pre-merge.",
+        "exceptions": [
+          "Objetivos exclusivamente documentales sin cambios de codigo",
+          "Cambios administrativos sin impacto funcional"
+        ],
+        "required_actions": [
+          {
+            "action": "Identificar modulos tocados y su tipo",
+            "categories": [
+              "domain/util",
+              "data adapter/repository",
+              "ui component (astro)",
+              "page/route",
+              "cms block",
+              "integration (forms/analytics/webhooks)"
+            ]
+          },
+          {
+            "action": "Crear o actualizar tests segun matriz obligatoria de agentrules",
+            "test_requirements": {
+              "reference": "docs/metodos/agentrules.json.testing_rules.test_matrix_by_module_type",
+              "static_checks": [
+                "npm run build",
+                "npm run astro -- check"
+              ]
+            }
+          },
+          {
+            "action": "Documentar evidencia de pruebas",
+            "path_pattern": "docs/metodos/Ralph/history/test_<identificador>.md",
+            "must_include": [
+              "Lista de archivos de test creados/actualizados",
+              "Que componentes/funciones cubren",
+              "Comandos ejecutados y resultado",
+              "Edge cases relevantes cubiertos"
+            ]
+          }
+        ]
+      },
+      {
+        "step": 6,
+        "name": "Archivado del trabajo completado",
+        "trigger": "Despues de completar la ejecucion obligatoria de tests (paso 5.5)",
+        "actions": [
+          {
+            "action": "Crear archivo de historial (Markdown para auditoría humana)",
+            "path_pattern": "docs/metodos/Ralph/history/<identificador>.md",
+            "content_source": "Render en Markdown del estado actual de docs/metodos/Ralph/Ralph_WIP.json",
+            "must_include_test_info": "Si se crearon tests, incluir referencia a docs/metodos/Ralph/history/test_<identificador>.md"
+          },
+          {
+            "action": "Resetear Ralph_WIP.json",
+            "wip_reset_template": {
+              "active_objective": null,
+              "iterations": []
+            }
+          },
+          {
+            "action": "Actualizar CHANGELOG.md (SOLO al completar objetivo)",
+            "when": "Al finalizar el objetivo completo, no en cada iteración",
+            "rationale": "Evita actualizaciones parciales y desperdicio de recursos. El CHANGELOG debe reflejar trabajo completado y validado.",
+            "must_include": [
+              "Fecha y hora",
+              "Descripción breve del objetivo completado",
+              "Lista de archivos modificados/creados",
+              "Referencia al archivo de historial en docs/metodos/Ralph/history/",
+              "Si se crearon tests, mencionar la documentación de tests"
+            ],
+            "example_template_markdown": "## [YYYY-MM-DD HH:mm] - <Descripción breve>\n\n**Objetivo completado:** <identificador>\n\n**Request del usuario:**\n\n> <texto>\n\n### Cambios realizados\n\n- <archivo>: <cambio>\n\n### Tests\n\n- Tests creados: Ver `docs/metodos/Ralph/history/test_<identificador>.md`\n\n### Historial\n\nDocumentación completa del proceso: `docs/metodos/Ralph/history/<identificador>.md`"
+          }
+        ]
+      }
+    ]
+  },
+  "wip_json_contract": {
+    "must_be_valid_json": true,
+    "iteration_id_format": "<identificador>_<numeroIteracion>",
+    "enums": {
+      "files_impacted_change_type": [
+        "created",
+        "modified",
+        "deleted",
+        "consulted"
+      ],
+      "active_objective_status": [
+        "in_progress",
+        "paused",
+        "completed",
+        "archived"
+      ],
+      "iteration_type": [
+        "exploration",
+        "planning",
+        "execution"
+      ],
+      "tier": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    "required_structure": {
+      "active_objective": {
+        "required": false,
+        "fields": {
+          "id": "string",
+          "title": "string",
+          "requested_by_user": "string",
+          "created_at": "string (ISO8601)",
+          "status": "enum(active_objective_status)",
+          "max_iterations": "number",
+          "tier": "enum(tier)",
+          "tier_justification": "string"
+        }
+      },
+      "iterations": [
+        {
+          "id": "string",
+          "iteration_number": "number",
+          "iteration_type": "enum(iteration_type)",
+          "objective": "string",
+          "progress_estimate": {
+            "completitud_from_percent": "number",
+            "completitud_to_percent": "number",
+            "archivos_completados": "string (e.g. 2/7)",
+            "decisiones_pendientes": "string[]"
+          },
+          "exploration": {
+            "required": "conditional",
+            "condition": {
+              "when": "iteration_type === 'exploration' AND tier IN ['A', 'B']",
+              "rule": "Obligatorio en iteración 1 para tier A y B"
+            },
+            "fields": {
+              "target": "string (módulo/función/elemento a intervenir)",
+              "files_read": "string[] (paths)",
+              "architecture_summary": "string",
+              "integration_points": "string[] (stores/composables/rutas/RPC/DB/UI)",
+              "risks_and_edge_cases": "string[]",
+              "recommended_approach": "string"
+            }
+          },
+          "plan": {
+            "required": "conditional",
+            "condition": {
+              "when": "iteration_type === 'planning' AND tier IN ['A', 'B']",
+              "rule": "Obligatorio en iteración 2 para tier A y B"
+            },
+            "fields": {
+              "plan_steps": "string[]",
+              "files_to_change": "string[] (paths)",
+              "validation_strategy": "string[]",
+              "test_strategy": "string[]",
+              "definition_of_done": "string[]"
+            }
+          },
+          "quick_scan": {
+            "required": "conditional",
+            "condition": {
+              "when": "tier === 'C'",
+              "rule": "Obligatorio en iteración 1 para tier C (puede fusionarse con micro_plan e implementación)"
+            },
+            "fields": {
+              "files_read": "string[] (paths)",
+              "what_exists_today": "string",
+              "touch_points": "string[]",
+              "risks": "string[]"
+            }
+          },
+          "micro_plan": {
+            "required": "conditional",
+            "condition": {
+              "when": "tier === 'C'",
+              "rule": "Obligatorio en iteración 1 para tier C (puede fusionarse con quick_scan e implementación)"
+            },
+            "fields": {
+              "steps": "string[]",
+              "files_to_change": "string[] (paths)",
+              "validation": "string[]",
+              "done_criteria": "string[]"
+            }
+          },
+          "actions_done": [
+            {
+              "action": "string",
+              "details": "string"
+            }
+          ],
+          "files_impacted": [
+            {
+              "path": "string",
+              "change_type": "enum(files_impacted_change_type)"
+            }
+          ],
+          "notes": "string[]",
+          "validation": {
+            "lint_ok": "boolean",
+            "no_breaking_changes": "boolean",
+            "references_consulted": "boolean",
+            "agentrules_consulted": "boolean",
+            "agentrules_respected": "boolean",
+            "backwards_compatible": "boolean",
+            "defensive_coding_applied": "boolean",
+            "tests_updated_or_created_when_applicable": "boolean",
+            "iteration_1_exploration_documented": "boolean",
+            "iteration_2_plan_documented": "boolean",
+            "tier_c_quick_scan_documented": "boolean",
+            "tier_c_micro_plan_documented": "boolean"
+          },
+          "next_step_suggested": "string"
+        }
+      ]
+    },
+    "critical_rule": "Si el JSON se rompe, el agente debe arreglarlo inmediatamente antes de continuar."
+  },
+  "agent_rules": {
+    "prohibited": [
+      "No inventar reglas de arquitectura; usar patrones documentados y validados.",
+      "No ignorar docs/metodos/agentrules.json; es la fuente de verdad del proyecto.",
+      "No asumir estado fuera de archivos; todo debe estar en el filesystem.",
+      "No ejecutar mas de 5 iteraciones sin extension aprobada.",
+      "No asumir contenido de archivos no leidos; leer antes de referenciar.",
+      "No inventar APIs o metodos que no existen; verificar codigo real primero.",
+      "No usar Tier C para cambios que toquen DB/RPC, seguridad, SEO core o contratos CMS.",
+      "No saltarse exploracion o plan cuando el tier lo requiere."
+    ],
+    "mandatory": [
+      "Documentar siempre el trabajo; Ralph_WIP.json debe reflejar cada iteracion.",
+      "Consultar docs/metodos/agentrules.json al inicio del objetivo y antes de editar archivos.",
+      "Aplicar reglas de desarrollo, patrones y testing definidas en agentrules.",
+      "Consultar docs/roadmap/cms.md cuando el cambio toque CMS o arquitectura de contenido.",
+      "Preferir cambios pequenos y claros con incrementos revisables.",
+      "Validar imports/dependencias y existencia de archivos antes de usar.",
+      "Aplicar defensive coding; null checks, fallbacks, validaciones.",
+      "Si se modifican modulos con pruebas, actualizar pruebas relacionadas.",
+      "Cumplir quality gates definidos en agentrules antes de cerrar el objetivo."
+    ],
+    "anti_hallucination": {
+      "file_verification": [
+        "Siempre leer archivos antes de mencionar contenido especifico.",
+        "Siempre confirmar estructura de carpetas antes de referenciar rutas.",
+        "Nunca asumir que un archivo existe solo porque tiene sentido."
+      ],
+      "api_verification": [
+        "Siempre leer modulos/componentes antes de llamar funciones.",
+        "Nunca inventar metodos o propiedades de componentes.",
+        "Verificar firmas y contratos antes de usarlos."
+      ],
+      "config_verification": [
+        "Leer docs/metodos/agentrules.json si hay duda sobre convenciones.",
+        "Consultar docs/roadmap/cms.md para decisiones de arquitectura CMS.",
+        "Verificar package.json para scripts y dependencias disponibles."
+      ],
+      "when_uncertain": [
+        "Buscar con rg o busqueda de codigo.",
+        "Leer archivos relacionados.",
+        "Documentar en Ralph_WIP.json cualquier incertidumbre y validacion pendiente."
+      ],
+      "golden_rule": "Si no has leido el archivo, no puedes afirmar que contiene algo especifico."
+    }
+  },
+  "testing_system": {
+    "framework": "Vitest (unit/component) + Playwright (e2e)",
+    "reference": "docs/metodos/agentrules.json.testing_rules",
+    "philosophy": "Los tests protegen contratos CMS, evitan regresiones SEO/UX y permiten iterar con seguridad.",
+    "when_to_create": "Obligatorio para todo nuevo modulo o cambio funcional; excepcion solo para cambios documentales.",
+    "structure": {
+      "domain_utils": "src/utils/*.(js|ts) y src/features/<feature>/domain/*.(js|ts) -> archivo.test.(js|ts)",
+      "data_adapters": "src/features/<feature>/data/*.(js|ts) -> adapter/repository.test.(js|ts)",
+      "astro_components": "src/components/**/*.astro -> tests de componente (harness/Vitest segun setup)",
+      "routes_pages": "src/pages/**/*.astro -> pruebas de comportamiento + e2e para rutas criticas",
+      "cms_blocks": "Block registry + componente asociado -> validacion de schema + render + fallback"
+    },
+    "mandatory_coverage": {
+      "domain_util": [
+        "Casos felices",
+        "Casos limite",
+        "Errores/entradas invalidas"
+      ],
+      "data_adapter_repository": [
+        "Mapeo proveedor -> DTO dominio",
+        "Manejo de errores del proveedor",
+        "Fallbacks y estados vacios"
+      ],
+      "ui_components": [
+        "Render basico con props minimas",
+        "Variaciones de props",
+        "Accesibilidad basica y manejo de contenido opcional"
+      ],
+      "pages_routes": [
+        "Estado esperado (200/redirect)",
+        "Metadatos SEO presentes",
+        "Render de bloques criticos y casos no encontrados"
+      ]
+    },
+    "documentation": {
+      "path_pattern": "docs/metodos/Ralph/history/test_<identificador>.md",
+      "must_include": [
+        "Lista de archivos de test creados/actualizados",
+        "Que funciones/componentes cubren",
+        "Comandos ejecutados y resultado",
+        "Notas sobre edge cases cubiertos"
+      ]
+    },
+    "maintenance": {
+      "rule": "Si se modifica un archivo con pruebas existentes, actualizar las pruebas correspondientes.",
+      "validation": "Incluir en checklist de validacion por iteracion (paso 4.5)."
+    }
+  },
+  "philosophy": {
+    "not_goal": "Terminar rapido sin control",
+    "goals": [
+      "Mantener claridad",
+      "Evitar deriva de contexto",
+      "Permitir revision humana sencilla",
+      "Construir un CMS y frontend escalables sin caos"
+    ],
+    "mantra": "El agente avanza por incrementos pequenos, deja huellas claras y cumple agentrules en cada iteracion."
+  },
+  "extension_system": {
+    "base_limit": 5,
+    "absolute_max": 8,
+    "when_to_consider_extension": [
+      "El objetivo original fue subestimado en complejidad.",
+      "Hay progreso demostrable y consistente (checklist cumplido en todas las iteraciones).",
+      "El trabajo está cerca de completarse (progreso > 70% y faltan 2-3 tareas específicas)."
+    ],
+    "request_process": {
+      "when": "Al completar iteración 5",
+      "must_record_in_wip": true,
+      "extension_request_schema": {
+        "extension_request": {
+          "progress_percent": "number",
+          "technical_reason": "string",
+          "remaining_tasks": "string[]",
+          "additional_iterations_requested": "number (max 3)",
+          "files_completed": "string (e.g. 4/7)",
+          "files_pending": "string[]"
+        }
+      }
+    },
+    "user_decision_options": [
+      "Aprobar extensión (continuar hasta 8 iteraciones totales)",
+      "Dividir objetivo (nuevo identificador para sub-tarea)",
+      "Detener y archivar (trabajo parcial con documentación clara)"
+    ],
+    "extension_approval_record": {
+      "must_record_in_wip": true,
+      "schema": {
+        "extension_approved": {
+          "date": "string (YYYY-MM-DD)",
+          "extended_limit": 8,
+          "justification": "string"
+        }
+      }
+    },
+    "not_allowed_extension_cases": [
+      "El objetivo está mal definido desde el inicio.",
+      "Hay deriva constante de alcance (scope creep).",
+      "Iteraciones anteriores no cumplieron el checklist de validación.",
+      "Se está explorando sin dirección clara.",
+      "Progreso < 60% después de 5 iteraciones."
+    ],
+    "critical_rule": "Después de iteración 8, el agente debe detener el trabajo sin excepciones."
+  }
+}

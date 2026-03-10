@@ -1,0 +1,240 @@
+{
+  "metadata": {
+    "document_name": "CreamVP Engineering Rules",
+    "version": "1.0.0",
+    "language": "es-MX",
+    "scope": "website + cms roadmap",
+    "last_updated": "2026-03-10"
+  },
+  "project_evaluation": {
+    "current_stack": {
+      "frontend": "Astro 5 + Tailwind CSS 4",
+      "content": "Astro Content Collections (Markdown)",
+      "seo": "astro-seo + JSON-LD embebido en layouts y paginas",
+      "hosting_target": "Vercel",
+      "testing": "sin framework de testing configurado en package.json"
+    },
+    "key_findings": [
+      "La arquitectura actual es de sitio estatico con contenido local en src/content.",
+      "Existe validacion de esquema para blog/team usando Zod en src/content/config.ts.",
+      "Hay enfoque SEO correcto (canonical, open graph, schema.org), pero distribuido en varios archivos.",
+      "No hay estandares de testing automatizado ni quality gates en scripts.",
+      "El roadmap cms.md define migracion a Supabase y editor por bloques, por lo que se requiere una capa de adaptacion y contratos estrictos."
+    ],
+    "engineering_risk_level": "medio",
+    "priority_gaps": [
+      "Falta de estrategia de pruebas automatizadas.",
+      "Falta de contrato unico para bloques CMS -> componentes Astro.",
+      "Falta de convenciones para integraciones externas (forms, analytics, webhooks)."
+    ]
+  },
+  "development_rules": {
+    "mandatory": [
+      "Todo nuevo modulo debe cumplir estructura por dominio/feature y no mezclar contenido, presentacion y acceso a datos en un solo archivo.",
+      "Toda entrada de datos externa (CMS, formularios, webhooks, query params) debe validarse con esquema (Zod u otro equivalente) antes de renderizar.",
+      "Ningun componente de UI debe hacer fetch directo a Supabase; el acceso a datos se hace en capa adapter/repository.",
+      "Toda pagina publica debe declarar SEO minimo: title, description, canonical y metadatos Open Graph.",
+      "Todo bloque renderizable desde CMS debe estar registrado en un Block Registry con tipo, schema y componente asociado.",
+      "No se permite logica de negocio compleja dentro de archivos .astro de UI; mover esa logica a modulos en src/utils o src/features/<feature>/domain.",
+      "Todo texto/slug/url de integraciones externas debe centralizarse en archivos de configuracion (no hardcode repetido).",
+      "Cambios que afecten rutas publicas deben incluir verificacion de enlaces internos y canonical.",
+      "Cualquier nueva dependencia debe justificar: problema que resuelve, impacto en bundle y alternativa descartada.",
+      "Todo cambio debe mantener compatibilidad con build estatico de Astro salvo decision explicita de SSR."
+    ],
+    "recommended_structure": {
+      "base": "src/features/<feature>/{domain,data,ui}",
+      "details": [
+        "domain: tipos, reglas, mapeos y validaciones",
+        "data: adapters/repositories para CMS APIs o fuentes externas",
+        "ui: componentes Astro y presentadores",
+        "pages: solo composicion y enrutamiento"
+      ]
+    },
+    "coding_conventions": [
+      "Nombrar modulos por responsabilidad, no por tecnologia (ejemplo: page-seo-mapper.ts, no supabase-helper.ts generico).",
+      "Funciones puras primero; efectos secundarios en bordes del sistema.",
+      "Eliminar duplicacion de logica SEO con helpers compartidos.",
+      "Mantener payloads minimos y tipados para componentes.",
+      "Agregar comentarios solo en zonas no obvias (contratos, decisiones de negocio, edge cases)."
+    ],
+    "seo_and_content_rules": [
+      "Toda entidad CMS (page, service, caseStudy, blog, author, tag) debe tener contrato de SEO valido y fallback definido.",
+      "No publicar contenido con campos criticos vacios: slug, title, description, estado editorial.",
+      "Canonical debe normalizarse sin trailing slash excepto raiz, consistente con astro.config.mjs.",
+      "Toda imagen editorial debe incluir alt y formato optimizado (webp/avif cuando aplique)."
+    ],
+    "cms_integration_rules": [
+      "Aplicar estrategia schema-first: primero contrato de contenido, despues UI y queries.",
+      "Implementar soporte dual durante migracion: markdown y supabase mediante Adapter Pattern.",
+      "Nunca exponer estructuras internas de Supabase directamente a la UI; usar DTOs estables.",
+      "Todo cambio de schema CMS debe versionarse y documentarse en docs/roadmap o docs/metodos."
+    ]
+  },
+  "recommended_design_patterns": [
+    {
+      "name": "Ports and Adapters (Hexagonal)",
+      "use_when": "Integrar Supabase, formularios, analytics o cualquier servicio externo",
+      "rules": [
+        "Definir puerto (interface) en domain.",
+        "Implementar adapter en data.",
+        "Consumir puerto desde page/component sin acoplar al proveedor."
+      ],
+      "avoid": [
+        "Llamadas directas a SDK externo desde componentes de UI."
+      ]
+    },
+    {
+      "name": "Repository Pattern",
+      "use_when": "Lectura/escritura de entidades CMS (pages, services, blog, assets)",
+      "rules": [
+        "Un repositorio por agregado principal.",
+        "Exponer metodos orientados al dominio (getPublishedPosts, getPageBySlug).",
+        "Internamente manejar mapeo provider -> dominio."
+      ],
+      "avoid": [
+        "Queries SQL/rest mezcladas en varios componentes."
+      ]
+    },
+    {
+      "name": "Block Registry + Factory",
+      "use_when": "Render dinamico de bloques del CMS",
+      "rules": [
+        "Registro central tipoBloque -> validador -> componente.",
+        "Fallback seguro para bloques desconocidos.",
+        "Versionado de bloques para cambios incompatibles."
+      ],
+      "avoid": [
+        "if/else gigante de tipos de bloque dentro de la pagina."
+      ]
+    },
+    {
+      "name": "Schema-first Contracts",
+      "use_when": "Modelado de contenido y payloads entre capas",
+      "rules": [
+        "Definir schema antes de consultas/render.",
+        "Validar en borde de entrada.",
+        "Propagar tipos inferidos al resto del modulo."
+      ],
+      "avoid": [
+        "Objetos any o parseo implicito sin validacion."
+      ]
+    },
+    {
+      "name": "Strangler Fig Migration",
+      "use_when": "Migracion gradual de Markdown a Supabase CMS",
+      "rules": [
+        "Coexistencia temporal de fuentes de datos detras de un facade.",
+        "Migrar por coleccion o categoria, no big bang.",
+        "Medir regresiones SEO/rendimiento por cada lote migrado."
+      ],
+      "avoid": [
+        "Reescritura total en un solo release."
+      ]
+    }
+  ],
+  "testing_rules": {
+    "policy": [
+      "No se acepta modulo nuevo sin pruebas asociadas.",
+      "Cada PR debe incluir evidencia de ejecucion de pruebas y build.",
+      "Si una prueba no es automatizable aun, documentar temporalmente prueba manual y crear ticket para automatizar."
+    ],
+    "required_tooling": {
+      "unit": "Vitest",
+      "component": "Vitest + @testing-library/* o harness equivalente para Astro components",
+      "e2e": "Playwright",
+      "static_checks": [
+        "astro check",
+        "astro build"
+      ]
+    },
+    "test_matrix_by_module_type": [
+      {
+        "module_type": "domain/util",
+        "mandatory_tests": [
+          "casos felices",
+          "casos limite",
+          "errores/entradas invalidas",
+          "idempotencia y pureza cuando aplique"
+        ],
+        "minimum_coverage": "90% lineas del modulo"
+      },
+      {
+        "module_type": "data adapter/repository",
+        "mandatory_tests": [
+          "mapeo proveedor -> DTO dominio",
+          "manejo de errores del proveedor",
+          "fallbacks y estados vacios",
+          "contrato de schema de entrada/salida"
+        ],
+        "minimum_coverage": "85% lineas del modulo"
+      },
+      {
+        "module_type": "ui component (astro)",
+        "mandatory_tests": [
+          "render basico con props minimas",
+          "render con variaciones de props",
+          "accesibilidad basica (roles, labels, foco cuando aplique)",
+          "no romper con contenido vacio/opcional"
+        ],
+        "minimum_coverage": "80% lineas del modulo"
+      },
+      {
+        "module_type": "page/route",
+        "mandatory_tests": [
+          "respuesta 200 o redirect esperado",
+          "metadatos SEO presentes",
+          "render de bloques criticos",
+          "manejo de slug inexistente/estado draft"
+        ],
+        "minimum_coverage": "pruebas de comportamiento, no solo snapshot"
+      },
+      {
+        "module_type": "cms block",
+        "mandatory_tests": [
+          "validacion de schema del bloque",
+          "render del componente asociado",
+          "fallback ante bloque desconocido",
+          "compatibilidad con modo preview"
+        ],
+        "minimum_coverage": "100% de tipos de bloque nuevos cubiertos"
+      },
+      {
+        "module_type": "integration (forms, analytics, webhooks)",
+        "mandatory_tests": [
+          "payload correcto",
+          "errores de red/timeout",
+          "reintento o degradacion controlada",
+          "no exponer secretos en cliente"
+        ],
+        "minimum_coverage": "80% lineas + 1 prueba de fallo obligatorio"
+      }
+    ],
+    "e2e_critical_flows": [
+      "Navegacion home -> servicios -> contacto",
+      "Listado blog -> detalle blog",
+      "Render de metadatos SEO por pagina",
+      "Preview de contenido no publicado (cuando CMS este activo)",
+      "Publicacion CMS -> rebuild -> contenido visible"
+    ],
+    "definition_of_done_for_new_module": [
+      "Modulo implementado bajo estructura definida.",
+      "Schemas y tipos validados.",
+      "Tests del tipo de modulo creados y en verde.",
+      "Sin regresion en astro check/build.",
+      "Documentacion minima actualizada (README o docs/metodos)."
+    ]
+  },
+  "quality_gates": {
+    "pre_merge_required": [
+      "npm run build",
+      "npm run astro -- check",
+      "suite de pruebas del cambio en verde"
+    ],
+    "release_blockers": [
+      "fallo de build",
+      "fallo de pruebas criticas",
+      "rotura de SEO canonical/meta en rutas publicas",
+      "mapeo de bloque CMS sin validador"
+    ]
+  }
+}

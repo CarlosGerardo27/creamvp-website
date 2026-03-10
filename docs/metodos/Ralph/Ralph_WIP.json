@@ -1,0 +1,4300 @@
+{
+  "active_objective": {
+    "id": "chatCompassCitations_20260307",
+    "title": "Agregar citacion de documentos Compass en chat por #slug y selector con icono search",
+    "requested_by_user": "Permitir citar documentos Compass desde input de chat por mencion y por buscador, enviando document_id estructurado y mostrando nombre en UI.",
+    "created_at": "2026-03-07T16:55:00.000Z",
+    "status": "in_progress",
+    "max_iterations": 5,
+    "tier": "A",
+    "tier_justification": "Afecta contrato frontend-backend-edge, metadata de mensajes y comportamiento del agente para contexto/acciones sobre documentos."
+  },
+  "iterations": [
+    {
+      "id": "todoImprovementAI_20260208_1",
+      "iteration_number": 1,
+      "iteration_type": "exploration",
+      "objective": "Explorar modal de to-dos y flujo IA existente.",
+      "progress_estimate": {
+        "completitud_from_percent": 0,
+        "completitud_to_percent": 20,
+        "archivos_completados": "0/8",
+        "decisiones_pendientes": [
+          "DiseÃƒÂ±o de UI para mÃƒÂ³dulo IA en modal",
+          "UbicaciÃƒÂ³n de prompt/action en edge function"
+        ]
+      },
+      "exploration": {
+        "target": "TodoDetailsModal + TaskTodos + ai-generate",
+        "files_read": [
+          "src/components/kanban/TodoDetailsModal.vue",
+          "src/components/kanban/TaskTodos.vue",
+          "docs/Ralph/Ralph_WIP.json"
+        ],
+        "architecture_summary": "El modal de subtarea maneja tÃƒÂ­tulo y descripciÃƒÂ³n con TipTap y guarda directo en task_todos. No hay mÃƒÂ³dulo IA para subtareas. TaskTodos abre el modal en preview/edit.",
+        "integration_points": [
+          "TodoDetailsModal -> Supabase update task_todos",
+          "TaskTodos -> TodoDetailsModal props",
+          "useAIExecutor (flujo IA)"
+        ],
+        "risks_and_edge_cases": [
+          "Necesidad de acciÃƒÂ³n IA inexistente en ai-generate",
+          "Evitar guardar automÃƒÂ¡ticamente resultados IA",
+          "Mantener modo preview/ediciÃƒÂ³n actual"
+        ],
+        "recommended_approach": "Agregar mÃƒÂ³dulo IA dentro de TodoDetailsModal con execute() y acciÃƒÂ³n todo_improvement; respetar revisiÃƒÂ³n/reproceso y guardado manual."
+      },
+      "actions_done": [
+        {
+          "action": "ExploraciÃƒÂ³n inicial",
+          "details": "RevisiÃƒÂ³n del modal de subtareas y lista de to-dos."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "IteraciÃƒÂ³n 2: plan de implementaciÃƒÂ³n (UI + edge function + tests)."
+    },
+    {
+      "id": "todoImprovementAI_20260208_2",
+      "iteration_number": 2,
+      "iteration_type": "planning",
+      "objective": "Planificar mÃƒÂ³dulo IA de to-dos y acciÃƒÂ³n backend.",
+      "progress_estimate": {
+        "completitud_from_percent": 20,
+        "completitud_to_percent": 40,
+        "archivos_completados": "0/8",
+        "decisiones_pendientes": [
+          "Estructura del resultado IA (title/description)",
+          "ValidaciÃƒÂ³n de JSON en edge function"
+        ]
+      },
+      "plan": {
+        "steps": [
+          "Agregar acciÃƒÂ³n todo_improvement en ai-generate (prompt + registry)",
+          "Implementar parsing/validaciÃƒÂ³n JSON en index.ts",
+          "Extender TodoDetailsModal con flujo IA (form, loading, review, iterate)",
+          "Pasar contexto adicional (tarea padre + otros todos) desde TaskDetailView/TaskTodos",
+          "Actualizar tests de TodoDetailsModal",
+          "Actualizar documentaciÃƒÂ³n de edge_function.json y feature_components.json"
+        ],
+        "files_to_change": [
+          "supabase/functions/ai-generate/actions/todo_improvement.ts",
+          "supabase/functions/ai-generate/prompt_registry.ts",
+          "supabase/functions/ai-generate/index.ts",
+          "supabase/functions/ai-generate/core/types.ts",
+          "src/components/kanban/TodoDetailsModal.vue",
+          "src/components/kanban/TaskTodos.vue",
+          "src/views/app/TaskDetailView.vue",
+          "src/components/kanban/__tests__/TodoDetailsModal.test.js",
+          "docs/documentacion/edge_function.json",
+          "docs/documentacion/feature_components.json",
+          "docs/Ralph/Ralph_WIP.json"
+        ],
+        "validation_plan": [
+          "Verificar UI de mejora IA en modal de subtarea",
+          "Reprocesar y aplicar sin autoguardado",
+          "Validar parsing JSON en edge function"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Plan documentado",
+          "details": "Se definieron pasos, archivos y validaciones."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "IteraciÃƒÂ³n 3: implementaciÃƒÂ³n."
+    },
+    {
+      "id": "todoImprovementAI_20260208_3",
+      "iteration_number": 3,
+      "iteration_type": "execution",
+      "objective": "Implementar flujo IA para mejora de to-dos y acciÃƒÂ³n backend.",
+      "progress_estimate": {
+        "completitud_from_percent": 40,
+        "completitud_to_percent": 85,
+        "archivos_completados": "8/11",
+        "decisiones_pendientes": [
+          "Validar UX de revisiÃƒÂ³n/reproceso",
+          "Confirmar cierre con tests"
+        ]
+      },
+      "execution": {
+        "changes": [
+          "Nueva acciÃƒÂ³n todo_improvement en ai-generate con prompt y validaciÃƒÂ³n JSON",
+          "TodoDetailsModal incorpora mÃƒÂ³dulo IA (form, loading, review, iterate)",
+          "Se pasa contexto de tarea padre y otros to-dos desde TaskDetailView/TaskTodos",
+          "Tests mÃƒÂ­nimos para UI de mejora IA en modal"
+        ],
+        "files_changed": [
+          "supabase/functions/ai-generate/actions/todo_improvement.ts",
+          "supabase/functions/ai-generate/core/todo_improvement.ts",
+          "supabase/functions/ai-generate/core/types.ts",
+          "supabase/functions/ai-generate/index.ts",
+          "supabase/functions/ai-generate/prompt_registry.ts",
+          "src/components/kanban/TodoDetailsModal.vue",
+          "src/components/kanban/TaskTodos.vue",
+          "src/views/app/TaskDetailView.vue",
+          "src/components/kanban/__tests__/TodoDetailsModal.test.js",
+          "docs/documentacion/edge_function.json",
+          "docs/documentacion/feature_components.json"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "ImplementaciÃƒÂ³n",
+          "details": "Se agregÃƒÂ³ el flujo IA para mejorar to-dos y su acciÃƒÂ³n backend."
+        },
+        {
+          "action": "Tests",
+          "details": "Se actualizÃƒÂ³ TodoDetailsModal.test.js para validar el botÃƒÂ³n IA."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "supabase/functions/ai-generate/actions/todo_improvement.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "supabase/functions/ai-generate/core/todo_improvement.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "supabase/functions/ai-generate/core/types.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "supabase/functions/ai-generate/index.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "supabase/functions/ai-generate/prompt_registry.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "src/components/kanban/TodoDetailsModal.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "src/components/kanban/TaskTodos.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "src/views/app/TaskDetailView.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "src/components/kanban/__tests__/TodoDetailsModal.test.js",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/documentacion/edge_function.json",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/documentacion/feature_components.json",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": true,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Validar UI y flujo IA en modal."
+    },
+    {
+      "id": "todoImprovementAI_20260208_4",
+      "iteration_number": 4,
+      "iteration_type": "execution",
+      "objective": "Ajustar prompt para que description_md nunca estÃƒÂ© vacÃƒÂ­o.",
+      "progress_estimate": {
+        "completitud_from_percent": 85,
+        "completitud_to_percent": 90,
+        "archivos_completados": "9/11",
+        "decisiones_pendientes": [
+          "Validar resultado IA con idea vaga"
+        ]
+      },
+      "execution": {
+        "changes": [
+          "Reglas de prompt: description_md siempre con contenido y permite expansiÃƒÂ³n con contexto"
+        ],
+        "files_changed": [
+          "supabase/functions/ai-generate/actions/todo_improvement.ts"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Prompt update",
+          "details": "Se reforzÃƒÂ³ salida con description_md obligatorio."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "supabase/functions/ai-generate/actions/todo_improvement.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": true,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Validar generaciÃƒÂ³n con idea vaga."
+    },
+    {
+      "id": "todoImprovementAI_20260208_5",
+      "iteration_number": 5,
+      "iteration_type": "execution",
+      "objective": "Forzar entregables completos cuando la intenciÃƒÂ³n lo requiera.",
+      "progress_estimate": {
+        "completitud_from_percent": 90,
+        "completitud_to_percent": 95,
+        "archivos_completados": "10/11",
+        "decisiones_pendientes": [
+          "Validar que IA entregue correo completo"
+        ]
+      },
+      "execution": {
+        "changes": [
+          "Prompt obliga a entregar contenido completo si la intenciÃƒÂ³n implica un entregable"
+        ],
+        "files_changed": [
+          "supabase/functions/ai-generate/actions/todo_improvement.ts"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Prompt refinement",
+          "details": "Se aÃƒÂ±adiÃƒÂ³ regla explÃƒÂ­cita para entregables completos (correo, guion, post)."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "supabase/functions/ai-generate/actions/todo_improvement.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": true,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Desplegar y probar mejora de correo completo."
+    },
+    {
+      "id": "todoImprovementAI_20260208_6",
+      "iteration_number": 6,
+      "iteration_type": "execution",
+      "objective": "Ajustar botÃƒÂ³n Reprocesar con icono y costo.",
+      "progress_estimate": {
+        "completitud_from_percent": 95,
+        "completitud_to_percent": 98,
+        "archivos_completados": "11/11",
+        "decisiones_pendientes": []
+      },
+      "execution": {
+        "changes": [
+          "BotÃƒÂ³n Reprocesar ahora muestra icono de rayo y costo",
+          "Costo visible tambiÃƒÂ©n en modal de iteraciÃƒÂ³n"
+        ],
+        "files_changed": [
+          "src/components/kanban/TodoDetailsModal.vue"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "UI update",
+          "details": "Se alineÃƒÂ³ el estilo de Reprocesar con el resto de botones IA."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "src/components/kanban/TodoDetailsModal.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": true,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Validar estilo final en UI."
+    },
+    {
+      "id": "todoImprovementAI_20260208_7",
+      "iteration_number": 7,
+      "iteration_type": "execution",
+      "objective": "Corregir apertura del modal de reproceso.",
+      "progress_estimate": {
+        "completitud_from_percent": 98,
+        "completitud_to_percent": 99,
+        "archivos_completados": "11/11",
+        "decisiones_pendientes": []
+      },
+      "execution": {
+        "changes": [
+          "Modal de reprocesar se renderiza dentro del contenedor del modal principal"
+        ],
+        "files_changed": [
+          "src/components/kanban/TodoDetailsModal.vue"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "UI fix",
+          "details": "Se moviÃƒÂ³ el modal de reprocesar al contenedor con posicionamiento relativo."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "src/components/kanban/TodoDetailsModal.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": true,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Validar modal de reproceso en UI."
+    },
+    {
+      "id": "todoImprovementAI_20260208_8",
+      "iteration_number": 8,
+      "iteration_type": "execution",
+      "objective": "Asegurar reprocesar en modal separado.",
+      "progress_estimate": {
+        "completitud_from_percent": 99,
+        "completitud_to_percent": 100,
+        "archivos_completados": "11/11",
+        "decisiones_pendientes": []
+      },
+      "execution": {
+        "changes": [
+          "Modal de reprocesar se renderiza como overlay independiente",
+          "Tests actualizados para aprobar y reprocesar"
+        ],
+        "files_changed": [
+          "src/components/kanban/TodoDetailsModal.vue",
+          "src/components/kanban/__tests__/TodoDetailsModal.test.js"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "UI fix",
+          "details": "Se moviÃƒÂ³ el modal de reprocesar fuera del contenedor para evitar campos inline."
+        },
+        {
+          "action": "Tests",
+          "details": "Se agregaron tests para aprobar y reprocesar."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "src/components/kanban/TodoDetailsModal.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "src/components/kanban/__tests__/TodoDetailsModal.test.js",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": true,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Validar UX de reprocesar y proceder a cierre."
+    },
+    {
+      "id": "compassListRendering_20260211_1",
+      "iteration_number": 1,
+      "iteration_type": "execution",
+      "objective": "Corregir listas ul/ol del Compass en preview y ediciÃƒÂ³n.",
+      "progress_estimate": {
+        "completitud_from_percent": 0,
+        "completitud_to_percent": 100,
+        "archivos_completados": "3/3",
+        "decisiones_pendientes": []
+      },
+      "quick_scan": {
+        "target": "CompassDocumentView + editor de contenido",
+        "files_read": [
+          "src/views/app/CompassDocumentView.vue",
+          "src/components/compass/RichTextEditorContent.vue",
+          "docs/Ralph/Ralph_loop.json",
+          ".cursorrules"
+        ],
+        "findings": [
+          "En preview existÃƒÂ­a espaciado para ul/ol pero sin list-style-type explÃƒÂ­cito.",
+          "En ediciÃƒÂ³n (ProseMirror) tampoco habÃƒÂ­a list-style-type explÃƒÂ­cito.",
+          "Con Tailwind preflight, ul/ol quedan sin marcador visible si no se define list-style."
+        ],
+        "risks": [
+          "Cambiar estilos globales del editor podrÃƒÂ­a afectar otras vistas si no se limita con :deep en la vista actual."
+        ]
+      },
+      "micro_plan": {
+        "steps": [
+          "Forzar list-style-type y padding-left en .prose ul/ol para modo preview.",
+          "Forzar list-style-type y padding-left en .ProseMirror ul/ol para modo ediciÃƒÂ³n.",
+          "Actualizar documentaciÃƒÂ³n de vista para registrar comportamiento esperado."
+        ],
+        "files_to_change": [
+          "src/views/app/CompassDocumentView.vue",
+          "docs/documentacion/views.json",
+          "docs/Ralph/Ralph_WIP.json"
+        ],
+        "validation_plan": [
+          "Verificar que aparecen viÃƒÂ±etas y nÃƒÂºmeros en preview.",
+          "Verificar que aparecen viÃƒÂ±etas y nÃƒÂºmeros en modo ediciÃƒÂ³n.",
+          "Validar que el archivo Ralph_WIP.json parsea como JSON vÃƒÂ¡lido."
+        ],
+        "done_criteria": [
+          "Listas ul/ol visibles en ambos modos.",
+          "Sin cambios de lÃƒÂ³gica ni contratos de datos.",
+          "DocumentaciÃƒÂ³n de loop y vista actualizada."
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "CSS fix",
+          "details": "Se agregÃƒÂ³ list-style-type y padding para .prose y .ProseMirror en CompassDocumentView."
+        },
+        {
+          "action": "DocumentaciÃƒÂ³n",
+          "details": "Se actualizÃƒÂ³ views.json y Ralph_WIP.json con el nuevo objetivo e iteraciÃƒÂ³n."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "src/views/app/CompassDocumentView.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/documentacion/views.json",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": true,
+        "iteration_1_exploration_documented": false,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": true,
+        "tier_c_micro_plan_documented": true,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "ValidaciÃƒÂ³n manual en CompassDocumentView con listas markdown en ambos modos."
+    },
+    {
+      "id": "taskMarkdownListRendering_20260211_1",
+      "iteration_number": 1,
+      "iteration_type": "execution",
+      "objective": "Corregir listas ul/ol en descripci?n de tarea para modal y vista detalle.",
+      "progress_estimate": {
+        "completitud_from_percent": 0,
+        "completitud_to_percent": 100,
+        "archivos_completados": "3/3",
+        "decisiones_pendientes": []
+      },
+      "quick_scan": {
+        "target": "TaskModal + TaskDetailView + TaskDescriptionEditor",
+        "files_read": [
+          "src/components/kanban/TaskModal.vue",
+          "src/views/app/TaskDetailView.vue",
+          "src/components/kanban/TaskDescriptionEditor.vue",
+          "docs/Ralph/Ralph_loop.json",
+          ".cursorrules"
+        ],
+        "findings": [
+          "TaskModal y TaskDetailView reutilizan TaskDescriptionEditor para editar y visualizar descripci?n.",
+          "TaskDescriptionEditor aplicaba espaciado/indentaci?n en ul/ol, pero sin list-style-type expl?cito.",
+          "Tailwind preflight elimina marcadores por defecto, por eso no se ve?an vi?etas ni numeraci?n."
+        ],
+        "risks": [
+          "Cambiar estilos de listas podr?a impactar visual en otros contextos donde se use el mismo editor."
+        ]
+      },
+      "micro_plan": {
+        "steps": [
+          "Definir list-style-type expl?cito para ul/ol en .prose.",
+          "Definir list-style-type expl?cito para ul/ol en .ProseMirror.",
+          "Actualizar documentaci?n JSON del componente impactado."
+        ],
+        "files_to_change": [
+          "src/components/kanban/TaskDescriptionEditor.vue",
+          "docs/documentacion/feature_components.json",
+          "docs/Ralph/Ralph_WIP.json"
+        ],
+        "validation_plan": [
+          "Verificar que vi?etas y numeraci?n aparezcan en TaskModal.",
+          "Verificar que vi?etas y numeraci?n aparezcan en TaskDetailView.",
+          "Ejecutar tests existentes de TaskDescriptionEditor."
+        ],
+        "done_criteria": [
+          "Listas visibles en modo vista y edici?n.",
+          "Sin cambios de l?gica funcional.",
+          "WIP y documentaci?n actualizados."
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "CSS fix compartido",
+          "details": "Se agreg? list-style-type y padding para ul/ol en .prose y .ProseMirror de TaskDescriptionEditor."
+        },
+        {
+          "action": "Documentaci?n",
+          "details": "Se actualiz? feature_components.json para registrar soporte correcto de listas."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "src/components/kanban/TaskDescriptionEditor.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/documentacion/feature_components.json",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": true,
+        "iteration_1_exploration_documented": false,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": true,
+        "tier_c_micro_plan_documented": true,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Validaci?n manual en TaskModal y TaskDetailView con listas markdown."
+    },
+    {
+      "id": "todoDetailsMarkdownFormatting_20260211_1",
+      "iteration_number": 1,
+      "iteration_type": "execution",
+      "objective": "Restore bullet, ordered list and blockquote rendering in Todo details editor.",
+      "progress_estimate": {
+        "completitud_from_percent": 0,
+        "completitud_to_percent": 100,
+        "archivos_completados": "3/3",
+        "decisiones_pendientes": []
+      },
+      "quick_scan": {
+        "target": "TodoDetailsModal markdown editor and styles",
+        "files_read": [
+          "src/components/kanban/TodoDetailsModal.vue",
+          "src/components/kanban/TodoEditorToolbar.vue",
+          "docs/Ralph/Ralph_loop.json",
+          ".cursorrules"
+        ],
+        "findings": [
+          "Editor supports list and blockquote commands via StarterKit/toolbar.",
+          "CSS lacked explicit list-style-type and blockquote visual styles in TodoDetailsModal.",
+          "Tailwind preflight reset removed visible list markers and quote styling."
+        ],
+        "risks": [
+          "Styling update could slightly change spacing in existing todo descriptions."
+        ]
+      },
+      "micro_plan": {
+        "steps": [
+          "Add explicit ul/ol markers for ProseMirror and prose.",
+          "Add explicit blockquote visual style for ProseMirror and prose.",
+          "Update JSON docs for TodoDetailsModal features."
+        ],
+        "files_to_change": [
+          "src/components/kanban/TodoDetailsModal.vue",
+          "docs/documentacion/feature_components.json",
+          "docs/Ralph/Ralph_WIP.json"
+        ],
+        "validation_plan": [
+          "Check bullets and numbering in todo detail preview and edit.",
+          "Check blockquote appears with left border and italic style.",
+          "Run TodoDetailsModal tests."
+        ],
+        "done_criteria": [
+          "Bulleted and ordered lists are visible.",
+          "Blockquote style is visible.",
+          "No business logic changed."
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "CSS fix",
+          "details": "Added ul/ol marker styles and blockquote styles for ProseMirror and prose in TodoDetailsModal."
+        },
+        {
+          "action": "Documentation",
+          "details": "Updated feature_components.json with markdown rendering coverage for TodoDetailsModal."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "src/components/kanban/TodoDetailsModal.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/documentacion/feature_components.json",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": true,
+        "iteration_1_exploration_documented": false,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": true,
+        "tier_c_micro_plan_documented": true,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Manual check in TodoDetailsModal with list and blockquote markdown samples."
+    },
+    {
+      "id": "compassMermaidInsertion_20260211_1",
+      "iteration_number": 1,
+      "iteration_type": "execution",
+      "objective": "Habilitar insercion Mermaid desde toolbar y estabilizar render en preview.",
+      "progress_estimate": {
+        "completitud_from_percent": 0,
+        "completitud_to_percent": 100,
+        "archivos_completados": "4/4",
+        "decisiones_pendientes": []
+      },
+      "quick_scan": {
+        "target": "EditorToolbar + CompassDocumentView",
+        "files_read": [
+          "src/components/compass/EditorToolbar.vue",
+          "src/views/app/CompassDocumentView.vue",
+          "src/components/compass/RichTextEditorContent.vue",
+          "src/composables/useMarkdownConverter.js",
+          "docs/Ralph/Ralph_loop.json",
+          ".cursorrules"
+        ],
+        "findings": [
+          "El boton Mermaid estaba disabled y sin handler.",
+          "El preview ya intentaba renderizar Mermaid, pero usaba IDs repetibles por indice.",
+          "El editor y converter soportan codeBlock con lenguaje serializable a Markdown."
+        ],
+        "risks": [
+          "Cambiar comando de insercion podia afectar formato de codeBlock si no se respetaba el schema de TipTap."
+        ]
+      },
+      "micro_plan": {
+        "steps": [
+          "Implementar insertMermaid() en la toolbar para insertar codeBlock language=mermaid.",
+          "Activar el boton Mermaid removiendo disabled y conectando click handler.",
+          "Generar IDs unicos por ciclo de render Mermaid en preview.",
+          "Actualizar documentacion de vista Compass en docs/documentacion/views.json."
+        ],
+        "files_to_change": [
+          "src/components/compass/EditorToolbar.vue",
+          "src/views/app/CompassDocumentView.vue",
+          "docs/documentacion/views.json",
+          "docs/Ralph/Ralph_WIP.json"
+        ],
+        "validation_plan": [
+          "Verificar que el boton Mermaid inserta un bloque con fence `mermaid al serializar.",
+          "Verificar que el preview renderiza diagramas sin colision de IDs.",
+          "Ejecutar tests del markdown converter para garantizar compatibilidad del flujo Mermaid."
+        ],
+        "done_criteria": [
+          "Insercion Mermaid funcional desde toolbar.",
+          "Render Mermaid visible en preview.",
+          "Sin impacto en funcionalidades fuera de Compass."
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Toolbar fix",
+          "details": "Se habilito el boton Mermaid y se implemento insertMermaid() con codeBlock language='mermaid'."
+        },
+        {
+          "action": "Preview fix",
+          "details": "renderMermaidDiagrams ahora usa IDs unicos por render (seed+indice) para evitar colisiones."
+        },
+        {
+          "action": "Documentation",
+          "details": "Se actualizo docs/documentacion/views.json con soporte de insercion y render Mermaid en Compass."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "src/components/compass/EditorToolbar.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "src/views/app/CompassDocumentView.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/documentacion/views.json",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": true,
+        "iteration_1_exploration_documented": false,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": true,
+        "tier_c_micro_plan_documented": true,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Validacion manual en Compass con insercion y visualizacion de Mermaid desde toolbar."
+    },
+    {
+      "id": "projectRolesClientPermissions_20260211_3",
+      "iteration_number": 3,
+      "iteration_type": "execution",
+      "objective": "Implementar restricciones por rol en frontend/backend, migraci?n SQL y UI de colaboraci?n por owner.",
+      "progress_estimate": {
+        "completitud_from_percent": 40,
+        "completitud_to_percent": 92,
+        "archivos_completados": "15/16",
+        "decisiones_pendientes": [
+          "Ajustes finos de UX para restricciones en vistas globales",
+          "Aplicaci?n manual de migraci?n en entorno del usuario"
+        ]
+      },
+      "execution": {
+        "changes": [
+          "Nueva migraci?n 077 con roles client/viewer, is_internal, triggers de profundidad m?xima y hardening RLS",
+          "Bloqueo backend de IA para client/viewer en ai-generate con 403 sin consumo de Watts",
+          "Composable useProjectPermissions y guards en Compass/Kanban/Task Detail/Task Modal",
+          "Gesti?n de colaboraci?n restringida a organization owner + edici?n de rol por proyecto"
+        ],
+        "files_changed": [
+          "supabase/migrations/077_project_roles_client_permissions.sql",
+          "supabase/functions/ai-generate/index.ts",
+          "src/composables/useProjectPermissions.js",
+          "src/stores/collaborators.js",
+          "src/views/app/settings/CollaborationView.vue",
+          "src/views/app/SettingsLayout.vue",
+          "src/views/app/CompassDocumentView.vue",
+          "src/components/compass/CompassComments.vue",
+          "src/components/kanban/TaskComments.vue",
+          "src/views/app/TaskDetailView.vue",
+          "src/components/kanban/TaskTodos.vue",
+          "src/components/kanban/TodoDetailsModal.vue",
+          "src/components/kanban/TaskModal.vue",
+          "src/components/kanban/KanbanBoard.vue",
+          "src/components/kanban/TaskContextMenu.vue"
+        ]
+      },
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": true,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Aplicar migraci?n 077 manualmente y validar con usuarios client/viewer en entorno local."
+    },
+    {
+      "id": "projectRolesClientPermissions_20260211_4",
+      "iteration_number": 4,
+      "iteration_type": "execution",
+      "objective": "Crear tests automatizados para Compass loading flow y ajustes de roles en colaboracion.",
+      "progress_estimate": {
+        "completitud_from_percent": 92,
+        "completitud_to_percent": 100,
+        "archivos_completados": "3/3",
+        "decisiones_pendientes": []
+      },
+      "actions_done": [
+        {
+          "action": "Tests Compass",
+          "details": "Se creo suite para evitar parpadeo y doble carga visual en CompassDocumentView."
+        },
+        {
+          "action": "Tests Roles",
+          "details": "Se agregaron casos para bloquear asignacion owner y expulsion por proyecto en collaborators store."
+        },
+        {
+          "action": "Validacion",
+          "details": "Se ejecuto Vitest sobre los archivos nuevos/modificados con todos los casos en verde."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "src/views/app/__tests__/CompassDocumentView.test.js",
+          "change_type": "created"
+        },
+        {
+          "path": "src/stores/__tests__/collaborators.test.js",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/Ralph/history/test_projectRolesClientPermissions_20260211.md",
+          "change_type": "created"
+        },
+        {
+          "path": "docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "Se usaron mocks de store/composables para aislar el flujo de carga de Compass.",
+        "Se valido restriccion de owner en createInvitation/updateProjectMemberRole y logica de expulsion por proyecto."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Validacion manual final en UI para confirmar experiencia sin flicker y gestion de roles por proyecto."
+    },
+    {
+      "id": "commentsSystemSpec_20260211_1",
+      "iteration_number": 1,
+      "iteration_type": "exploration",
+      "objective": "Auditar estado actual de comentarios para Compass/Kanban y cobertura DB/RLS ya existente.",
+      "progress_estimate": {
+        "completitud_from_percent": 0,
+        "completitud_to_percent": 30,
+        "archivos_completados": "0/6",
+        "decisiones_pendientes": [
+          "Definir estructura de hilo en frontend para parent_comment_id",
+          "Definir formato de handoff para backend de notificaciones"
+        ]
+      },
+      "exploration": {
+        "target": "CompassComments, TaskComments, compass store y migracion 077",
+        "files_read": [
+          "src/components/compass/CompassComments.vue",
+          "src/components/kanban/TaskComments.vue",
+          "src/stores/compass.js",
+          "supabase/migrations/077_project_roles_client_permissions.sql",
+          "docs/Ralph/Ralph_loop.json",
+          ".cursorrules"
+        ],
+        "architecture_summary": "DB ya tiene is_internal, filtro por rol y trigger de profundidad. Frontend no exponia threading completo con reply por parent_comment_id.",
+        "integration_points": [
+          "compassStore.createComment(documentId, content, parentCommentId, options)",
+          "task_comments insert/update directo desde TaskComments.vue",
+          "useProjectPermissions para canMarkInternalComments/canSeeInternalComments"
+        ],
+        "risks_and_edge_cases": [
+          "Eliminar comentario padre debe limpiar hijos en estado local",
+          "No permitir reply visual en nivel 3",
+          "Mantener filtros internos sin exponer data a client/viewer en frontend"
+        ],
+        "recommended_approach": "Extraer utilidades de threading reutilizables, aplicar hilo en ambos componentes y documentar handoff backend de notificaciones."
+      },
+      "actions_done": [
+        {
+          "action": "Exploracion tecnica",
+          "details": "Se verifico que parte de la especificacion ya estaba cubierta por migracion 077 y permisos de UI."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Iteracion 2: plan de implementacion de hilo + handoff backend."
+    },
+    {
+      "id": "commentsSystemSpec_20260211_2",
+      "iteration_number": 2,
+      "iteration_type": "planning",
+      "objective": "Planificar cambios de UI, utilidades de threading, limpieza local en cascada y documentacion backend.",
+      "progress_estimate": {
+        "completitud_from_percent": 30,
+        "completitud_to_percent": 55,
+        "archivos_completados": "0/6",
+        "decisiones_pendientes": [
+          "Definir tests unitarios para reglas de anidacion",
+          "Validar que docs JSON quede actualizada"
+        ]
+      },
+      "plan": {
+        "plan_steps": [
+          "Crear utilidad commentThreads con build tree, flatten, depth y descendants",
+          "Aplicar hilo y reply por nivel en CompassComments",
+          "Aplicar hilo y reply por nivel en TaskComments",
+          "Ajustar borrado local en cascada en compass store",
+          "Agregar tests unitarios para utilidad",
+          "Crear documento de handoff backend de notificaciones",
+          "Actualizar docs/documentacion/feature_components.json"
+        ],
+        "files_to_change": [
+          "src/utils/commentThreads.js",
+          "src/utils/__tests__/commentThreads.test.js",
+          "src/components/compass/CompassComments.vue",
+          "src/components/kanban/TaskComments.vue",
+          "src/stores/compass.js",
+          "docs/documentacion/backend/comments_notifications_handoff_20260211.md",
+          "docs/documentacion/feature_components.json"
+        ],
+        "validation_strategy": [
+          "Ejecutar tests de utilidades y componentes relacionados",
+          "Revisar que no se permita responder en nivel 3 en UI",
+          "Revisar visibilidad de comentarios internos por rol"
+        ],
+        "test_strategy": [
+          "Tests unitarios de threading y profundidad",
+          "Smoke tests de componentes ya existentes"
+        ],
+        "definition_of_done": [
+          "Threading visible y reply funcional en Compass/Kanban",
+          "Limite de profundidad visible en frontend",
+          "Documento backend creado con requerimientos y estado frontend",
+          "Sin aplicar migraciones en DB"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Plan documentado",
+          "details": "Se definio alcance tecnico y archivos exactos a modificar."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Iteracion 3: implementacion y pruebas."
+    },
+    {
+      "id": "commentsSystemSpec_20260211_3",
+      "iteration_number": 3,
+      "iteration_type": "execution",
+      "objective": "Implementar hilo de comentarios, reply hasta nivel 3, badge interno y handoff backend.",
+      "progress_estimate": {
+        "completitud_from_percent": 55,
+        "completitud_to_percent": 95,
+        "archivos_completados": "7/7",
+        "decisiones_pendientes": [
+          "Validar tests finales y ajustar cualquier regresion"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Implementacion frontend",
+          "details": "CompassComments y TaskComments ahora renderizan hilo por depth, reply por parent_comment_id y limite visual en nivel 3."
+        },
+        {
+          "action": "Hardening estado local",
+          "details": "compass store elimina descendientes al borrar comentario padre para reflejar cascada de DB."
+        },
+        {
+          "action": "Testing",
+          "details": "Se agregaron tests unitarios para utilidades de threading."
+        },
+        {
+          "action": "Handoff backend",
+          "details": "Se creo documento de requerimientos de notificaciones y estado frontend actual."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "src/utils/commentThreads.js",
+          "change_type": "created"
+        },
+        {
+          "path": "src/utils/__tests__/commentThreads.test.js",
+          "change_type": "created"
+        },
+        {
+          "path": "src/components/compass/CompassComments.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "src/components/kanban/TaskComments.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "src/stores/compass.js",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/documentacion/backend/comments_notifications_handoff_20260211.md",
+          "change_type": "created"
+        },
+        {
+          "path": "docs/documentacion/feature_components.json",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "No se aplicaron migraciones en DB, solo cambios de codigo/documentacion.",
+        "La validacion backend real de profundidad/is_internal sigue en migracion 077 (ya preparada/aplicada por usuario)."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": true,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Ejecutar suite de tests y validar UX manual con roles team/client/viewer."
+    },
+    {
+      "id": "monorepoStabilization_20260212_1",
+      "iteration_number": 1,
+      "iteration_type": "exploration",
+      "objective": "Auditar estructura monorepo y riesgos operativos tras mover front/back a apps/.",
+      "progress_estimate": {
+        "completitud_from_percent": 0,
+        "completitud_to_percent": 35,
+        "archivos_completados": "0/6",
+        "decisiones_pendientes": [
+          "Definir package root para workspaces",
+          "Corregir ubicacion real del workflow GitHub Actions",
+          "Formalizar ownership DB front/back"
+        ]
+      },
+      "exploration": {
+        "target": "Estructura root, CI path y duplicidad supabase front/back",
+        "files_read": [
+          "apps/front/docs/Ralph/Ralph_loop.json",
+          "apps/front/docs/Ralph/Ralph_WIP.json",
+          "apps/back/.github/workflows/notifications-db-contract-check.yml",
+          "apps/front/package.json",
+          "apps/back/package.json"
+        ],
+        "architecture_summary": "El repo quedo con apps/front y apps/back, pero sin workspace root ni workflow en ruta raiz de GitHub Actions. Existe carpeta supabase en ambos apps, generando ambiguedad de ownership.",
+        "integration_points": [
+          "Root package manager scripts",
+          "GitHub Actions en .github/workflows",
+          "SoT de migraciones en apps/front/supabase",
+          "Back runtime check_db_contract"
+        ],
+        "risks_and_edge_cases": [
+          "CI no ejecuta por workflow en path incorrecto",
+          "Drift de DB por doble carpeta supabase",
+          "Mantenimiento costoso sin comandos unificados en root"
+        ],
+        "recommended_approach": "Crear workspace root + mover workflow a raiz + documentar politicas SoT DB + marcar supabase del back como legacy."
+      },
+      "actions_done": [
+        {
+          "action": "Exploracion",
+          "details": "Se verifico estructura apps/, scripts y workflow existente."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Iteracion 2 de plan y luego implementacion tecnica."
+    },
+    {
+      "id": "monorepoStabilization_20260212_2",
+      "iteration_number": 2,
+      "iteration_type": "planning",
+      "objective": "Definir plan tecnico para estabilizacion monorepo y validacion local front.",
+      "progress_estimate": {
+        "completitud_from_percent": 35,
+        "completitud_to_percent": 55,
+        "archivos_completados": "0/6",
+        "decisiones_pendientes": [
+          "Estructura exacta de workflow raiz",
+          "Contenido de policy SoT DB",
+          "Secuencia de validacion local"
+        ]
+      },
+      "plan": {
+        "plan_steps": [
+          "Agregar package.json root con npm workspaces y scripts unificados",
+          "Agregar .gitignore root para hygiene del monorepo",
+          "Crear workflow en .github/workflows con front build y back db contract check",
+          "Eliminar workflow legado en apps/back/.github/workflows",
+          "Crear docs de policy DB ownership y marcar apps/back/supabase como legacy",
+          "Validar build local de apps/front antes de cerrar"
+        ],
+        "files_to_change": [
+          "package.json",
+          ".gitignore",
+          ".github/workflows/monorepo-validation.yml",
+          "apps/back/.github/workflows/notifications-db-contract-check.yml",
+          "apps/front/docs/documentacion/backend/monorepo_db_ownership_policy_20260212.md",
+          "apps/back/supabase/README_LEGACY.md",
+          "apps/front/docs/documentacion/backend/plan_correccion_monorepo_post_unificacion_20260212.md"
+        ],
+        "validation_strategy": [
+          "Build local front",
+          "Smoke de scripts root",
+          "Revisar que workflow exista en ruta raiz esperada por GitHub"
+        ],
+        "test_strategy": [
+          "npm run build en apps/front"
+        ],
+        "definition_of_done": [
+          "Root workspace operativo",
+          "CI en ruta correcta",
+          "Policy SoT DB publicada",
+          "Front build local en verde"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Planificacion",
+          "details": "Se definio plan por fases con archivos y validaciones concretas."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Iteracion 3 de ejecucion tecnica y validacion local."
+    },
+    {
+      "id": "monorepoStabilization_20260212_3",
+      "iteration_number": 3,
+      "iteration_type": "execution",
+      "objective": "Implementar estabilizacion monorepo (root workspace, workflow raiz y policy SoT DB).",
+      "progress_estimate": {
+        "completitud_from_percent": 55,
+        "completitud_to_percent": 90,
+        "archivos_completados": "6/6",
+        "decisiones_pendientes": [
+          "Validar build local del front"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Root workspace",
+          "details": "Se creo package.json root con npm workspaces y scripts unificados front/back."
+        },
+        {
+          "action": "Root hygiene",
+          "details": "Se agrego .gitignore de raiz para node_modules, dist y envs."
+        },
+        {
+          "action": "CI fix",
+          "details": "Se creo workflow en .github/workflows y se elimino workflow legado dentro de apps/back."
+        },
+        {
+          "action": "SoT DB policy",
+          "details": "Se documento ownership DB en front y se marco supabase de back como legacy/reference."
+        },
+        {
+          "action": "Plan documentado",
+          "details": "Se creo plan de correccion post-unificacion con fases y entregables."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "package.json",
+          "change_type": "created"
+        },
+        {
+          "path": ".gitignore",
+          "change_type": "created"
+        },
+        {
+          "path": ".github/workflows/monorepo-validation.yml",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/back/.github/workflows/notifications-db-contract-check.yml",
+          "change_type": "deleted"
+        },
+        {
+          "path": "apps/front/docs/documentacion/backend/monorepo_db_ownership_policy_20260212.md",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/back/supabase/README_LEGACY.md",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/front/docs/documentacion/backend/plan_correccion_monorepo_post_unificacion_20260212.md",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "No se realizaron merges ni pushes.",
+        "Queda pendiente validacion local de build front para cierre completo."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Ejecutar build local de apps/front y cerrar objective."
+    },
+    {
+      "id": "monorepoStabilization_20260212_4",
+      "iteration_number": 4,
+      "iteration_type": "execution",
+      "objective": "Validar despliegue local del front antes de cualquier push/merge.",
+      "progress_estimate": {
+        "completitud_from_percent": 90,
+        "completitud_to_percent": 100,
+        "archivos_completados": "6/6",
+        "decisiones_pendientes": []
+      },
+      "actions_done": [
+        {
+          "action": "Local build validation",
+          "details": "Se ejecuto npm run build en apps/front con resultado exitoso."
+        },
+        {
+          "action": "Risk note",
+          "details": "Build muestra warning de chunks >1000kB, sin bloquear despliegue."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "No se realizaron merges ni pushes, cumpliendo restriccion del usuario."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Confirmar cierre del objetivo y definir si se crean tests adicionales de monorepo tooling."
+    },
+    {
+      "id": "notificationMentionBodyFormatting_20260213_1",
+      "iteration_number": 1,
+      "iteration_type": "execution",
+      "objective": "Eliminar UUID visible en texto de notificaciones de mencion.",
+      "progress_estimate": {
+        "completitud_from_percent": 0,
+        "completitud_to_percent": 100,
+        "archivos_completados": "1/1",
+        "decisiones_pendientes": []
+      },
+      "quick_scan": {
+        "files_read": [
+          "apps/front/src/components/notifications/NotificationItem.vue",
+          "apps/back/src/modules/notifications/domain/rules/notification-rules.ts"
+        ],
+        "what_exists_today": "El body de notificacion llega con markdown de menciones tipo @[Nombre](uuid) y se renderiza como texto plano.",
+        "touch_points": [
+          "UI componente NotificationItem",
+          "Plantillas backend de mention"
+        ],
+        "risks": [
+          "Mostrar IDs internos al usuario final",
+          "Inconsistencia visual con comentarios que si limpian menciones"
+        ]
+      },
+      "micro_plan": {
+        "steps": [
+          "Agregar displayBody computed en NotificationItem para limpiar sintaxis markdown de menciones/doclinks.",
+          "Usar displayBody en template en lugar de notification.body crudo.",
+          "Validar que no queden referencias al UUID en el render."
+        ],
+        "files_to_change": [
+          "apps/front/src/components/notifications/NotificationItem.vue"
+        ],
+        "validation": [
+          "Inspeccion de diff",
+          "Validacion visual manual en panel de notificaciones"
+        ],
+        "done_criteria": [
+          "Las menciones se muestran como @Nombre",
+          "No se muestra UUID en body de notificacion"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Fix UI body mention parsing",
+          "details": "Se agrego computed displayBody para transformar @[Nombre](id) -> @Nombre y #[Doc](id) -> #Doc."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/src/components/notifications/NotificationItem.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "No requiere migraciones ni cambios backend para resolver este bug visual."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": false,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": true,
+        "tier_c_micro_plan_documented": true,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Hacer smoke test en UI con una nueva notificacion de mencion y confirmar render @Nombre."
+    },
+    {
+      "id": "notificationsBackendHardening_20260213_1",
+      "iteration_number": 1,
+      "iteration_type": "execution",
+      "objective": "Sanitizar markdown de menciones en backend y validar con tests.",
+      "progress_estimate": {
+        "completitud_from_percent": 0,
+        "completitud_to_percent": 35,
+        "archivos_completados": "2/2",
+        "decisiones_pendientes": [
+          "Definir siguiente hardening backend (consistencia payload navigation/context)"
+        ]
+      },
+      "quick_scan": {
+        "files_read": [
+          "apps/back/src/modules/notifications/domain/rules/notification-rules.ts",
+          "apps/back/src/modules/notifications/domain/rules/notification-rules.test.ts"
+        ],
+        "what_exists_today": "Mention notifications usaban comment_content crudo con formato @[nombre](id).",
+        "touch_points": [
+          "buildNotifications templates para mention",
+          "suite de tests del dominio de notificaciones"
+        ],
+        "risks": [
+          "Exposicion de IDs internos en UI si cliente renderiza texto plano",
+          "Inconsistencia entre consumidores futuros (email, push, in-app)"
+        ]
+      },
+      "micro_plan": {
+        "steps": [
+          "Agregar sanitizacion markdown a body de eventos mention en backend.",
+          "Cubrir con test de regresion para evitar leakage de IDs.",
+          "Ejecutar test puntual del modulo."
+        ],
+        "files_to_change": [
+          "apps/back/src/modules/notifications/domain/rules/notification-rules.ts",
+          "apps/back/src/modules/notifications/domain/rules/notification-rules.test.ts"
+        ],
+        "validation": [
+          "vitest del archivo notification-rules.test.ts en apps/back"
+        ],
+        "done_criteria": [
+          "Body mention muestra @Nombre/#Documento sin IDs",
+          "Tests backend del modulo en verde"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Backend mention body sanitization",
+          "details": "Se implemento sanitizeMentionMarkdown + buildMentionBody en notification-rules."
+        },
+        {
+          "action": "Regression test",
+          "details": "Se agrego test que verifica ausencia de IDs y sintaxis markdown cruda en body de mention."
+        },
+        {
+          "action": "Validation",
+          "details": "Se ejecuto vitest puntual: 17/17 tests pass en notification-rules.test.ts."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/back/src/modules/notifications/domain/rules/notification-rules.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/back/src/modules/notifications/domain/rules/notification-rules.test.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "Fix backend complementa el ajuste previo en NotificationItem del front."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": false,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": true,
+        "tier_c_micro_plan_documented": true,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Continuar con hardening backend: normalizar y testear estrategia de actor_name fallback y payload consistency para email-ready."
+    },
+    {
+      "id": "notificationsBackendHardening_20260213_2",
+      "iteration_number": 2,
+      "iteration_type": "execution",
+      "objective": "Eliminar compatibilidad legacy de payload webhook y exigir contrato estricto.",
+      "progress_estimate": {
+        "completitud_from_percent": 35,
+        "completitud_to_percent": 70,
+        "archivos_completados": "4/4",
+        "decisiones_pendientes": [
+          "Definir si se actualizan docs historicas que mencionan legacy acceptance"
+        ]
+      },
+      "quick_scan": {
+        "files_read": [
+          "apps/back/src/modules/notifications/application/dtos/event-payload.ts",
+          "apps/back/src/modules/notifications/infrastructure/mappers/event-mapper.ts",
+          "apps/back/contracts/notifications_contract.v1.json",
+          "apps/back/src/modules/notifications/application/dtos/event-payload.test.ts",
+          "apps/back/src/modules/notifications/infrastructure/mappers/event-mapper.test.ts"
+        ],
+        "what_exists_today": "El mapper aceptaba event_id/event_version faltantes con fallback deterministico legacy.",
+        "touch_points": [
+          "Schema Zod de webhook payload",
+          "Mapper payload->event",
+          "Tests DTO y mapper",
+          "Contrato DB v1.0.0"
+        ],
+        "risks": [
+          "Aceptacion silenciosa de payload fuera de contrato",
+          "Dificultar debugging/idempotencia si entra evento sin event_id real"
+        ]
+      },
+      "micro_plan": {
+        "steps": [
+          "Marcar event_id y event_version como obligatorios en WebhookPayloadSchema.",
+          "Eliminar fallback hash/event_version por defecto en mapPayloadToEvent.",
+          "Ajustar tests de DTO/mapper al contrato estricto.",
+          "Ejecutar suite backend completa."
+        ],
+        "files_to_change": [
+          "apps/back/src/modules/notifications/application/dtos/event-payload.ts",
+          "apps/back/src/modules/notifications/infrastructure/mappers/event-mapper.ts",
+          "apps/back/src/modules/notifications/application/dtos/event-payload.test.ts",
+          "apps/back/src/modules/notifications/infrastructure/mappers/event-mapper.test.ts"
+        ],
+        "validation": [
+          "npm run test en apps/back"
+        ],
+        "done_criteria": [
+          "Backend rechaza payload sin event_id/event_version",
+          "Mapper deja de generar event_id legacy",
+          "Tests backend en verde"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Contract hardening",
+          "details": "event_id y event_version pasaron a requeridos en parseWebhookPayload."
+        },
+        {
+          "action": "Legacy removal",
+          "details": "event-mapper elimino fallback hash deterministico y version por defecto."
+        },
+        {
+          "action": "Tests updated",
+          "details": "Se actualizaron tests de DTO y mapper para contrato estricto."
+        },
+        {
+          "action": "Validation",
+          "details": "Suite completa backend en verde: 12 files, 75 tests pass."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/back/src/modules/notifications/application/dtos/event-payload.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/back/src/modules/notifications/infrastructure/mappers/event-mapper.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/back/src/modules/notifications/application/dtos/event-payload.test.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/back/src/modules/notifications/infrastructure/mappers/event-mapper.test.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "Alineado con contracts/notifications_contract.v1.json que ya exige ambos campos."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": false,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": false,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": true,
+        "tier_c_micro_plan_documented": true,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Actualizar docs operativas para reflejar que payload legacy ya no es aceptado y agregar smoke check de contrato en runbook."
+    },
+    {
+      "id": "notificationsBackendHardening_20260213_3",
+      "iteration_number": 3,
+      "iteration_type": "execution",
+      "objective": "Extender cobertura de saneamiento para mention en documentos.",
+      "progress_estimate": {
+        "completitud_from_percent": 70,
+        "completitud_to_percent": 80,
+        "archivos_completados": "1/1",
+        "decisiones_pendientes": [
+          "Seleccionar siguiente fix backend fuera de mention flow"
+        ]
+      },
+      "quick_scan": {
+        "files_read": [
+          "apps/back/src/modules/notifications/domain/rules/notification-rules.test.ts"
+        ],
+        "what_exists_today": "Existia test de saneamiento para mention en task comment, faltaba variante document comment.",
+        "touch_points": [
+          "Suite notification-rules.test.ts"
+        ],
+        "risks": [
+          "Regresion silenciosa en MENTION_IN_DOCUMENT_COMMENT"
+        ]
+      },
+      "micro_plan": {
+        "steps": [
+          "Agregar test dedicado para MENTION_IN_DOCUMENT_COMMENT.",
+          "Verificar que no exponga IDs ni markdown crudo."
+        ],
+        "files_to_change": [
+          "apps/back/src/modules/notifications/domain/rules/notification-rules.test.ts"
+        ],
+        "validation": [
+          "vitest puntual notification-rules.test.ts"
+        ],
+        "done_criteria": [
+          "Cobertura explicita de ambos tipos mention",
+          "Test en verde"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Coverage hardening",
+          "details": "Se agrego test para MENTION_IN_DOCUMENT_COMMENT verificando sanitizacion de IDs."
+        },
+        {
+          "action": "Validation",
+          "details": "notification-rules.test.ts en verde: 18 tests pass."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/back/src/modules/notifications/domain/rules/notification-rules.test.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "Sin cambios de runtime adicionales; solo robustez de test suite."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": false,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": true,
+        "tier_c_micro_plan_documented": true,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Actualizar runbook/docs operativos para reflejar contrato estricto sin legacy payload fallback."
+    },
+    {
+      "id": "notificationsBackendHardening_20260213_4",
+      "iteration_number": 4,
+      "iteration_type": "execution",
+      "objective": "Alinear documentacion operativa con contrato webhook estricto (sin legacy fallback).",
+      "progress_estimate": {
+        "completitud_from_percent": 80,
+        "completitud_to_percent": 90,
+        "archivos_completados": "3/3",
+        "decisiones_pendientes": [
+          "Definir si se agrega smoke script automatizado en scripts/"
+        ]
+      },
+      "quick_scan": {
+        "files_read": [
+          "apps/back/docs/notifications_backend_estado_actual_20260212.md",
+          "apps/front/docs/backend/notifications_backend_estado_actual_20260212.md",
+          "apps/back/docs/operations/notifications_runtime_runbook.md"
+        ],
+        "what_exists_today": "Los docs de estado seguian mencionando fallback legacy de event_id/event_version.",
+        "touch_points": [
+          "Documentacion operativa backend",
+          "Espejo de documentacion en front/docs/backend",
+          "Runbook de runtime"
+        ],
+        "risks": [
+          "Operar con supuestos viejos puede ocultar errores reales de contrato",
+          "Onboarding tecnico con informacion contradictoria"
+        ]
+      },
+      "micro_plan": {
+        "steps": [
+          "Actualizar docs para declarar contrato estricto.",
+          "Eliminar texto de compatibilidad backward en estado actual.",
+          "Agregar nota explicita en runbook runtime."
+        ],
+        "files_to_change": [
+          "apps/back/docs/notifications_backend_estado_actual_20260212.md",
+          "apps/front/docs/backend/notifications_backend_estado_actual_20260212.md",
+          "apps/back/docs/operations/notifications_runtime_runbook.md"
+        ],
+        "validation": [
+          "Revisar diff y buscar frases legacy removidas"
+        ],
+        "done_criteria": [
+          "Docs reflejan rechazo de payload sin event_id/event_version",
+          "No quedan referencias a fallback legacy en esos docs"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Docs hardening",
+          "details": "Se actualizo estado actual (back y front mirror) para contrato estricto y se removio texto backward."
+        },
+        {
+          "action": "Runbook update",
+          "details": "Se agrego seccion de runtime payload contract (strict) en runbook operativo."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/back/docs/notifications_backend_estado_actual_20260212.md",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/backend/notifications_backend_estado_actual_20260212.md",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/back/docs/operations/notifications_runtime_runbook.md",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "Se mantuvo intacta documentacion historica para auditoria; solo se ajusto documentacion operativa viva."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": false,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": false,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": true,
+        "tier_c_micro_plan_documented": true,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Crear script de smoke para ejecutar verificacion outbox->notifications en un solo comando."
+    },
+    {
+      "id": "notificationsBackendHardening_20260213_5",
+      "iteration_number": 5,
+      "iteration_type": "execution",
+      "objective": "Agregar smoke script operativo y documentar su uso post-deploy.",
+      "progress_estimate": {
+        "completitud_from_percent": 90,
+        "completitud_to_percent": 100,
+        "archivos_completados": "3/3",
+        "decisiones_pendientes": []
+      },
+      "quick_scan": {
+        "files_read": [
+          "apps/back/scripts/check_db_contract.ts",
+          "apps/back/docs/operations/notifications_runtime_runbook.md",
+          "apps/back/package.json"
+        ],
+        "what_exists_today": "Existia check de contrato DB, pero no un smoke runtime integrado en un comando.",
+        "touch_points": [
+          "scripts backend",
+          "npm scripts",
+          "runbook operativo"
+        ],
+        "risks": [
+          "Post-deploy manual y propenso a omisiones",
+          "Sin chequeo rapido de salud/idempotencia en runtime"
+        ]
+      },
+      "micro_plan": {
+        "steps": [
+          "Crear script smoke_notifications_runtime.ts para health/outbox/idempotencia.",
+          "Exponer comando npm run smoke:notifications.",
+          "Documentar variables y uso en runbook.",
+          "Validar compilacion TypeScript."
+        ],
+        "files_to_change": [
+          "apps/back/scripts/smoke_notifications_runtime.ts",
+          "apps/back/package.json",
+          "apps/back/docs/operations/notifications_runtime_runbook.md"
+        ],
+        "validation": [
+          "npm run build en apps/back"
+        ],
+        "done_criteria": [
+          "Comando smoke disponible en package scripts",
+          "Runbook actualizado con instrucciones post-deploy",
+          "Build backend exitoso"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "New runtime smoke script",
+          "details": "Se agrego script que valida /health, status de outbox, stale rows y duplicados por (event_id,user_id)."
+        },
+        {
+          "action": "Command wiring",
+          "details": "Se agrego npm script smoke:notifications en apps/back/package.json."
+        },
+        {
+          "action": "Operational docs",
+          "details": "Runbook actualizado con envs y uso de runtime smoke post-deploy."
+        },
+        {
+          "action": "Validation",
+          "details": "Build backend exitoso con tsc."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/back/scripts/smoke_notifications_runtime.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/back/package.json",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/back/docs/operations/notifications_runtime_runbook.md",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "El smoke script no muta datos; realiza verificaciones de lectura y salud.",
+        "No se ejecuto el smoke contra prod desde esta terminal por falta de variables runtime exportadas en sesion actual."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": false,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": true,
+        "tier_c_micro_plan_documented": true,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Ejecutar npm run smoke:notifications en entorno con SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY para validar runtime en produccion."
+    },
+    {
+      "id": "notificationsDeployChecklist_20260213_1",
+      "iteration_number": 1,
+      "iteration_type": "execution",
+      "objective": "Crear checklist copy/paste de deploy y enlazarlo en runbook.",
+      "progress_estimate": {
+        "completitud_from_percent": 0,
+        "completitud_to_percent": 100,
+        "archivos_completados": "2/2",
+        "decisiones_pendientes": []
+      },
+      "quick_scan": {
+        "files_read": [
+          "apps/back/docs/operations/notifications_runtime_runbook.md"
+        ],
+        "what_exists_today": "Existe runbook general pero no checklist corto orientado a release.",
+        "touch_points": [
+          "docs operativas backend",
+          "comandos check:db-contract y smoke:notifications"
+        ],
+        "risks": [
+          "Saltarse pasos criticos en deploy manual",
+          "Falta de criterio uniforme para rollback"
+        ]
+      },
+      "micro_plan": {
+        "steps": [
+          "Crear archivo checklist de deploy con pasos bloqueantes.",
+          "Incluir comandos y criterios de pase/falla.",
+          "Enlazar checklist desde runbook runtime."
+        ],
+        "files_to_change": [
+          "apps/back/docs/operations/notifications_deploy_checklist.md",
+          "apps/back/docs/operations/notifications_runtime_runbook.md"
+        ],
+        "validation": [
+          "Revisar contenido y rutas en docs"
+        ],
+        "done_criteria": [
+          "Checklist disponible para uso inmediato",
+          "Runbook referencia checklist",
+          "Confirmacion explicita de migraciones requeridas/no requeridas"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Checklist created",
+          "details": "Se creo notifications_deploy_checklist.md con preconditions, blockers, smoke, SQL checks y rollback."
+        },
+        {
+          "action": "Runbook linked",
+          "details": "Se agrego referencia directa al checklist en notifications_runtime_runbook.md."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/back/docs/operations/notifications_deploy_checklist.md",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/back/docs/operations/notifications_runtime_runbook.md",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "Este bloque no introduce cambios SQL ni requiere nueva migracion."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": false,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": true,
+        "tier_c_micro_plan_documented": true,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Ejecutar check:db-contract y smoke:notifications en entorno de despliegue real."
+    },
+    {
+      "id": "contextMonorepoBackendAlignment_20260213_1",
+      "iteration_number": 1,
+      "iteration_type": "execution",
+      "objective": "Reescribir CONTEXT.md como fuente operativa front+back monorepo.",
+      "progress_estimate": {
+        "completitud_from_percent": 0,
+        "completitud_to_percent": 100,
+        "archivos_completados": "1/1",
+        "decisiones_pendientes": []
+      },
+      "quick_scan": {
+        "files_read": [
+          "apps/front/docs/documentacion/CONTEXT.md",
+          "apps/front/docs/documentacion/backend/notifications_operational_status_20260213.md",
+          "apps/back/docs/operations/notifications_runtime_runbook.md",
+          "apps/back/docs/operations/notifications_deploy_checklist.md"
+        ],
+        "what_exists_today": "CONTEXT.md tenia supuestos antiguos (backend separado, fases pendientes, contexto desactualizado).",
+        "touch_points": [
+          "documentacion central para agentes IA",
+          "arquitectura monorepo",
+          "operacion de notificaciones"
+        ],
+        "risks": [
+          "Agentes trabajando con supuestos obsoletos",
+          "Errores operativos por docs desalineadas"
+        ]
+      },
+      "micro_plan": {
+        "steps": [
+          "Reescribir CONTEXT.md completo en modo source-of-truth operativo.",
+          "Incluir arquitectura monorepo front/back y ownership DB.",
+          "Incluir contrato estricto, comandos operativos y referencias clave.",
+          "Agregar seccion anti-supuestos para agentes."
+        ],
+        "files_to_change": [
+          "apps/front/docs/documentacion/CONTEXT.md"
+        ],
+        "validation": [
+          "Revision manual de contenido y estructura"
+        ],
+        "done_criteria": [
+          "CONTEXT.md explica backend actual dentro del monorepo",
+          "Incluye pipeline operativo y contrato de notificaciones",
+          "Evita supuestos legacy"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "CONTEXT rewrite",
+          "details": "Se reescribio el archivo con foco en monorepo, backend notifications runtime, contrato estricto y operacion deploy/smoke."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/docs/documentacion/CONTEXT.md",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "No requiere migraciones DB; solo actualizacion documental."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": false,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": true,
+        "tier_c_micro_plan_documented": true,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Revisar si quieres agregar una seccion especifica de roadmap de emails en CONTEXT.md o mantenerla en docs backend dedicadas."
+    },
+    {
+      "id": "splitMvpWizards_20260213_1",
+      "iteration_number": 1,
+      "iteration_type": "exploration",
+      "objective": "Mapear acoplamientos del wizard MVP actual para separarlo en 3 wizards.",
+      "progress_estimate": {
+        "completitud_from_percent": 0,
+        "completitud_to_percent": 35,
+        "archivos_completados": "0/6",
+        "decisiones_pendientes": [
+          "Estrategia de compatibilidad con URL legacy /mvp",
+          "Definir criterio de desbloqueo de Validaci?n tras split de rutas"
+        ]
+      },
+      "exploration": {
+        "target": "wizard store + WizardView + ProjectDashboardView + WizardShell",
+        "files_read": [
+          "apps/front/src/stores/wizard.js",
+          "apps/front/src/views/app/WizardView.vue",
+          "apps/front/src/views/app/ProjectDashboardView.vue",
+          "apps/front/src/components/wizard/core/WizardShell.vue",
+          "apps/front/src/components/wizard/core/WizardFooter.vue",
+          "apps/front/src/router/index.js"
+        ],
+        "architecture_summary": "El sistema estaba centrado en un wizard ?nico mvp con m?dulo mvp_route y resoluci?n de m?dulos por technicalPath.",
+        "integration_points": [
+          "wizardStore.WIZARDS, PHASES y getWizardProgress",
+          "WizardView para resolver componentes por m?dulo/ruta",
+          "ProjectDashboardView para cards/progreso y apertura de wizard",
+          "WizardShell/WizardFooter para sidebar, nombre de m?dulo y cambio de ruta"
+        ],
+        "risks_and_edge_cases": [
+          "Ruptura de links legacy /app/project/:id/mvp",
+          "Desbloqueo de validaci?n si solo una ruta MVP est? completada",
+          "Navegaci?n de cambio de ruta con hardcode de mvp_route"
+        ],
+        "recommended_approach": "Introducir 3 wizardIds MVP, mantener technicalPath como contexto activo y agregar redirecci?n legacy /mvp -> wizard por ruta detectada."
+      },
+      "actions_done": [
+        {
+          "action": "Exploraci?n de arquitectura",
+          "details": "Se identificaron todos los puntos de acoplamiento al wizard mvp ?nico y a mvp_route."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Documentar plan corto y ejecutar refactor coordinado de store y vistas."
+    },
+    {
+      "id": "splitMvpWizards_20260213_2",
+      "iteration_number": 2,
+      "iteration_type": "planning",
+      "objective": "Definir plan de implementaci?n del split de wizard MVP y badge recomendado.",
+      "progress_estimate": {
+        "completitud_from_percent": 35,
+        "completitud_to_percent": 55,
+        "archivos_completados": "0/6",
+        "decisiones_pendientes": [
+          "Ajuste de tests del cambio de ruta",
+          "Actualizar documentaci?n JSON m?nima"
+        ]
+      },
+      "plan": {
+        "plan_steps": [
+          "Actualizar wizard store con 3 wizards MVP y mapping ruta<->wizard.",
+          "Adaptar WizardView con mapeo nuevo y fallback para URL legacy /mvp.",
+          "Actualizar ProjectDashboardView con 3 cards y badge Recomendado.",
+          "Corregir WizardShell/WizardFooter eliminando hardcodes de wizard mvp ?nico.",
+          "Ajustar tests de route-change para nuevo destino m4 + wizardId por ruta.",
+          "Validar con test puntual y build."
+        ],
+        "files_to_change": [
+          "apps/front/src/stores/wizard.js",
+          "apps/front/src/views/app/WizardView.vue",
+          "apps/front/src/views/app/ProjectDashboardView.vue",
+          "apps/front/src/components/wizard/core/WizardShell.vue",
+          "apps/front/src/components/wizard/core/WizardFooter.vue",
+          "apps/front/src/stores/__tests__/wizard.route-change.test.js"
+        ],
+        "validation_strategy": [
+          "Ejecutar test de route-change del store.",
+          "Ejecutar build frontend para validar tipos/templates/routes."
+        ],
+        "test_strategy": [
+          "Actualizar aserciones de changeRoute: m?dulo esperado m4 y wizard esperado por ruta.",
+          "Mantener cobertura existente de propiedades del flujo de cambio de ruta."
+        ],
+        "definition_of_done": [
+          "No existe card ?nica MVP en dashboard; hay 3 cards separadas.",
+          "Badge Recomendado aparece en la card alineada con recomendaci?n de M3.",
+          "URLs legacy /mvp redirigen a wizard v?lido.",
+          "Test de route-change y build en verde."
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Planificaci?n",
+          "details": "Se defini? plan por archivos, validaci?n t?cnica y criterios de done para mantener UX existente."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Ejecutar implementaci?n y pruebas."
+    },
+    {
+      "id": "splitMvpWizards_20260213_3",
+      "iteration_number": 3,
+      "iteration_type": "execution",
+      "objective": "Implementar split de wizard MVP, badge recomendado y ajustes de navegaci?n/tests.",
+      "progress_estimate": {
+        "completitud_from_percent": 55,
+        "completitud_to_percent": 100,
+        "archivos_completados": "8/8",
+        "decisiones_pendientes": []
+      },
+      "actions_done": [
+        {
+          "action": "Store refactor",
+          "details": "wizard.js ahora define mvp_software, mvp_automation y mvp_agent, con mapeos ruta<->wizard y cambio de ruta hacia m4."
+        },
+        {
+          "action": "UI flow updates",
+          "details": "WizardView, ProjectDashboardView, WizardShell y WizardFooter fueron adaptados a los 3 wizards MVP y badge Recomendado."
+        },
+        {
+          "action": "Legacy compatibility",
+          "details": "Se agreg? redirecci?n de ruta legacy /mvp a wizard nuevo seg?n technical_path o recomendaci?n de M3."
+        },
+        {
+          "action": "Tests and validation",
+          "details": "Se actualizaron tests route-change y se valid? con vitest + build."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/src/stores/wizard.js",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/src/views/app/WizardView.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/src/views/app/ProjectDashboardView.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/src/components/wizard/core/WizardShell.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/src/components/wizard/core/WizardFooter.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/src/stores/__tests__/wizard.route-change.test.js",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/documentacion/views.json",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/documentacion/components.json",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "Se mantuvo changeRoute, pero ahora cambia tambi?n el wizard activo seg?n ruta destino.",
+        "mvp_route queda solo para compatibilidad hist?rica; ya no es paso requerido en el flujo principal."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": true,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Validaci?n funcional manual en UI para confirmar copy final de cards y badge recomendado."
+    },
+    {
+      "id": "splitMvpWizards_20260213_4",
+      "iteration_number": 4,
+      "iteration_type": "execution",
+      "objective": "Normalizar estado DB de rutas MVP tras split en 3 wizards.",
+      "progress_estimate": {
+        "completitud_from_percent": 100,
+        "completitud_to_percent": 100,
+        "archivos_completados": "1/1",
+        "decisiones_pendientes": []
+      },
+      "actions_done": [
+        {
+          "action": "DB normalization migration",
+          "details": "Se cre? migration 084 para alinear technical_path con m3.selectedPath/m3.winningPath y reparar current_module inv?lido en phase 3."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/supabase/migrations/084_normalize_mvp_route_state.sql",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "La migraci?n no borra data de m?dulos; solo normaliza estado de navegaci?n y ruta t?cnica."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Aplicar migraci?n 084 en Supabase y verificar technical_path/current_module del proyecto."
+    },
+    {
+      "id": "compassComposerV2_20260213_1",
+      "iteration_number": 1,
+      "iteration_type": "exploration",
+      "objective": "Explorar brecha entre CompassComposer actual y UX/flujo requerido del TaskComposer.",
+      "progress_estimate": {
+        "completitud_from_percent": 0,
+        "completitud_to_percent": 35,
+        "archivos_completados": "0/9",
+        "decisiones_pendientes": [
+          "Definir contrato de salida para convertir tareas sin auto-creacion",
+          "Decidir estrategia de aplicacion al aprobar en frontend"
+        ]
+      },
+      "exploration": {
+        "target": "CompassComposer + TaskComposer + ai-generate",
+        "files_read": [
+          "apps/front/docs/Ralph/Ralph_loop.json",
+          "apps/front/.cursorrules",
+          "apps/front/docs/roadmap/CompasComposser.md",
+          "apps/front/src/components/kanban/TaskComposer.vue",
+          "apps/front/src/components/compass/CompassComposer.vue",
+          "apps/front/src/views/app/CompassDocumentView.vue",
+          "apps/front/src/stores/kanban.js",
+          "apps/front/supabase/functions/ai-generate/index.ts",
+          "apps/front/supabase/functions/ai-generate/prompt_registry.ts"
+        ],
+        "architecture_summary": "CompassComposer estaba en modo simplificado (enrich/tasks) sin flujo de revision editable bloqueante ni iteracion. TaskComposer ya implementa el patron UX objetivo. convert_document_to_tasks persiste automaticamente en backend.",
+        "integration_points": [
+          "useAIExecutor para costo y ejecucion",
+          "kanbanStore.createTask para persistencia al aprobar",
+          "CompassDocumentView eventos apply/tasks-created",
+          "prompt_registry de ai-generate para nuevas acciones"
+        ],
+        "risks_and_edge_cases": [
+          "Evitar auto-creacion de tareas en fase de generacion para respetar control usuario",
+          "Mantener parsing robusto cuando IA retorna JSON en fences",
+          "Asegurar bloqueo de cierre durante loading/reproceso"
+        ],
+        "recommended_approach": "Reescribir CompassComposer con misma estructura de TaskComposer y agregar nuevas acciones compass_composer_* con costos en ai_operation_costs."
+      },
+      "actions_done": [
+        {
+          "action": "Exploracion tecnica",
+          "details": "Se mapearon diferencias de UI/UX y contratos entre CompassComposer y TaskComposer."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Documentar plan corto y ejecutar implementacion."
+    },
+    {
+      "id": "compassComposerV2_20260213_2",
+      "iteration_number": 2,
+      "iteration_type": "planning",
+      "objective": "Definir plan de implementacion para CompassComposer V2 y acciones IA dedicadas.",
+      "progress_estimate": {
+        "completitud_from_percent": 35,
+        "completitud_to_percent": 55,
+        "archivos_completados": "0/9",
+        "decisiones_pendientes": [
+          "Cobertura minima de tests para nuevo componente",
+          "Ajustes de documentacion estructurada edge_function/feature_components"
+        ]
+      },
+      "plan": {
+        "plan_steps": [
+          "Reescribir src/components/compass/CompassComposer.vue replicando UX de TaskComposer.",
+          "Agregar acciones compass_composer_* en supabase/functions/ai-generate/actions y registry.",
+          "Agregar migracion de costos para nuevas acciones en ai_operation_costs.",
+          "Agregar tests minimos de CompassComposer (render, costo, flujo tasks->approve).",
+          "Actualizar docs/documentacion/feature_components.json y edge_function.json."
+        ],
+        "files_to_change": [
+          "apps/front/src/components/compass/CompassComposer.vue",
+          "apps/front/src/components/compass/__tests__/CompassComposer.test.js",
+          "apps/front/supabase/functions/ai-generate/prompt_registry.ts",
+          "apps/front/supabase/functions/ai-generate/actions/compass_composer_structure.ts",
+          "apps/front/supabase/functions/ai-generate/actions/compass_composer_enrich_structure.ts",
+          "apps/front/supabase/functions/ai-generate/actions/compass_composer_convert_tasks.ts",
+          "apps/front/supabase/functions/ai-generate/actions/compass_composer_create_plan.ts",
+          "apps/front/supabase/functions/ai-generate/actions/compass_composer_add_mermaid.ts",
+          "apps/front/supabase/functions/ai-generate/actions/compass_composer_iterate.ts",
+          "apps/front/supabase/migrations/086_compass_composer_v2_operations.sql",
+          "apps/front/docs/documentacion/feature_components.json",
+          "apps/front/docs/documentacion/edge_function.json"
+        ],
+        "validation_strategy": [
+          "Ejecutar test puntual de CompassComposer.",
+          "Ejecutar build frontend para validar compilacion completa."
+        ],
+        "test_strategy": [
+          "Cobertura de header/estado disabled/costo por accion/revision y aprobacion de tareas."
+        ],
+        "definition_of_done": [
+          "CompassComposer usa mismo flujo UX que TaskComposer.",
+          "Existen 5 acciones del roadmap y iteracion con feedback.",
+          "No hay persistencia automatica previa a aprobar.",
+          "Tests y build en verde."
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Planificacion documentada",
+          "details": "Se definieron pasos, archivos, validaciones y criterios de done."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Ejecutar implementacion y validar con tests/build."
+    },
+    {
+      "id": "compassComposerV2_20260213_3",
+      "iteration_number": 3,
+      "iteration_type": "execution",
+      "objective": "Implementar CompassComposer V2, acciones IA y validaciones.",
+      "progress_estimate": {
+        "completitud_from_percent": 55,
+        "completitud_to_percent": 100,
+        "archivos_completados": "12/12",
+        "decisiones_pendientes": []
+      },
+      "actions_done": [
+        {
+          "action": "UI/UX alignment",
+          "details": "CompassComposer fue reescrito con patron TaskComposer: form/loading/review/iterate y aprobar/descartar."
+        },
+        {
+          "action": "AI actions",
+          "details": "Se agregaron acciones compass_composer_* en ai-generate y registro en prompt_registry."
+        },
+        {
+          "action": "Operation costs",
+          "details": "Nueva migracion 086 para costos de acciones CompassComposer V2."
+        },
+        {
+          "action": "Tests and validation",
+          "details": "Se agrego CompassComposer.test.js y se ejecuto test puntual + build frontend."
+        },
+        {
+          "action": "Structured docs",
+          "details": "Se actualizaron feature_components.json y edge_function.json con el nuevo flujo y acciones."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/src/components/compass/CompassComposer.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/src/components/compass/__tests__/CompassComposer.test.js",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/front/supabase/functions/ai-generate/prompt_registry.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/supabase/functions/ai-generate/actions/compass_composer_structure.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/front/supabase/functions/ai-generate/actions/compass_composer_enrich_structure.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/front/supabase/functions/ai-generate/actions/compass_composer_convert_tasks.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/front/supabase/functions/ai-generate/actions/compass_composer_create_plan.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/front/supabase/functions/ai-generate/actions/compass_composer_add_mermaid.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/front/supabase/functions/ai-generate/actions/compass_composer_iterate.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/front/supabase/migrations/086_compass_composer_v2_operations.sql",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/front/docs/documentacion/feature_components.json",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/documentacion/edge_function.json",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "Se mantiene convert_document_to_tasks legacy sin uso en CompassComposer V2.",
+        "Persistencia de tareas ahora ocurre en frontend solo al aprobar."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": true,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Aplicar migracion 086 en Supabase y validar flujo completo en UI con datos reales."
+    },
+    {
+      "id": "compassComposerV2_20260213_4",
+      "iteration_number": 4,
+      "iteration_type": "execution",
+      "objective": "Agregar campos especificos por accion + configuracion avanzada en CompassComposer y conectar a prompts.",
+      "progress_estimate": {
+        "completitud_from_percent": 100,
+        "completitud_to_percent": 100,
+        "archivos_completados": "9/9",
+        "decisiones_pendientes": []
+      },
+      "actions_done": [
+        {
+          "action": "UI form refinement",
+          "details": "Se agregaron campos estrategicos por accion (structure/enrich/tasks/plan/mermaid) y bloque colapsable de Configuracion avanzada."
+        },
+        {
+          "action": "Context wiring",
+          "details": "Los parametros por accion se envian en context.action_params a las acciones de AI."
+        },
+        {
+          "action": "Prompt alignment",
+          "details": "Prompts compass_composer_* ahora interpretan parametros por accion para ajustar estructura, tono, granularidad, plan y diagramas."
+        },
+        {
+          "action": "Validation",
+          "details": "Test puntual de CompassComposer y build frontend exitosos."
+        },
+        {
+          "action": "Documentation sync",
+          "details": "feature_components.json y edge_function.json actualizados con el nuevo esquema de parametros."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/src/components/compass/CompassComposer.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/supabase/functions/ai-generate/actions/compass_composer_structure.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/supabase/functions/ai-generate/actions/compass_composer_enrich_structure.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/supabase/functions/ai-generate/actions/compass_composer_convert_tasks.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/supabase/functions/ai-generate/actions/compass_composer_create_plan.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/supabase/functions/ai-generate/actions/compass_composer_add_mermaid.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/supabase/functions/ai-generate/actions/compass_composer_iterate.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/documentacion/feature_components.json",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/documentacion/edge_function.json",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "Se mantiene el campo de contexto original del documento oculto en UI.",
+        "Detalles adicionales y Restricciones siguen siendo opcionales y comunes."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": true,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Validar UX manual del formulario por accion en CompassDocumentView y ajustar copy final si deseas."
+    },
+    {
+      "id": "emailNotificationsModule_20260218_1",
+      "iteration_number": 1,
+      "iteration_type": "exploration",
+      "objective": "Explorar arquitectura actual y puntos de integracion para modulo email independiente.",
+      "progress_estimate": {
+        "completitud_from_percent": 0,
+        "completitud_to_percent": 20,
+        "archivos_completados": "0/14",
+        "decisiones_pendientes": [
+          "Definir funciones SQL para claim/process de eventos por timezone",
+          "Definir scheduling exacto y estrategia de period_key por tipo"
+        ]
+      },
+      "exploration": {
+        "target": "apps/back notifications module + configuracion + migraciones SoT apps/front",
+        "files_read": [
+          "apps/front/docs/Ralph/Ralph_loop.json",
+          "apps/front/docs/Ralph/Ralph_WIP.json",
+          "apps/front/.cursorrules",
+          "apps/back/.cursorrules",
+          "apps/back/src/bootstrap/server.ts",
+          "apps/back/src/bootstrap/container.ts",
+          "apps/back/src/shared/config/env.ts",
+          "apps/back/.env.example",
+          "apps/back/src/modules/notifications/index.ts",
+          "apps/back/src/modules/notifications/application/services/notification-outbox-processor.ts",
+          "apps/back/src/modules/notifications/infrastructure/repositories/supabase-outbox-repository.ts",
+          "apps/front/supabase/migrations/052_project_invitations.sql",
+          "apps/front/supabase/migrations/090_add_projects_description_and_estatus.sql",
+          "apps/front/src/views/app/settings/NotificationsView.vue",
+          "apps/front/docs/roadmap/email_notifications_roadmap_v1.md"
+        ],
+        "architecture_summary": "El backend actual tiene un modulo notifications in-app basado en outbox y worker por polling. No existe modulo email ni tablas/funciones para eventos de email. El front ya define preferencias (resumen diario/semanal/mensual y timezone) y no expone invitaciones ni selector de proveedor.",
+        "integration_points": [
+          "apps/back/src/bootstrap/server.ts para registrar nuevo modulo email-notifications",
+          "apps/back/src/shared/config/env.ts para nuevos flags/envs ZEPTOMAIL y scheduler",
+          "apps/front/supabase/migrations como fuente de verdad de tablas y RPC/funciones",
+          "project_invitations (apps/front/supabase/migrations/052_project_invitations.sql) para disparo de invitaciones",
+          "UI de settings en /app/settings/notifications para campos de preferencias ya definidos"
+        ],
+        "risks_and_edge_cases": [
+          "No tocar notification_outbox existente ni acoplar modulos",
+          "Evitar duplicados en resumenes con period_key + unique constraints",
+          "Calculo correcto de ventanas por timezone (DST y offsets variables)",
+          "Invitaciones inmediatas siempre activas aunque no haya preferencias",
+          "Separar claramente envio transaccional ZeptoMail de auth emails Resend"
+        ],
+        "recommended_approach": "Crear modulo nuevo email-notifications con su propio repositorio/event queue/log, migraciones en apps/front para tablas/funciones SQL idempotentes, worker scheduler en backend sin envio real (provider stub), y placeholders de entorno ZEPTOMAIL para siguiente fase."
+      },
+      "actions_done": [
+        {
+          "action": "Exploracion del estado actual",
+          "details": "Se reviso arquitectura backend y decisiones de UI/roadmap para fijar contrato del nuevo modulo email."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "No se hicieron cambios de codigo funcional en esta iteracion; solo trazabilidad Ralph."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Iteracion 2: documentar plan de implementacion por fases (DB, modulo backend, workers, env placeholders, tests)."
+    },
+    {
+      "id": "emailNotificationsModule_20260218_2",
+      "iteration_number": 2,
+      "iteration_type": "planning",
+      "objective": "Definir plan de implementacion para modulo email-notifications independiente.",
+      "progress_estimate": {
+        "completitud_from_percent": 20,
+        "completitud_to_percent": 40,
+        "archivos_completados": "0/14",
+        "decisiones_pendientes": [
+          "Confirmar nombre final de migracion numerada",
+          "Confirmar alcance exacto de tests en esta primera fase sin envio real"
+        ]
+      },
+      "plan": {
+        "plan_steps": [
+          "Crear nueva migracion en apps/front/supabase/migrations para tablas notification_preferences, email_notification_events y email_delivery_log con indices/constraints de idempotencia.",
+          "Agregar funciones SQL de worker para claim de invitaciones pendientes, claim de usuarios para resumen diario/semanal/mensual por timezone y marcado de eventos procesados/logs.",
+          "Crear modulo backend apps/back/src/modules/email-notifications con arquitectura api/application/domain/infrastructure y worker scheduler independiente del modulo notifications.",
+          "Registrar modulo en bootstrap/server.ts y extender env config + .env.example con flags del modulo y placeholders ZEPTOMAIL_*.",
+          "Implementar provider stub (sin envio real) para dejar contrato listo para integrar ZeptoMail en siguiente fase.",
+          "Agregar tests unitarios minimos para reglas de period_key/ventanas de envio y smoke de scheduler sin side effects.",
+          "Actualizar roadmap markdown para reflejar nombres finales y horarios cerrados (23:50, lunes 07:00, dia 1 08:00 local)."
+        ],
+        "files_to_change": [
+          "apps/front/supabase/migrations/092_email_notifications_module_v1.sql",
+          "apps/back/src/shared/config/env.ts",
+          "apps/back/.env.example",
+          "apps/back/src/bootstrap/server.ts",
+          "apps/back/src/modules/email-notifications/index.ts",
+          "apps/back/src/modules/email-notifications/application/services/email-notification-scheduler.ts",
+          "apps/back/src/modules/email-notifications/domain/services/period-key.ts",
+          "apps/back/src/modules/email-notifications/infrastructure/repositories/supabase-email-notification-repository.ts",
+          "apps/back/src/modules/email-notifications/infrastructure/providers/zeptomail-provider.ts",
+          "apps/back/src/modules/email-notifications/**/*.test.ts",
+          "apps/front/docs/roadmap/email_notifications_roadmap_v1.md",
+          "apps/front/docs/Ralph/Ralph_WIP.json"
+        ],
+        "validation_strategy": [
+          "npm run build en apps/back",
+          "npm run test en apps/back (o suite puntual de modulo email)",
+          "Validacion sintactica de migracion SQL y consistencia de nombres con front ya implementado",
+          "Verificar que modulo notifications existente no fue modificado funcionalmente"
+        ],
+        "test_strategy": [
+          "Tests unitarios para calculo period_key y decisiones de scheduling",
+          "Test del scheduler con repositorio mock para asegurar que no envia duplicados por period_key",
+          "No probar envio real HTTP en esta fase (provider stub)"
+        ],
+        "definition_of_done": [
+          "Existe nuevo modulo email-notifications separado del modulo in-app.",
+          "Existen nuevas tablas/funciones SQL en migracion SoT de apps/front.",
+          "Backend compila y tests relevantes pasan.",
+          "Config env incluye placeholders ZEPTOMAIL_* y flags de worker.",
+          "No hay integracion real con credenciales ZeptoMail todavia."
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Plan de implementacion documentado",
+          "details": "Se definio alcance fase 1: estructura modular + DB + jobs sin envio real."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "Se inicia implementacion significativa desde iteracion 3 segun Tier A."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Iteracion 3: implementar migracion SQL y modulo backend email-notifications."
+    },
+    {
+      "id": "emailNotificationsModule_20260218_3",
+      "iteration_number": 3,
+      "iteration_type": "execution",
+      "objective": "Implementar migracion SQL + modulo backend email-notifications con scheduler independiente y provider ZeptoMail stub.",
+      "progress_estimate": {
+        "completitud_from_percent": 40,
+        "completitud_to_percent": 90,
+        "archivos_completados": "11/14",
+        "decisiones_pendientes": [
+          "Definir payload final de templates ZeptoMail en fase 2",
+          "Definir estrategia de produccion de eventos mention/task_assigned/task_due_soon desde el dominio"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Nueva migracion SoT en apps/front",
+          "details": "Se creo 092_email_notifications_module_v1.sql con notification_preferences, email_notification_events, email_delivery_log, trigger de invitaciones y funciones de claim/ack/retry."
+        },
+        {
+          "action": "Nuevo modulo backend independiente",
+          "details": "Se creo apps/back/src/modules/email-notifications con scheduler propio, repositorio Supabase y provider ZeptoMail stub en dry-run."
+        },
+        {
+          "action": "Configuracion de entorno",
+          "details": "Se extendio env.ts y .env.example con flags EMAIL_NOTIFICATIONS_* y placeholders ZEPTOMAIL_*."
+        },
+        {
+          "action": "Integracion en bootstrap",
+          "details": "Se registro email-notifications module en bootstrap/server.ts sin tocar el modulo notifications in-app."
+        },
+        {
+          "action": "Testing",
+          "details": "Se agregaron tests para reglas de scheduling y scheduler. build y test en apps/back pasaron."
+        },
+        {
+          "action": "Roadmap update",
+          "details": "Se actualizo email_notifications_roadmap_v1.md con naming daily_summary y decisiones de proveedor/horarios."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/supabase/migrations/092_email_notifications_module_v1.sql",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/back/src/modules/email-notifications/index.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/back/src/modules/email-notifications/application/services/email-notification-scheduler.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/back/src/modules/email-notifications/application/services/email-notification-scheduler.test.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/back/src/modules/email-notifications/domain/services/schedule-rules.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/back/src/modules/email-notifications/domain/services/schedule-rules.test.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/back/src/modules/email-notifications/infrastructure/repositories/supabase-email-notification-repository.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/back/src/modules/email-notifications/infrastructure/providers/email-provider.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/back/src/modules/email-notifications/infrastructure/providers/zeptomail-provider.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/back/src/shared/config/env.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/back/.env.example",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/back/src/bootstrap/server.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/roadmap/email_notifications_roadmap_v1.md",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "El provider ZeptoMail queda en modo stub/dry-run. No se hizo envio HTTP real en esta fase.",
+        "El modulo in-app notifications permanece intacto y separado."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Iteracion 4: conectar envio real ZeptoMail (API + templates ES) y habilitar productores de eventos para mention/task_assigned/task_due_soon/task_overdue/task_completed."
+    },
+    {
+      "id": "taskStageTransitionDates_20260218_1",
+      "iteration_number": 1,
+      "iteration_type": "exploration",
+      "objective": "Entender estructura real de tasks y triggers asociados antes de cambiar persistencia de etapas.",
+      "progress_estimate": {
+        "completitud_from_percent": 0,
+        "completitud_to_percent": 20,
+        "archivos_completados": "0/2",
+        "decisiones_pendientes": [
+          "Definir nombres finales de columnas de fechas",
+          "Definir comportamiento exacto al mover de stage 5 a 4"
+        ]
+      },
+      "exploration": {
+        "target": "Tabla tasks + trigger stack de stage_code",
+        "files_read": [
+          "apps/front/supabase/migrations/018_tasks_v2_kanban.sql",
+          "apps/front/supabase/migrations/066_task_position_ordering.sql",
+          "apps/front/docs/Ralph/Ralph_loop.json",
+          "apps/front/docs/Ralph/Ralph_WIP.json"
+        ],
+        "architecture_summary": "tasks usa stage_code smallint con validacion por categoria mediante validate_task_stage_code (BEFORE INSERT/UPDATE). Existen triggers de updated_at, asignacion de follower y notificaciones por due_date/priority/assignee. No existe actualmente persistencia de fechas por stage 4 o 5.",
+        "integration_points": [
+          "BEFORE triggers en tasks (especialmente validate_task_stage_code_trigger)",
+          "Actualizaciones de stage_code desde frontend store y RPC move_task_with_position",
+          "Migraciones SoT en apps/front/supabase/migrations"
+        ],
+        "risks_and_edge_cases": [
+          "Orden de ejecucion entre BEFORE triggers puede afectar el stage final observado por el nuevo trigger",
+          "Cambios de categoria pueden forzar stage_code a 0 y deben limpiar fechas",
+          "Mover tarea 5 -> 4 debe evitar conservar fecha de deployed obsoleta"
+        ],
+        "recommended_approach": "Agregar dos columnas timestamptz en tasks y un nuevo BEFORE trigger que corra despues del validador (nombre de trigger con prefijo zz_) para setear fechas en entrada a stage 4/5 y limpiar ambas al volver a 0..3."
+      },
+      "actions_done": [
+        {
+          "action": "Snapshot tecnico incorporado",
+          "details": "Se registraron resultados compartidos por el usuario (estructura tasks, constraints, indices, triggers y funciones) para usar como base de diseno."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "No se aplicaron cambios funcionales en iteracion 1."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Iteracion 2: documentar plan SQL exacto y reglas de transicion por stage."
+    },
+    {
+      "id": "taskStageTransitionDates_20260218_2",
+      "iteration_number": 2,
+      "iteration_type": "planning",
+      "objective": "Definir plan de migracion para registrar fechas de stage 4/5 y reglas de reseteo.",
+      "progress_estimate": {
+        "completitud_from_percent": 20,
+        "completitud_to_percent": 40,
+        "archivos_completados": "0/2",
+        "decisiones_pendientes": [
+          "Definir si se backfillean datos historicos (se decide NO en esta fase)",
+          "Confirmar necesidad de indices para nuevas columnas (se decide NO por ahora)"
+        ]
+      },
+      "plan": {
+        "plan_steps": [
+          "Crear migracion 093 con columnas stage_4_entered_at y stage_5_entered_at en public.tasks.",
+          "Crear funcion track_task_stage_transition_dates() en PL/pgSQL con reglas de INSERT/UPDATE por stage_code.",
+          "Crear trigger BEFORE INSERT OR UPDATE OF category, stage_code sobre tasks para capturar transiciones reales tras validacion.",
+          "Resetear stage_4_entered_at y stage_5_entered_at al mover tarea a stages 0..3.",
+          "Actualizar stage_4_entered_at al entrar a stage 4 y stage_5_entered_at al entrar a stage 5, manteniendo cambio solo en DB."
+        ],
+        "files_to_change": [
+          "apps/front/supabase/migrations/093_track_task_stage_transition_dates.sql",
+          "apps/front/docs/Ralph/Ralph_WIP.json"
+        ],
+        "validation_plan": [
+          "Verificar sintaxis SQL e idempotencia basica (IF NOT EXISTS + DROP TRIGGER IF EXISTS).",
+          "Confirmar que no hay cambios en frontend ni contratos de API.",
+          "Revisar diff para garantizar que el alcance es solo persistencia DB."
+        ],
+        "test_strategy": [
+          "Validacion manual posterior en DB: mover task a 4/5 y verificar timestamps.",
+          "Mover task a stage 0..3 y verificar limpieza de ambas fechas."
+        ],
+        "definition_of_done": [
+          "tasks tiene columnas para fecha de entrada a stage 4 y 5.",
+          "Las transiciones actualizan/limpian fechas segun reglas solicitadas.",
+          "No hay cambios visuales ni de comportamiento frontend."
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Plan SQL documentado",
+          "details": "Se establecieron columnas, trigger, reglas de set/reset y validacion."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Iteracion 3: ejecutar migracion y validar consistencia de cambios."
+    },
+    {
+      "id": "taskStageTransitionDates_20260218_3",
+      "iteration_number": 3,
+      "iteration_type": "execution",
+      "objective": "Implementar migracion para persistir fechas de entrada a stages 4/5 con reset al volver a 0..3.",
+      "progress_estimate": {
+        "completitud_from_percent": 40,
+        "completitud_to_percent": 100,
+        "archivos_completados": "2/2",
+        "decisiones_pendientes": []
+      },
+      "actions_done": [
+        {
+          "action": "Migracion creada",
+          "details": "Se creo 093_track_task_stage_transition_dates.sql con ALTER TABLE, comments, funcion y trigger."
+        },
+        {
+          "action": "Reglas de transicion implementadas",
+          "details": "stage 4 setea stage_4_entered_at, stage 5 setea stage_5_entered_at, stages 0..3 limpian ambas fechas."
+        },
+        {
+          "action": "Compatibilidad con trigger existente",
+          "details": "Se nombro trigger con prefijo zz_ para que ejecute despues de validate_task_stage_code_trigger y tome el stage final valido."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/supabase/migrations/093_track_task_stage_transition_dates.sql",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "No se agregaron cambios frontend ni migracion de backfill historico."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Aplicar migracion 093 en Supabase y validar manualmente movimientos de stage 4/5 y reset al volver a 0..3."
+    },
+    {
+      "id": "optimizeEmailRlsPolicies_20260218_1",
+      "iteration_number": 1,
+      "iteration_type": "exploration",
+      "objective": "Auditar las politicas RLS del modulo email y mapear warnings del linter.",
+      "progress_estimate": {
+        "completitud_from_percent": 0,
+        "completitud_to_percent": 20,
+        "archivos_completados": "0/2",
+        "decisiones_pendientes": [
+          "Definir estrategia para reducir politicas permissive duplicadas sin perder acceso del service role",
+          "Definir alcance de TO por rol en cada politica"
+        ]
+      },
+      "exploration": {
+        "target": "RLS de notification_preferences, email_notification_events y email_delivery_log",
+        "files_read": [
+          "apps/front/supabase/migrations/092_email_notifications_module_v1.sql",
+          "apps/front/docs/Ralph/Ralph_WIP.json"
+        ],
+        "architecture_summary": "Las politicas actuales usan auth.uid()/auth.role() sin SELECT wrapper y varias politicas FOR ALL/SELECT sin TO explicito, lo que genera evaluaciones por fila y warnings de multiples permissive policies por rol.",
+        "integration_points": [
+          "Polizas RLS creadas en 092_email_notifications_module_v1.sql",
+          "Motor RLS de Supabase/PostgREST para roles anon/authenticated/service_role"
+        ],
+        "risks_and_edge_cases": [
+          "Restringir demasiado TO puede bloquear acceso esperado de usuarios autenticados",
+          "Mantener FOR ALL para service_role sin duplicar semantica con politicas de usuario"
+        ],
+        "recommended_approach": "Crear migracion incremental que recree politicas con TO explicito (authenticated para own, service_role para service_all) y reemplazar auth.uid()/auth.role() por (select auth.uid())/(select auth.role())."
+      },
+      "actions_done": [
+        {
+          "action": "Diagnostico de warnings",
+          "details": "Se confirmo correlacion directa entre warnings reportados y definiciones de RLS en migracion 092."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Iteracion 2: documentar plan SQL de recreacion de politicas."
+    },
+    {
+      "id": "optimizeEmailRlsPolicies_20260218_2",
+      "iteration_number": 2,
+      "iteration_type": "planning",
+      "objective": "Definir plan de migracion para optimizacion RLS sin cambiar funcionalidad de negocio.",
+      "progress_estimate": {
+        "completitud_from_percent": 20,
+        "completitud_to_percent": 40,
+        "archivos_completados": "0/2",
+        "decisiones_pendientes": [
+          "Confirmar si incluir cambios en migracion 092 o migracion incremental (se decide incremental)"
+        ]
+      },
+      "plan": {
+        "plan_steps": [
+          "Crear migracion 094 incremental (sin modificar 092).",
+          "Drop/recreate politicas de las tres tablas con TO explicito por rol.",
+          "Aplicar SELECT wrapper a auth.uid/auth.role en todas las politicas recreadas.",
+          "Mantener semantica de acceso: own para authenticated y all para service_role."
+        ],
+        "files_to_change": [
+          "apps/front/supabase/migrations/094_optimize_email_notifications_rls_policies.sql",
+          "apps/front/docs/Ralph/Ralph_WIP.json"
+        ],
+        "validation_plan": [
+          "Revisar diff de SQL para confirmar solo cambios de RLS.",
+          "Ejecutar consulta de pg_policies post-aplicacion para verificar USING/WITH CHECK esperados."
+        ],
+        "test_strategy": [
+          "Validacion manual con SQL Editor (policies + comportamiento de acceso por rol)."
+        ],
+        "definition_of_done": [
+          "No quedan auth_rls_initplan warnings en estas politicas.",
+          "No quedan multiple_permissive_policies warnings para tablas del modulo email."
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Plan documentado",
+          "details": "Se definio migracion 094 con drop/recreate de politicas y optimizaciones auth initplan."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Iteracion 3: ejecutar migracion 094 y validar warnings."
+    },
+    {
+      "id": "optimizeEmailRlsPolicies_20260218_3",
+      "iteration_number": 3,
+      "iteration_type": "execution",
+      "objective": "Implementar migracion 094 para optimizacion de RLS en modulo email.",
+      "progress_estimate": {
+        "completitud_from_percent": 40,
+        "completitud_to_percent": 100,
+        "archivos_completados": "2/2",
+        "decisiones_pendientes": []
+      },
+      "actions_done": [
+        {
+          "action": "Migracion SQL creada",
+          "details": "Se creo 094_optimize_email_notifications_rls_policies.sql con recreacion de politicas para notification_preferences, email_notification_events y email_delivery_log."
+        },
+        {
+          "action": "Auth initplan optimizado",
+          "details": "Se reemplazo auth.uid()/auth.role() por (select auth.uid())/(select auth.role()) en politicas recreadas."
+        },
+        {
+          "action": "Permissive policy warnings mitigados",
+          "details": "Se agrego TO authenticated para politicas own y TO service_role para service_all, evitando superposicion por rol."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/supabase/migrations/094_optimize_email_notifications_rls_policies.sql",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "No se tocaron tablas ni funciones de negocio; solo politicas RLS."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Aplicar migracion 094 en Supabase y volver a correr linter para confirmar limpieza de warnings."
+    },
+    {
+      "id": "chatAuthIntegration_20260306_1",
+      "iteration_number": 1,
+      "iteration_type": "exploration",
+      "objective": "Explorar estado actual de chat backend, auth y acoplamientos para planificar integracion segura.",
+      "progress_estimate": {
+        "completitud_from_percent": 55,
+        "completitud_to_percent": 65,
+        "archivos_completados": "6/12",
+        "decisiones_pendientes": [
+          "Definir estrategia de pruebas de auth/roles",
+          "Definir primer bloque de integracion frontend o contrato API final"
+        ]
+      },
+      "exploration": {
+        "target": "Modulo chat backend + middleware auth + roadmap + referencias Ralph",
+        "files_read": [
+          "apps/front/docs/Ralph/Ralph_loop.json",
+          "apps/front/docs/Ralph/Ralph_WIP.json",
+          "apps/front/docs/documentacion/layouts.md",
+          "apps/front/docs/SISTEMA_MONETIZACION.md",
+          "apps/back/src/bootstrap/server.ts",
+          "apps/back/src/modules/chat/index.ts",
+          "apps/back/src/modules/chat/api/routes/chat.ts",
+          "apps/back/src/shared/middleware/supabase-auth.ts",
+          "apps/front/supabase/migrations/096_chat_module_v1.sql",
+          "apps/front/docs/roadmap/chat/chat_development_plan_strands_supabase_v1.md"
+        ],
+        "architecture_summary": "Chat ya existe como modulo independiente en backend y migracion SQL aplicada. Auth JWT Supabase ya esta implementada en rutas chat via preHandler. Notificaciones y email siguen modulos separados.",
+        "integration_points": [
+          "Fastify server registra notifications/email/chat por separado",
+          "SupabaseChatRepository consume tablas project_chat_*",
+          "Middleware verifySupabaseAuth extrae user id desde Bearer token",
+          "RLS en DB aÃ­sla por profile_id + project role"
+        ],
+        "risks_and_edge_cases": [
+          "Falta validar CORS con Authorization para EasyPanel",
+          "Faltan pruebas automatizadas de rutas chat con auth/forbidden",
+          "Falta definir endpoint SSE/contracto para timeline run_events",
+          "Frontend chat aun no integrado a endpoints backend"
+        ],
+        "recommended_approach": "Cerrar primero hardening backend + tests de contrato auth/roles; luego integrar cliente frontend con Bearer token y finalmente agregar SSE base para run_events."
+      },
+      "actions_done": [
+        {
+          "action": "Auditoria de estado",
+          "details": "Se revisaron modulo chat, middleware auth, server bootstrap y roadmap."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Iteracion 2: plan detallado por fases cortas con validaciones y criterios de done."
+    },
+    {
+      "id": "chatAuthIntegration_20260306_2",
+      "iteration_number": 2,
+      "iteration_type": "planning",
+      "objective": "Definir plan de implementacion ordenado para cerrar autenticacion real y base E2E del modulo chat.",
+      "progress_estimate": {
+        "completitud_from_percent": 65,
+        "completitud_to_percent": 72,
+        "archivos_completados": "7/12",
+        "decisiones_pendientes": [
+          "Priorizar SSE base vs integracion frontend primero",
+          "Definir smoke test manual en EasyPanel"
+        ]
+      },
+      "plan": {
+        "steps": [
+          "Completar middleware JWT y remover cualquier dependencia temporal de x-user-id (backend)",
+          "Agregar pruebas unitarias/integration de ChatService y rutas chat (401/403/200)",
+          "Ajustar validaciones de role y ownership en servicio/repositorio",
+          "Implementar cliente frontend/base fetch para chat con Authorization Bearer",
+          "Agregar endpoint SSE inicial de run events con fallback por query polling",
+          "Actualizar documentacion estructurada y roadmap con estado de iteraciones"
+        ],
+        "files_to_change": [
+          "apps/back/src/modules/chat/**",
+          "apps/back/src/shared/middleware/supabase-auth.ts",
+          "apps/back/src/bootstrap/server.ts",
+          "apps/back/src/modules/chat/**/*.test.ts",
+          "apps/front/src/stores/chat.ts (nuevo o equivalente)",
+          "apps/front/src/views/project/ProjectChatView.vue",
+          "apps/front/docs/roadmap/chat/chat_development_plan_strands_supabase_v1.md",
+          "apps/front/docs/Ralph/Ralph_WIP.json"
+        ],
+        "validation_plan": [
+          "npm run build en apps/back",
+          "tests de chat service/routes",
+          "verificacion manual de endpoints con Bearer token valido/invalido",
+          "confirmar independencia modular sin importar logica de notifications/email"
+        ],
+        "test_strategy": [
+          "Unit tests para reglas de autorizacion en chat-service",
+          "Route tests para preHandler JWT y respuestas 401/403",
+          "Smoke test manual de create/list thread y send/list message"
+        ],
+        "done_criteria": [
+          "Rutas chat solo aceptan JWT real y rechazan llamadas sin token",
+          "Permisos por proyecto y ownership de thread validados",
+          "No hay acoplamiento del modulo chat con notifications/email",
+          "Documentacion y WIP actualizados segun Ralph"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Plan iterativo",
+          "details": "Se definio secuencia de ejecucion tecnica y validacion para cerrar autenticacion y base E2E."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Iteracion 3: ejecucion backend tests + hardening contrato auth."
+    },
+    {
+      "id": "chatAuthIntegration_20260306_3",
+      "iteration_number": 3,
+      "iteration_type": "execution",
+      "objective": "Implementar hardening de auth real y base realtime de run events en backend chat, con pruebas.",
+      "progress_estimate": {
+        "completitud_from_percent": 72,
+        "completitud_to_percent": 84,
+        "archivos_completados": "10/12",
+        "decisiones_pendientes": [
+          "Definir integracion frontend chat store/view con Bearer token",
+          "Definir smoke test deploy EasyPanel del SSE endpoint"
+        ]
+      },
+      "execution": {
+        "changes": [
+          "Se agrego middleware dedicado supabase-auth con validacion de JWT Bearer y decoracion de request.authUserId/authUserEmail",
+          "Se actualizaron rutas chat para usar verifySupabaseAuth (sin x-user-id)",
+          "Se extendio contrato chat con read de run events y stream SSE base",
+          "Se agregaron pruebas para middleware auth y autorizacion en chat-service"
+        ],
+        "files_changed": [
+          "apps/back/src/shared/middleware/supabase-auth.ts",
+          "apps/back/src/modules/chat/api/routes/chat.ts",
+          "apps/back/src/modules/chat/application/services/chat-service.ts",
+          "apps/back/src/modules/chat/domain/repositories/chat-repository.ts",
+          "apps/back/src/modules/chat/infrastructure/repositories/supabase-chat-repository.ts",
+          "apps/back/src/shared/middleware/supabase-auth.test.ts",
+          "apps/back/src/modules/chat/application/services/chat-service.test.ts",
+          "apps/back/src/bootstrap/server.ts"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Auth hardening",
+          "details": "Todas las rutas chat protegidas por JWT Supabase en preHandler."
+        },
+        {
+          "action": "Realtime base",
+          "details": "Endpoints GET /chat/runs/:runId/events y GET /chat/runs/:runId/events/stream aÃ±adidos para timeline."
+        },
+        {
+          "action": "Validacion automatizada",
+          "details": "Tests nuevos ejecutados: 9/9 passed. Build TS: OK."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/back/src/shared/middleware/supabase-auth.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/back/src/modules/chat/api/routes/chat.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/back/src/modules/chat/application/services/chat-service.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/back/src/modules/chat/domain/repositories/chat-repository.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/back/src/modules/chat/infrastructure/repositories/supabase-chat-repository.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/back/src/shared/middleware/supabase-auth.test.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/back/src/modules/chat/application/services/chat-service.test.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "No se modificaron modulos notifications/email-notifications. Se mantiene independencia modular."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": true
+      },
+      "next_step_suggested": "Iteracion 4: integrar frontend (store/view) con Authorization Bearer y validar flujo end-to-end."
+    },
+    {
+      "id": "chatAuthIntegration_20260306_4",
+      "iteration_number": 4,
+      "iteration_type": "execution",
+      "objective": "Cerrar compatibilidad runtime web agregando CORS controlado por configuracion para frontend con JWT.",
+      "progress_estimate": {
+        "completitud_from_percent": 84,
+        "completitud_to_percent": 89,
+        "archivos_completados": "11/12",
+        "decisiones_pendientes": [
+          "Integrar store/view de chat frontend contra endpoints protegidos",
+          "Ejecutar smoke test E2E en EasyPanel con token real"
+        ]
+      },
+      "execution": {
+        "changes": [
+          "Se agrego manejo CORS en server bootstrap usando hook onRequest con allowlist de origins",
+          "Se habilito respuesta preflight OPTIONS con headers de Authorization y Content-Type",
+          "Se agrego configuracion CORS_ALLOWED_ORIGINS en env con defaults oficiales del proyecto"
+        ],
+        "files_changed": [
+          "apps/back/src/bootstrap/server.ts",
+          "apps/back/src/shared/config/env.ts"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Hardening CORS",
+          "details": "Backend listo para llamadas browser desde dominios productivos/staging/local con JWT Bearer."
+        },
+        {
+          "action": "Validacion automatizada",
+          "details": "Tests chat/auth 9/9 passing y build TypeScript en verde tras cambios de runtime."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/back/src/bootstrap/server.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/back/src/shared/config/env.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "Se mantuvo independencia estricta entre modulo chat y modulos notifications/email-notifications."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": true
+      },
+      "next_step_suggested": "Iteracion 5: integrar cliente frontend chat con Authorization Bearer y flujo thread/messages + run events."
+    },
+    {
+      "id": "chatAuthIntegration_20260306_5",
+      "iteration_number": 5,
+      "iteration_type": "execution",
+      "objective": "Integrar frontend base del chat con JWT Bearer, rutas de proyecto y consumo realtime base (polling/SSE).",
+      "progress_estimate": {
+        "completitud_from_percent": 89,
+        "completitud_to_percent": 96,
+        "archivos_completados": "12/12",
+        "decisiones_pendientes": [
+          "Refinar UX visual del modulo chat para produccion",
+          "Agregar tests frontend especificos del store/view chat",
+          "Conectar pipeline cognitivo completo de Strands en sendMessage"
+        ]
+      },
+      "execution": {
+        "changes": [
+          "Se creo store de chat para llamadas autenticadas al backend con Authorization Bearer de Supabase",
+          "Se agrego vista ProjectChatView con flujo minimo: threads, mensajes y seccion de run events",
+          "Se registro ruta /app/project/:projectId/chat y acceso directo desde dashboard del proyecto",
+          "Se habilito soporte realtime base en frontend: lectura de run events por polling y stream SSE via fetch"
+        ],
+        "files_changed": [
+          "apps/front/src/stores/chat.js",
+          "apps/front/src/views/app/ProjectChatView.vue",
+          "apps/front/src/router/index.js",
+          "apps/front/src/views/app/ProjectDashboardView.vue"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Frontend integration",
+          "details": "Flujo minimo e2e de chat integrado en UI con autenticacion real por JWT."
+        },
+        {
+          "action": "Validacion tecnica",
+          "details": "Build frontend y backend exitosos tras integracion."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/src/stores/chat.js",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/front/src/views/app/ProjectChatView.vue",
+          "change_type": "created"
+        },
+        {
+          "path": "apps/front/src/router/index.js",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/src/views/app/ProjectDashboardView.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "La implementacion mantiene independencia modular: chat separado de notifications y email-notifications."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": true
+      },
+      "next_step_suggested": "Iniciar nueva iteracion para UX/product hardening, tests frontend de chat y conexion con pipeline Strands completo."
+    },
+    {
+      "id": "chatCompassCitations_20260307_1",
+      "iteration_number": 1,
+      "iteration_type": "exploration",
+      "objective": "Explorar flujo actual de chat input, metadata de mensajes y retrieval de documentos Compass en frontend/backend.",
+      "progress_estimate": {
+        "completitud_from_percent": 0,
+        "completitud_to_percent": 35,
+        "archivos_completados": "0/6",
+        "decisiones_pendientes": [
+          "Formato final de document_refs en metadata",
+          "UX del selector de documentos en input"
+        ]
+      },
+      "exploration": {
+        "target": "ProjectChatView + chat store + chat service + ai-generate action",
+        "files_read": [
+          "apps/front/src/views/app/ProjectChatView.vue",
+          "apps/front/src/stores/chat.js",
+          "apps/front/src/stores/compass.js",
+          "apps/back/src/modules/chat/application/services/chat-service.ts",
+          "apps/back/src/modules/chat/infrastructure/ai/supabase-edge-chat-ai-client.ts",
+          "apps/front/supabase/functions/ai-generate/actions/chat_message.ts"
+        ],
+        "architecture_summary": "El input era textarea simple sin menciones/selector; backend acepta metadata pero no propagaba refs de documentos al agente; action chat_message no usaba referencias de documentos.",
+        "integration_points": [
+          "ProjectChatView -> chatStore.sendUserMessage(metadata)",
+          "chatService -> chatAiClient.generateAssistantReply(documentRefs)",
+          "Supabase edge ai-generate action chat_message"
+        ],
+        "risks_and_edge_cases": [
+          "Menciones # no resueltas a documento real",
+          "Duplicacion de referencias entre #mention y picker",
+          "Mostrar ids crudos en UI"
+        ],
+        "recommended_approach": "Implementar document_refs estructurado con deduplicacion por id, resolver menciones contra documentos del proyecto y renderizar chips por nombre."
+      },
+      "actions_done": [
+        {
+          "action": "Exploracion",
+          "details": "Se localizaron puntos de acoplamiento front/back/edge para citacion de documentos Compass."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Iteracion 2: plan de implementacion con contrato document_refs y UX de input."
+    },
+    {
+      "id": "chatCompassCitations_20260307_2",
+      "iteration_number": 2,
+      "iteration_type": "planning",
+      "objective": "Definir plan de implementacion para citacion Compass por #slug y selector de busqueda.",
+      "progress_estimate": {
+        "completitud_from_percent": 35,
+        "completitud_to_percent": 55,
+        "archivos_completados": "0/6",
+        "decisiones_pendientes": [
+          "Ajustes visuales finos del picker",
+          "Cobertura de tests de UI"
+        ]
+      },
+      "plan": {
+        "steps": [
+          "Extender ChatInput para icono search y modal selector de documentos Compass",
+          "Resolver menciones #slug a document_refs por id",
+          "Enviar metadata document_refs en sendUserMessage",
+          "Propagar document_refs en backend hacia ai-generate",
+          "Incluir document_refs en prompt chat_message para contexto del agente"
+        ],
+        "files_to_change": [
+          "apps/front/src/views/app/ProjectChatView.vue",
+          "apps/front/src/stores/chat.js",
+          "apps/back/src/modules/chat/application/ports/chat-ai-client.ts",
+          "apps/back/src/modules/chat/application/services/chat-service.ts",
+          "apps/back/src/modules/chat/infrastructure/ai/supabase-edge-chat-ai-client.ts",
+          "apps/front/supabase/functions/ai-generate/actions/chat_message.ts"
+        ],
+        "validation_plan": [
+          "Mensaje con #slug envia document_refs con id",
+          "Picker agrega referencias por nombre visible",
+          "Edge recibe document_refs en context y responde sin errores"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Plan documentado",
+          "details": "Se definio contrato document_refs y orden de cambios front/back/edge."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Iteracion 3: ejecutar implementacion completa."
+    },
+    {
+      "id": "chatCompassCitations_20260307_3",
+      "iteration_number": 3,
+      "iteration_type": "execution",
+      "objective": "Implementar citacion de documentos Compass en chat por menciones y selector, con propagacion al agente.",
+      "progress_estimate": {
+        "completitud_from_percent": 55,
+        "completitud_to_percent": 88,
+        "archivos_completados": "6/6",
+        "decisiones_pendientes": [
+          "Validacion en runtime EasyPanel y Supabase edge",
+          "Agregar tests especificos de ProjectChatView para referencias de documentos"
+        ]
+      },
+      "execution": {
+        "changes": [
+          "ProjectChatView agrega icono search, modal picker de Compass, chips de referencias y parser #slug",
+          "chat store envia metadata document_refs en POST de mensajes",
+          "backend chat extrae document_refs de metadata y los envia al cliente AI",
+          "cliente AI incluye document_refs en context hacia ai-generate",
+          "prompt chat_message incorpora documentos citados como contexto prioritario"
+        ],
+        "files_changed": [
+          "apps/front/src/views/app/ProjectChatView.vue",
+          "apps/front/src/stores/chat.js",
+          "apps/back/src/modules/chat/application/ports/chat-ai-client.ts",
+          "apps/back/src/modules/chat/application/services/chat-service.ts",
+          "apps/back/src/modules/chat/infrastructure/ai/supabase-edge-chat-ai-client.ts",
+          "apps/front/supabase/functions/ai-generate/actions/chat_message.ts"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Implementacion",
+          "details": "Se completo el flujo de citacion Compass en front/back/edge."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/src/views/app/ProjectChatView.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/src/stores/chat.js",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/back/src/modules/chat/application/ports/chat-ai-client.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/back/src/modules/chat/application/services/chat-service.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/back/src/modules/chat/infrastructure/ai/supabase-edge-chat-ai-client.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/supabase/functions/ai-generate/actions/chat_message.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "Se mantiene independencia modular: chat no acopla notificaciones in-app ni email notifications."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Desplegar backend + redeploy edge ai-generate y validar end-to-end con #documento-slug y picker."
+    },
+    {
+      "id": "chatCompassCitations_20260307_4",
+      "iteration_number": 4,
+      "iteration_type": "execution",
+      "objective": "Replicar comportamiento Compass para # en input de chat con autocompletado dinamico.",
+      "progress_estimate": {
+        "completitud_from_percent": 88,
+        "completitud_to_percent": 95,
+        "archivos_completados": "1/1",
+        "decisiones_pendientes": [
+          "Ajustes finos visuales del dropdown",
+          "Agregar pruebas de teclado para sugerencias"
+        ]
+      },
+      "execution": {
+        "changes": [
+          "Se agrego dropdown de sugerencias al escribir # en textarea de chat",
+          "Filtrado dinamico por texto despues de # usando documentos Compass del proyecto",
+          "Navegacion por teclado (arriba/abajo/enter/escape)",
+          "Insercion de #documento-slug al seleccionar sugerencia y alta de referencia en chips"
+        ],
+        "files_changed": [
+          "apps/front/src/views/app/ProjectChatView.vue"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "UI behavior",
+          "details": "El # ahora dispara busqueda dinamica y seleccion de documento similar a Compass."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "apps/front/src/views/app/ProjectChatView.vue",
+          "change_type": "modified"
+        },
+        {
+          "path": "apps/front/docs/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "documentation_json_updated": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "tests_updated_or_created_when_applicable": false
+      },
+      "next_step_suggested": "Deploy frontend y validar flujo # menciones + picker con payload document_refs."
+    }
+  ],
+  "extension_request": {
+    "progress_percent": 95,
+    "technical_reason": "Ajuste visual pendiente en botÃƒÂ³n Reprocesar (icono + costo) para alinear UX con TaskComposer.",
+    "remaining_tasks": [
+      "Actualizar botÃƒÂ³n Reprocesar con icono y costo",
+      "Validar estilo en modal"
+    ],
+    "additional_iterations_requested": 1,
+    "files_completed": "10/11",
+    "files_pending": [
+      "src/components/kanban/TodoDetailsModal.vue"
+    ]
+  },
+  "extension_approved": {
+    "date": "2026-02-08",
+    "extended_limit": 8,
+    "justification": "Usuario aprobÃƒÂ³ extensiÃƒÂ³n para ajustes UX adicionales."
+  }
+}
