@@ -293,6 +293,58 @@
     ],
     "quality_gate": "No se aprueba una edge function nueva o modificada si la logica principal vive en index.ts."
   },
+  "style_rules": {
+    "scope": "Sitio publico + CMS (Astro + Tailwind)",
+    "source_of_truth": [
+      "src/styles/global.css",
+      "src/styles/cms-theme.css",
+      "src/styles/brand-style-guide.md"
+    ],
+    "brand_palette": {
+      "primary_blue": "#507BFA",
+      "accent_yellow": "#F7C52D",
+      "black": "#000000",
+      "white": "#FFFFFF",
+      "light_gray": "#E2E2E2",
+      "muted_gray": "#6B7280"
+    },
+    "public_site_baseline": {
+      "summary": "El sitio publico usa base clara con escala neutra gray/slate y acentos azules para elementos destacados.",
+      "reference_tokens": [
+        "text-gray-600",
+        "text-gray-800",
+        "text-slate-500",
+        "text-slate-600",
+        "text-blue-400",
+        "bg-white",
+        "bg-gray-100"
+      ],
+      "guideline": "Los cambios visuales del CMS deben sentirse parte de la misma familia visual (tipografia, espaciado y contraste), aunque use superficie oscura."
+    },
+    "cms_palette_mapping": {
+      "cyan_scale": "mapear a primary_blue (#507BFA) dentro de .cms-theme",
+      "slate_light_scale": "mapear a white/light_gray para texto y bordes suaves en CMS",
+      "slate_muted_scale": "mapear a muted_gray (#6B7280) para texto secundario y bordes",
+      "slate_dark_scale": "mantener fondos oscuros para superficie CMS (black y tonos cercanos)"
+    },
+    "mandatory_rules": [
+      "Todo ajuste visual del CMS debe respetar la paleta oficial de marca.",
+      "En CMS, priorizar tokens/variables de estilo sobre hex repetidos en clases inline.",
+      "Antes de ajustar colores del CMS, revisar componentes/paginas publicas para mantener continuidad visual de marca.",
+      "Mantener consistencia tipografica y de espaciado con las paginas no CMS del proyecto.",
+      "No introducir nuevos colores de acento sin documentarlos en src/styles/brand-style-guide.md.",
+      "Cuando un cambio afecte colores globales, validar contraste minimo AA en textos y controles."
+    ],
+    "tailwind_usage_policy": [
+      "Usar utilidades Tailwind como base y centralizar personalizaciones de tema en src/styles/*.css.",
+      "Evitar cadenas largas de colores hardcodeados si se pueden resolver con tokens de tema.",
+      "Para cambios de marca en CMS, preferir override de tokens Tailwind via variables CSS en lugar de reemplazo manual clase por clase.",
+      "Para ajustes de tema CMS, aplicar alcance con clase contenedora (ejemplo: .cms-theme) para no afectar sitio publico."
+    ],
+    "cms_button_exception": [
+      "Se pueden conservar estilos actuales de botones de flujo editorial: schedule, publish, eliminar, generar preview y revert to draft."
+    ]
+  },
   "quality_gates": {
     "pre_merge_required": [
       "npm run build",

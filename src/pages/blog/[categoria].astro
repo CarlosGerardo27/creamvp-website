@@ -1,0 +1,131 @@
+---
+import { Picture } from "astro:assets";
+import Layout from "@/layouts/Layout.astro";
+import Container from "@/components/container.astro";
+import Sectionhead from "@/components/sectionhead.astro";
+import {
+  listPublishedBlogCategories,
+  listPublishedBlogPostsByCategory,
+} from "@/features/public-blog/data/public-blog-repository";
+import type { PublicBlogPost } from "@/features/public-blog/domain/types";
+
+type CategoryPageProps = {
+  categorySlug: string;
+  categoryName: string;
+  posts: PublicBlogPost[];
+};
+
+export async function getStaticPaths() {
+  const categories = await listPublishedBlogCategories();
+  const categoryPaths: { params: { categoria: string }; props: CategoryPageProps }[] = [];
+
+  for (const category of categories) {
+    const posts = await listPublishedBlogPostsByCategory(category.slug);
+    if (!posts.length) {
+      continue;
+    }
+
+    categoryPaths.push({
+      params: { categoria: category.slug },
+      props: {
+        categorySlug: category.slug,
+        categoryName: category.name,
+        posts,
+      },
+    });
+  }
+
+  return categoryPaths;
+}
+
+function formatDateSpanish(date: Date): string {
+  const months = [
+    "enero",
+    "febrero",
+    "marzo",
+    "abril",
+    "mayo",
+    "junio",
+    "julio",
+    "agosto",
+    "septiembre",
+    "octubre",
+    "noviembre",
+    "diciembre",
+  ];
+  const day = date.getDate();
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+  return `${day} de ${month}, ${year}`;
+}
+
+const { categoryName, posts } = Astro.props as CategoryPageProps;
+---
+
+<Layout title={`Blog | ${categoryName}`}>
+  <Container>
+    <Sectionhead>
+      <Fragment slot="title">Blog: {categoryName}</Fragment>
+      <Fragment slot="desc">
+        Entradas publicadas en la categoria {categoryName}.
+      </Fragment>
+    </Sectionhead>
+
+    <main class="mt-16">
+      <ul class="grid gap-16 max-w-4xl mx-auto">
+        {
+          posts.map((blogPostEntry, index) => (
+            <li>
+              <a href={`/blog/${blogPostEntry.categorySlug}/${blogPostEntry.slug}`}>
+                <div class="grid md:grid-cols-2 gap-5 md:gap-10 items-center">
+                  {
+                    blogPostEntry.imageSrc.startsWith("http") ? (
+                      <img
+                        src={blogPostEntry.imageSrc}
+                        alt={blogPostEntry.imageAlt}
+                        loading={index <= 2 ? "eager" : "lazy"}
+                        decoding={index <= 2 ? "sync" : "async"}
+                        class="w-full rounded-md object-cover object-center bg-white aspect-[4/3]"
+                      />
+                    ) : (
+                      <Picture
+                        src={blogPostEntry.imageSrc}
+                        alt={blogPostEntry.imageAlt}
+                        sizes="(max-width: 800px) 100vw, 800px"
+                        width={800}
+                        height={600}
+                        loading={index <= 2 ? "eager" : "lazy"}
+                        decoding={index <= 2 ? "sync" : "async"}
+                        class="w-full rounded-md object-cover object-center bg-white"
+                      />
+                    )
+                  }
+
+                  <div>
+                    <span class="text-blue-400 uppercase tracking-wider text-sm font-medium">
+                      {blogPostEntry.categoryName}
+                    </span>
+
+                    <h2 class="text-3xl font-semibold leading-snug tracking-tight mt-1 ">
+                      {blogPostEntry.title}
+                    </h2>
+
+                    <div class="flex gap-2 mt-3">
+                      <span class="text-gray-400">{blogPostEntry.authorName}</span>
+                      <span class="text-gray-400">•</span>
+                      <time
+                        class="text-gray-400"
+                        datetime={blogPostEntry.publishDate.toISOString()}>
+                        {formatDateSpanish(blogPostEntry.publishDate)}
+                      </time>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </main>
+  </Container>
+</Layout>

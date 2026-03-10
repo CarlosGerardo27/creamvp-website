@@ -8,16 +8,19 @@ import CmsLayout from "@/layouts/CmsLayout.astro";
       <div>
         <p class="text-xs uppercase tracking-widest text-cyan-400">Panel Editorial</p>
         <h1 class="text-3xl font-bold mt-1">CMS CreaMVP</h1>
-        <p class="text-slate-400 mt-2">
-          Entorno base habilitado. Siguiente etapa: listado y edición de entradas.
-        </p>
+        <p class="text-slate-400 mt-2">Panel operativo para blog, categorias, tags y autores.</p>
       </div>
-      <button
-        id="cms-logout"
-        class="rounded-lg border border-slate-700 px-4 py-2 text-sm hover:bg-slate-800 transition"
-      >
-        Cerrar sesión
-      </button>
+      <div class="flex gap-2">
+        <a href="/cms/blog" class="rounded-lg bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-400">
+          Ir a Blog
+        </a>
+        <button
+          id="cms-logout"
+          class="rounded-lg border border-slate-700 px-4 py-2 text-sm hover:bg-slate-800 transition"
+        >
+          Cerrar sesion
+        </button>
+      </div>
     </header>
 
     <div class="grid gap-4 md:grid-cols-3">
@@ -36,13 +39,14 @@ import CmsLayout from "@/layouts/CmsLayout.astro";
     </div>
 
     <div class="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
-      <h2 class="font-semibold">Próximos módulos CMS</h2>
-      <ul class="mt-3 list-disc pl-5 text-sm text-slate-300 space-y-1">
-        <li>Listado de entradas: <code>/cms/blog</code></li>
-        <li>Gestión de categorías: <code>/cms/categories</code></li>
-        <li>Gestión de autores: <code>/cms/authors</code></li>
-        <li>Editor de post: <code>/cms/blog/[id]</code></li>
-      </ul>
+      <h2 class="font-semibold">Modulos CMS disponibles</h2>
+      <div class="mt-3 flex flex-wrap gap-2 text-sm">
+        <a href="/cms/blog" class="rounded-md border border-cyan-500/70 bg-cyan-500/10 px-3 py-1.5 text-cyan-300">Blog</a>
+        <a href="/cms/blog/new" class="rounded-md border border-slate-700 px-3 py-1.5 hover:bg-slate-800">Nuevo post</a>
+        <a href="/cms/categories" class="rounded-md border border-slate-700 px-3 py-1.5 hover:bg-slate-800">Categorias</a>
+        <a href="/cms/tags" class="rounded-md border border-slate-700 px-3 py-1.5 hover:bg-slate-800">Tags</a>
+        <a href="/cms/authors" class="rounded-md border border-slate-700 px-3 py-1.5 hover:bg-slate-800">Autores</a>
+      </div>
     </div>
   </section>
 
@@ -58,7 +62,7 @@ import CmsLayout from "@/layouts/CmsLayout.astro";
     const profile = await fetchCurrentCmsProfile();
 
     if (emailEl) {
-      emailEl.textContent = session?.user?.email ?? "Sin sesión";
+      emailEl.textContent = session?.user?.email ?? "Sin sesion";
     }
     if (roleEl) {
       roleEl.textContent = profile?.role ?? "Sin rol";
@@ -75,4 +79,3 @@ import CmsLayout from "@/layouts/CmsLayout.astro";
     });
   </script>
 </CmsLayout>
-

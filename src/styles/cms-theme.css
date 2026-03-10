@@ -1,0 +1,74 @@
+@layer base {
+  .cms-theme {
+    --cms-color-primary: #507bfa;
+    --cms-color-accent: #f7c52d;
+    --cms-color-black: #000000;
+    --cms-color-white: #ffffff;
+    --cms-color-light: #e2e2e2;
+    --cms-color-muted: #6b7280;
+
+    /* Scope Tailwind token overrides only for CMS surface */
+    --color-cyan-300: var(--cms-color-primary);
+    --color-cyan-400: var(--cms-color-primary);
+    --color-cyan-500: var(--cms-color-primary);
+    --color-cyan-600: var(--cms-color-primary);
+
+    --color-slate-50: var(--cms-color-white);
+    --color-slate-100: var(--cms-color-white);
+    --color-slate-200: var(--cms-color-light);
+    --color-slate-300: var(--cms-color-light);
+    --color-slate-400: var(--cms-color-muted);
+    --color-slate-500: var(--cms-color-muted);
+    --color-slate-600: var(--cms-color-muted);
+    --color-slate-700: var(--cms-color-muted);
+    --color-slate-800: #1a1a1a;
+    --color-slate-900: #0d0d0d;
+    --color-slate-950: var(--cms-color-black);
+  }
+
+  .cms-theme :is(
+      input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]):not([type="range"]):not([type="submit"]):not([type="button"]):not([type="reset"]),
+      select,
+      textarea
+    ) {
+    background-color: var(--cms-color-white) !important;
+    color: var(--cms-color-black) !important;
+    border-color: var(--cms-color-light) !important;
+  }
+
+  .cms-theme :is(
+      input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]):not([type="range"]):not([type="submit"]):not([type="button"]):not([type="reset"]),
+      textarea
+    )::placeholder {
+    color: var(--cms-color-muted) !important;
+  }
+
+  .cms-theme :is(
+      input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]):not([type="range"]):not([type="submit"]):not([type="button"]):not([type="reset"]),
+      select,
+      textarea
+    ):focus {
+    border-color: var(--cms-color-primary) !important;
+    box-shadow: 0 0 0 2px rgb(80 123 250 / 0.25);
+    outline: none;
+  }
+
+  .cms-theme :is(
+      input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]):not([type="range"]):not([type="submit"]):not([type="button"]):not([type="reset"]),
+      select,
+      textarea
+    ):disabled,
+  .cms-theme :is(
+      input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]):not([type="range"]):not([type="submit"]):not([type="button"]):not([type="reset"]),
+      select,
+      textarea
+    )[readonly] {
+    background-color: var(--cms-color-light) !important;
+    color: var(--cms-color-muted) !important;
+  }
+
+  .cms-theme select option {
+    color: var(--cms-color-black);
+    background-color: var(--cms-color-white);
+  }
+}

@@ -1,0 +1,28 @@
+---
+import CmsLayout from "@/layouts/CmsLayout.astro";
+---
+
+<CmsLayout title="Redirect Editor CMS">
+  <section class="max-w-xl mx-auto mt-12 rounded-xl border border-slate-800 bg-slate-900/70 p-6">
+    <h1 class="text-xl font-semibold">Redireccionando editor...</h1>
+    <p class="text-sm text-slate-300 mt-2">
+      Esta ruta se mantiene por compatibilidad. El editor principal ahora vive en
+      <code>/cms/blog/[id]</code>.
+    </p>
+    <p id="cms-edit-redirect-error" class="text-sm text-rose-400 mt-3"></p>
+  </section>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id")?.trim();
+    const errorEl = document.getElementById("cms-edit-redirect-error");
+
+    if (!id) {
+      if (errorEl) {
+        errorEl.textContent = "Falta id en query param. Usa /cms/blog/<id>.";
+      }
+    } else {
+      window.location.href = `/cms/blog/${encodeURIComponent(id)}`;
+    }
+  </script>
+</CmsLayout>

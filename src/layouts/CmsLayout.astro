@@ -1,6 +1,7 @@
 ---
 import "@fontsource-variable/inter/index.css";
 import "../styles/global.css";
+import "../styles/cms-theme.css";
 import type { CmsRole } from "@/features/cms/auth/types";
 
 export interface Props {
@@ -34,7 +35,7 @@ const guardConfig = {
     <meta name="robots" content="noindex,nofollow" />
     <title>{title} | CMS CreaMVP</title>
   </head>
-  <body class="bg-slate-950 text-slate-100 min-h-screen">
+  <body class="cms-theme bg-black text-white min-h-screen">
     <main class="max-w-6xl mx-auto px-5 py-8">
       <slot />
     </main>
@@ -51,4 +52,3 @@ const guardConfig = {
     </script>
   </body>
 </html>
-

@@ -1,6 +1,17 @@
-# Ruta de Implementación CMS (CreaMVP)
+﻿# Ruta de ImplementaciÃ³n CMS (CreaMVP)
 
 Documento operativo para ejecutar el CMS de CreaMVP por etapas, con pasos marcables y criterios claros para agentes de IA.
+
+---
+
+## Estado actual (corte 2026-03-10 14:57 -06:00)
+
+- Etapas completadas: `1`, `3`, `5`, `6`.
+- Etapas en progreso: `4`, `7`, `8`.
+- Etapas pendientes: `0`, `2`, `9`.
+- Bloqueadores activos:
+  - Falta ejecutar carga real de migracion markdown -> CMS: `npm run cms:migrate:blog:apply -- --email <email> --password <password>`.
+  - `npm run astro -- check` mantiene 19 errores legacy fuera del alcance CMS actual.
 
 ---
 
@@ -8,52 +19,52 @@ Documento operativo para ejecutar el CMS de CreaMVP por etapas, con pasos marcab
 
 - [x] Existe proyecto de Supabase creado.
 - [x] Existe tabla `auth.users` (default de Supabase).
-- [x] Tablas CMS iniciales creadas en Supabase (migración `01_schema_inicial_cms.sql` aplicada).
+- [x] Tablas CMS iniciales creadas en Supabase (migraciÃ³n `01_schema_inicial_cms.sql` aplicada).
 - [x] Panel base de login/editorial creado en el sitio (`/cms/login`, `/cms`, `/cms/forbidden`).
-- [ ] No existen endpoints editoriales para creación/publicación de blogs por API.
+- [x] Endpoints editoriales versionados en cÃ³digo para creaciÃ³n/publicaciÃ³n de blogs por API.
 
 Alcance de esta ruta:
 
 - Implementar CMS funcional con prioridad en Blog.
-- Cumplir URL pública: `https://creamvp.com/blog/[categoria]/[slug]`.
-- Habilitar panel de administración tipo Webflow para edición manual.
-- Habilitar API para creación automática (IA) con estado inicial `draft`.
+- Cumplir URL pÃºblica: `https://creamvp.com/blog/[categoria]/[slug]`.
+- Habilitar panel de administraciÃ³n tipo Webflow para ediciÃ³n manual.
+- Habilitar API para creaciÃ³n automÃ¡tica (IA) con estado inicial `draft`.
 
 ---
 
-## 2) Reglas obligatorias de ejecución
+## 2) Reglas obligatorias de ejecuciÃ³n
 
 - [ ] Consultar y cumplir `docs/metodos/agentrules.json` antes de cada etapa.
-- [ ] Mantener alineación con `docs/roadmap/cms.md` (contratos de contenido y SEO).
+- [ ] Mantener alineaciÃ³n con `docs/roadmap/cms.md` (contratos de contenido y SEO).
 - [ ] No avanzar de etapa sin completar los checks de calidad de la etapa actual.
-- [ ] Registrar avances en `docs/metodos/Ralph/Ralph_WIP.json` por iteración.
+- [ ] Registrar avances en `docs/metodos/Ralph/Ralph_WIP.json` por iteraciÃ³n.
 
 ---
 
 ## 3) Roadmap por etapas (checklist ejecutable)
 
-## Etapa 0 - Preparación técnica (base de trabajo)
+## Etapa 0 - PreparaciÃ³n tÃ©cnica (base de trabajo)
 
 Objetivo: dejar entorno y convenciones listas para construir sin retrabajo.
 
-- [ ] Crear rama de implementación CMS.
+- [ ] Crear rama de implementaciÃ³n CMS.
 - [x] Definir variables de entorno requeridas en `.env.example` y entorno local.
 - [x] Definir estructura de carpetas para capa CMS (`src/features/cms/...` o equivalente).
-- [ ] Definir convención de nombres para slugs, estados y DTOs.
+- [ ] Definir convenciÃ³n de nombres para slugs, estados y DTOs.
 - [ ] Confirmar estrategia de despliegue (Vercel + Supabase + Edge Functions).
 
 Entregables:
 
 - [ ] Checklist de entorno validado.
-- [ ] Convenciones de proyecto documentadas en este archivo o docs técnicos.
+- [ ] Convenciones de proyecto documentadas en este archivo o docs tÃ©cnicos.
 
 ---
 
 ## Etapa 1 - Modelo de datos CMS en Supabase (desde cero)
 
-Objetivo: crear todas las tablas mínimas necesarias para blog + editorial.
+Objetivo: crear todas las tablas mÃ­nimas necesarias para blog + editorial.
 
-### 1.1 Tablas núcleo (mínimas)
+### 1.1 Tablas nÃºcleo (mÃ­nimas)
 
 - [x] `profiles` (vinculada 1:1 con `auth.users.id`, datos de perfil editorial y rol).
 - [x] `authors`.
@@ -62,16 +73,16 @@ Objetivo: crear todas las tablas mínimas necesarias para blog + editorial.
 - [x] `blog_posts`.
 - [x] `blog_post_tags` (N:N entre posts y tags).
 - [x] `blog_faqs`.
-- [x] `blog_revisions` (versionado básico).
+- [x] `blog_revisions` (versionado bÃ¡sico).
 
-### 1.2 Campos críticos obligatorios
+### 1.2 Campos crÃ­ticos obligatorios
 
 - [x] `profiles.id` = `auth.users.id` (PK + FK 1:1).
 - [x] `profiles.role` con enum: `admin|editor|reviewer|developer`.
 - [x] `profiles.full_name`, `avatar_url`, `is_active`, `created_at`, `updated_at`.
 - [x] `blog_posts.status` con enum: `draft|scheduled|published`.
 - [x] `blog_posts.h1`, `meta_description`, `slug`, `canonical_url`, `short_description`.
-- [x] `blog_posts.featured_image_*` (url, alt, metadata mínima).
+- [x] `blog_posts.featured_image_*` (url, alt, metadata mÃ­nima).
 - [x] `blog_posts.category_id`, `category_slug`.
 - [x] `blog_posts.content_markdown`.
 - [x] `blog_posts.schema_auto`, `schema_override`.
@@ -81,7 +92,7 @@ Objetivo: crear todas las tablas mínimas necesarias para blog + editorial.
 
 - [x] Trigger/sync para crear `profiles` cuando se crea `auth.users` (o proceso administrativo equivalente).
 - [x] Constraint de unicidad compuesta: `(category_slug, slug)`.
-- [x] Validación de formato slug (`a-z0-9-`).
+- [x] ValidaciÃ³n de formato slug (`a-z0-9-`).
 - [x] Triggers `updated_at`.
 - [x] FKs correctas entre posts, categories, authors y tags.
 
@@ -92,26 +103,26 @@ Entregables:
 
 ---
 
-## Etapa 2 - Seguridad, permisos y autenticación editorial
+## Etapa 2 - Seguridad, permisos y autenticaciÃ³n editorial
 
 Objetivo: habilitar acceso seguro al CMS y control por roles.
 
 ### 2.1 Login CMS
 
-- [x] Crear página de login: `/cms/login`.
+- [x] Crear pÃ¡gina de login: `/cms/login`.
 - [x] Integrar Supabase Auth (email/password o magic link definido).
-- [x] Manejar sesión y logout.
-- [x] Redirección post-login a `/cms`.
+- [x] Manejar sesiÃ³n y logout.
+- [x] RedirecciÃ³n post-login a `/cms`.
 
 ### 2.2 Guardas de rutas CMS
 
-- [x] Proteger todas las rutas `/cms/*` (guardia frontend para páginas CMS actuales).
+- [x] Proteger todas las rutas `/cms/*` (guardia frontend para pÃ¡ginas CMS actuales).
 - [x] Bloquear acceso no autenticado.
-- [x] Mostrar vista de “sin permisos” para roles insuficientes.
+- [x] Mostrar vista de â€œsin permisosâ€ para roles insuficientes.
 
-### 2.3 RLS y políticas
+### 2.3 RLS y polÃ­ticas
 
-- [x] Definir políticas RLS por tabla CMS.
+- [x] Definir polÃ­ticas RLS por tabla CMS.
 - [x] Resolver permisos leyendo `profiles.role` del usuario autenticado.
 - [x] `admin/editor`: crear y editar drafts.
 - [x] `admin/reviewer`: publicar y devolver a draft.
@@ -122,7 +133,7 @@ Entregables:
 
 - [x] Login funcional.
 - [x] Rutas CMS protegidas.
-- [x] Migración RLS aplicada (`supabase/03_rls_politicas_editoriales.sql`).
+- [x] MigraciÃ³n RLS aplicada (`supabase/03_rls_politicas_editoriales.sql`).
 - [ ] RLS validado con pruebas de permisos por rol.
 
 ---
@@ -131,72 +142,76 @@ Entregables:
 
 Objetivo: exponer endpoints para crear/editar/cambiar estado.
 
-### 3.1 Endpoints mínimos (Edge Functions)
+### 3.1 Endpoints mÃ­nimos (Edge Functions)
 
-- [ ] `POST /functions/v1/cms-blog-create`.
-- [ ] `PATCH /functions/v1/cms-blog-update`.
-- [ ] `PATCH /functions/v1/cms-blog-status`.
+- [x] `POST /functions/v1/cms-blog-create`.
+- [x] `PATCH /functions/v1/cms-blog-update`.
+- [x] `PATCH /functions/v1/cms-blog-status`.
+- [x] `DELETE /functions/v1/cms-blog-delete`.
 
 ### 3.2 Reglas obligatorias de negocio
 
-- [ ] `cms-blog-create` siempre crea entradas en `draft`.
-- [ ] `cms-blog-status` soporta:
-- [ ] `draft -> published`
-- [ ] `published -> draft`
-- [ ] `draft -> scheduled`
-- [ ] `scheduled -> published`
-- [ ] Validación de payload con schema antes de persistir.
-- [ ] Registro de auditoría (`createdBy`, `updatedBy`, timestamps, cambios de estado).
+- [x] `cms-blog-create` siempre crea entradas en `draft`.
+- [x] `cms-blog-status` soporta:
+- [x] `draft -> published`
+- [x] `published -> draft`
+- [x] `draft -> scheduled`
+- [x] `scheduled -> published`
+- [x] ValidaciÃ³n de payload con schema antes de persistir.
+- [x] Registro de auditorÃ­a (`createdBy`, `updatedBy`, timestamps, cambios de estado).
 
 ### 3.3 Seguridad API
 
-- [ ] Requerir autenticación en endpoints de escritura.
-- [ ] Aplicar permisos por rol (`profiles.role`) en cada transición de estado.
-- [ ] Agregar rate limit y logging de eventos relevantes.
+- [x] Requerir autenticaciÃ³n en endpoints de escritura.
+- [x] Aplicar permisos por rol (`profiles.role`) en cada transiciÃ³n de estado.
+- [x] Agregar rate limit y logging de eventos relevantes.
 
 Entregables:
 
-- [ ] Endpoints desplegados y testeados.
-- [ ] Documentación de contratos request/response.
+- [x] Endpoints desplegados y testeados.
+- [x] DocumentaciÃ³n de contratos request/response.
 
 ---
 
 ## Etapa 4 - Panel CMS tipo Webflow (UI editorial)
 
-Objetivo: interfaz editorial para operación diaria del blog.
+Objetivo: interfaz editorial para operaciÃ³n diaria del blog.
 
 ### 4.1 Vistas principales
 
-- [ ] `/cms` dashboard.
-- [ ] `/cms/blog` listado con búsqueda/filtros/estado.
-- [ ] `/cms/blog/new` creación de entrada.
-- [ ] `/cms/blog/[id]` edición de entrada.
-- [ ] `/cms/authors` gestión de autores.
-- [ ] `/cms/categories` gestión de categorías.
-- [ ] `/cms/tags` gestión de tags.
+- [x] `/cms` dashboard.
+- [x] `/cms/blog` listado con bÃºsqueda/filtros/estado.
+- [x] `/cms/blog/new` creaciÃ³n de entrada.
+- [x] `/cms/blog/[id]` edicion de entrada.
+- [x] `/cms/authors` gestiÃ³n de autores.
+- [x] `/cms/categories` gestiÃ³n de categorÃ­as.
+- [x] `/cms/tags` gestiÃ³n de tags.
+
+Nota operativa UI: la ruta exacta `/cms/blog/[id]` ya esta habilitada (SSR on-demand). `/cms/blog/edit?id=<uuid>` se conserva solo como compatibilidad y redirige a la ruta dinamica.
 
 ### 4.2 Formulario editorial de blog (obligatorio)
 
-- [ ] H1.
-- [ ] metaDescription.
-- [ ] slug.
-- [ ] canonicalUrl.
-- [ ] shortDescription.
-- [ ] featuredImage.
-- [ ] category.
-- [ ] tags.
-- [ ] contentMarkdown.
-- [ ] author.
-- [ ] schemaAuto + schemaOverride.
-- [ ] faqs.
-- [ ] status.
+- [x] H1.
+- [x] metaDescription.
+- [x] slug.
+- [x] canonicalUrl.
+- [x] shortDescription.
+- [x] featuredImage.
+- [x] category.
+- [x] tags.
+- [x] contentMarkdown.
+- [x] author.
+- [x] schemaAuto + schemaOverride.
+- [x] faqs.
+- [x] status.
 
 ### 4.3 Acciones editoriales
 
-- [ ] Botón `Save Draft`.
-- [ ] Botón `Publish`.
-- [ ] Botón `Revert to Draft`.
-- [ ] Preview tokenizado (`desktop/tablet/mobile`) para no publicados.
+- [x] Boton `Save Draft`.
+- [x] Boton `Publish`.
+- [x] Boton `Revert to Draft`.
+- [x] Boton `Delete` (solo `admin`, con confirmacion).
+- [x] Preview tokenizado para entradas no publicadas (`draft`/`scheduled`).
 
 Entregables:
 
@@ -205,35 +220,35 @@ Entregables:
 
 ---
 
-## Etapa 5 - Integración con frontend público (Astro)
+## Etapa 5 - IntegraciÃ³n con frontend pÃºblico (Astro)
 
-Objetivo: render público SEO-friendly y estructura de rutas final.
+Objetivo: render pÃºblico SEO-friendly y estructura de rutas final.
 
-### 5.1 Rutas públicas blog
+### 5.1 Rutas pÃºblicas blog
 
-- [ ] `/blog` (listado general).
-- [ ] `/blog/[categoria]` (listado por categoría).
-- [ ] `/blog/[categoria]/[slug]` (detalle).
+- [x] `/blog` (listado general).
+- [x] `/blog/[categoria]` (listado por categorÃ­a).
+- [x] `/blog/[categoria]/[slug]` (detalle).
 
 ### 5.2 Compatibilidad legacy
 
-- [ ] Redirecciones `301` desde `/blog/[slug]` a `/blog/[categoria]/[slug]`.
-- [ ] Actualización de links internos a la nueva estructura.
+- [x] Redirecciones `301` desde `/blog/[slug]` a `/blog/[categoria]/[slug]`.
+- [x] ActualizaciÃ³n de links internos a la nueva estructura.
 
-### 5.3 SEO técnico y contenido para IA
+### 5.3 SEO tÃ©cnico y contenido para IA
 
-- [ ] Canonical correcto por entrada.
-- [ ] OpenGraph y Twitter Card por entrada.
-- [ ] JSON-LD `BlogPosting`.
-- [ ] JSON-LD `BreadcrumbList`.
-- [ ] JSON-LD `FAQPage` cuando aplique.
-- [ ] Sitemap actualizado con rutas nuevas.
-- [ ] HTML semántico + un `h1` por entrada.
+- [x] Canonical correcto por entrada.
+- [x] OpenGraph y Twitter Card por entrada.
+- [x] JSON-LD `BlogPosting`.
+- [x] JSON-LD `BreadcrumbList`.
+- [x] JSON-LD `FAQPage` cuando aplique.
+- [x] Sitemap actualizado con rutas nuevas.
+- [x] HTML semÃ¡ntico + un `h1` por entrada.
 
 Entregables:
 
-- [ ] Blog público operativo con nuevas URLs.
-- [ ] SEO validado en rutas clave.
+- [x] Blog pÃºblico operativo con nuevas URLs.
+- [x] SEO validado en rutas clave.
 
 ---
 
@@ -241,34 +256,39 @@ Entregables:
 
 Objetivo: soportar autores con perfil completo para blog.
 
-- [ ] Crear CRUD de `authors` en panel CMS.
-- [ ] Campos obligatorios: `name`, `photo`.
-- [ ] Campos de redes: `facebook`, `instagram`, `x`, `tiktok`, `linkedin`, `personalUrl`.
-- [ ] Vincular autor en cada entrada de blog.
-- [ ] Render de autor en página pública del blog.
+- [x] Crear CRUD de `authors` en panel CMS.
+- [x] Campos obligatorios: `name`, `photo`.
+- [x] Campos de redes: `facebook`, `instagram`, `x`, `tiktok`, `linkedin`, `personalUrl`.
+- [x] Vincular autor en cada entrada de blog.
+- [x] Render de autor en pÃ¡gina pÃºblica del blog.
 
 Entregables:
 
-- [ ] CMS de autores funcional.
-- [ ] Autor visible y consistente en frontend público.
+- [x] CMS de autores funcional.
+- [x] Autor visible y consistente en frontend pÃºblico.
 
 ---
 
-## Etapa 7 - Migración de contenido actual (Markdown -> CMS)
+## Etapa 7 - MigraciÃ³n de contenido actual (Markdown -> CMS)
 
-Objetivo: pasar contenido existente sin pérdida SEO.
+Objetivo: pasar contenido existente sin pÃ©rdida SEO.
 
-- [ ] Inventario de `src/content/blog`.
-- [ ] Script de mapeo `frontmatter -> schema CMS`.
-- [ ] Migrar slugs actuales a formato `(categorySlug, slug)`.
-- [ ] Definir categoría para entradas sin categoría.
-- [ ] Cargar entradas iniciales en `draft` o `published` según política acordada.
-- [ ] Verificar imágenes, enlaces internos y metadata SEO.
+- [x] Inventario de `src/content/blog`.
+- [x] Script de mapeo `frontmatter -> schema CMS`.
+- [x] Migrar slugs actuales a formato `(categorySlug, slug)`.
+- [x] Definir categorÃ­a para entradas sin categorÃ­a.
+- [ ] Cargar entradas iniciales en `draft` o `published` segÃºn polÃ­tica acordada.
+- [ ] Verificar imÃ¡genes, enlaces internos y metadata SEO.
 
 Entregables:
 
-- [ ] Script de migración versionado.
+- [x] Script de migraciÃ³n versionado.
 - [ ] Lote inicial migrado y validado.
+
+Nota operativa Etapa 7:
+
+- Script disponible: `npm run cms:migrate:blog` (dry-run) y `npm run cms:migrate:blog:apply -- --email <email> --password <password>`.
+- Inventario actual generado en `docs/roadmap/blog-markdown-inventory.md`.
 
 ---
 
@@ -276,48 +296,55 @@ Entregables:
 
 Objetivo: asegurar estabilidad antes de release.
 
-- [ ] Unit tests para utilidades, validadores y mapeos CMS.
-- [ ] Tests de API para create/update/status + permisos por rol.
-- [ ] Tests de UI para flujo editorial (crear draft, publicar, volver a draft).
-- [ ] E2E de rutas públicas: `/blog`, `/blog/[categoria]`, `/blog/[categoria]/[slug]`.
-- [ ] Validación SEO automatizada de metadatos críticos.
-- [ ] Ejecutar `npm run build`.
+- [x] Unit tests para utilidades, validadores y mapeos CMS.
+- [x] Tests de API para create/update/status + permisos por rol.
+- [x] Tests de UI para flujo editorial (crear draft, publicar, volver a draft).
+- [x] Suite base Playwright UI (login CMS + guardas de rutas protegidas).
+- [x] E2E de rutas pÃºblicas: `/blog`, `/blog/[categoria]`, `/blog/[categoria]/[slug]`.
+- [x] ValidaciÃ³n SEO automatizada de metadatos crÃ­ticos.
+- [x] Ejecutar `npm run build`.
 - [ ] Ejecutar `npm run astro -- check`.
+
+Nota QA:
+
+- `npm run astro -- check` sigue reportando 19 errores legacy fuera de mÃ³dulos CMS (por ejemplo `src/pages/about.astro`, `src/pages/contact.astro`, `src/components/BlogShare.astro`, `src/layouts/Layout.astro`).
+- Los mÃ³dulos CMS y rutas pÃºblicas de blog de esta etapa validan en verde con `npm run test:api`, `npm run test:unit`, `npm run test:e2e` y `npm run build`.
+- La suite API actual cubre contratos y permisos en create/update/status y el flujo de delete via validator/service.
 
 Entregables:
 
-- [ ] Evidencia de pruebas y comandos ejecutados.
+- [x] Evidencia de pruebas y comandos ejecutados.
 - [ ] Cero blockers abiertos para release.
 
 ---
 
-## Etapa 9 - Release y operación inicial
+## Etapa 9 - Release y operaciÃ³n inicial
 
-Objetivo: salir a producción con control y observabilidad.
+Objetivo: salir a producciÃ³n con control y observabilidad.
 
 - [ ] Desplegar migraciones y funciones en entorno objetivo.
 - [ ] Configurar variables y secretos en hosting.
-- [ ] Validar login CMS en producción.
+- [ ] Validar login CMS en producciÃ³n.
 - [ ] Validar flujo IA: crear draft por API.
-- [ ] Validar publicación y webhook de rebuild.
-- [ ] Validar redirecciones 301 y sitemap en producción.
+- [ ] Validar publicaciÃ³n y webhook de rebuild.
+- [ ] Validar redirecciones 301 y sitemap en producciÃ³n.
 - [ ] Plan de rollback documentado.
 
 Entregables:
 
-- [ ] CMS activo en producción.
+- [ ] CMS activo en producciÃ³n.
 - [ ] Primer contenido creado manualmente y por API, ambos publicados correctamente.
 
 ---
 
-## 4) Definición de terminado (DoD)
+## 4) DefiniciÃ³n de terminado (DoD)
 
-Se considera completada la implementación cuando:
+Se considera completada la implementaciÃ³n cuando:
 
-- [ ] Panel CMS autenticado está operativo para usuarios editoriales.
-- [ ] Blog público funciona en `blog/[categoria]/[slug]`.
+- [ ] Panel CMS autenticado estÃ¡ operativo para usuarios editoriales.
+- [ ] Blog pÃºblico funciona en `blog/[categoria]/[slug]`.
 - [ ] Endpoints API permiten crear drafts y cambiar estado (`publish` / `revert to draft`).
-- [ ] SEO técnico y JSON-LD cumplen lo definido en `cms.md`.
+- [ ] SEO tÃ©cnico y JSON-LD cumplen lo definido en `cms.md`.
 - [ ] Pruebas obligatorias y quality gates pasan en verde.
 
 ---
@@ -328,11 +355,14 @@ Orden sugerido (sin saltos):
 
 - [ ] Etapa 0
 - [x] Etapa 1
-- [ ] Etapa 2
-- [ ] Etapa 3
-- [ ] Etapa 4
-- [ ] Etapa 5
-- [ ] Etapa 6
-- [ ] Etapa 7
-- [ ] Etapa 8
+- [ ] Etapa 2 (pendiente de validacion formal de RLS por rol en entorno integrado)
+- [x] Etapa 3
+- [ ] Etapa 4 (en progreso)
+- [x] Etapa 5
+- [x] Etapa 6
+- [ ] Etapa 7 (en progreso)
+- [ ] Etapa 8 (en progreso)
 - [ ] Etapa 9
+
+
+

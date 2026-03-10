@@ -1,0 +1,23 @@
+---
+import CmsLayout from "@/layouts/CmsLayout.astro";
+import BlogEditorPanel from "@/components/cms/BlogEditorPanel.astro";
+
+export const prerender = false;
+
+const { id } = Astro.params;
+---
+
+<CmsLayout title="Editar Post Blog">
+  <BlogEditorPanel mode="edit" />
+
+  <script type="application/json" id="cms-blog-editor-config" set:html={JSON.stringify({ postId: id ?? null })} />
+  <script>
+    import { initCmsBlogEditorPage } from "@/features/cms/blog/ui/blog-editor-page";
+
+    const configEl = document.getElementById("cms-blog-editor-config");
+    const config = configEl?.textContent ? JSON.parse(configEl.textContent) : {};
+    await initCmsBlogEditorPage("edit", {
+      postId: config.postId ?? undefined,
+    });
+  </script>
+</CmsLayout>

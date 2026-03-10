@@ -1,0 +1,168 @@
+---
+export interface Props {
+  mode: "create" | "edit";
+}
+
+const { mode } = Astro.props;
+const isCreate = mode === "create";
+---
+
+<section class="space-y-6">
+  <header class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+    <div>
+      <p class="text-xs uppercase tracking-widest text-cyan-400">CMS Blog</p>
+      <h1 class="text-3xl font-bold mt-1">{isCreate ? "Nueva entrada" : "Editor de entrada"}</h1>
+      <p class="text-slate-400 mt-2">
+        {isCreate
+          ? "Crea un draft con todos los campos SEO/editoriales."
+          : "Edita metadatos, contenido, FAQs y estados editoriales."}
+      </p>
+    </div>
+    <div class="flex gap-2">
+      <a href="/cms/blog" id="cms-blog-back-link" class="rounded-lg border border-slate-700 px-4 py-2 text-sm hover:bg-slate-800">
+        Volver al listado
+      </a>
+      <a href="/cms" class="rounded-lg border border-slate-700 px-4 py-2 text-sm hover:bg-slate-800">
+        Dashboard
+      </a>
+    </div>
+  </header>
+
+  <nav class="flex flex-wrap gap-2 text-sm">
+    <a href="/cms/blog" class="rounded-md border border-cyan-500/70 bg-cyan-500/10 px-3 py-1.5 text-cyan-300">Blog</a>
+    <a href="/cms/categories" class="rounded-md border border-slate-700 px-3 py-1.5 hover:bg-slate-800">Categorias</a>
+    <a href="/cms/tags" class="rounded-md border border-slate-700 px-3 py-1.5 hover:bg-slate-800">Tags</a>
+    <a href="/cms/authors" class="rounded-md border border-slate-700 px-3 py-1.5 hover:bg-slate-800">Autores</a>
+  </nav>
+
+  <section class="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
+    <div class="grid gap-3 md:grid-cols-3">
+      <article class="rounded-lg border border-slate-800 bg-slate-950/70 p-3">
+        <p class="text-xs uppercase tracking-wide text-slate-400">Post ID</p>
+        <p id="cms-blog-current-post-id" class="text-sm text-slate-200 mt-1">(sin ID)</p>
+      </article>
+      <article class="rounded-lg border border-slate-800 bg-slate-950/70 p-3">
+        <p class="text-xs uppercase tracking-wide text-slate-400">Estado actual</p>
+        <p id="cms-blog-current-status" class="text-sm text-slate-200 mt-1">{isCreate ? "new" : "cargando..."}</p>
+      </article>
+      <article class="rounded-lg border border-slate-800 bg-slate-950/70 p-3">
+        <p class="text-xs uppercase tracking-wide text-slate-400">Ruta objetivo</p>
+        <p class="text-sm text-slate-200 mt-1">creamvp.com/blog/[categoria]/[slug]</p>
+      </article>
+    </div>
+
+    <div class="mt-4 grid gap-4 lg:grid-cols-2">
+      <label class="block text-sm">
+        <span class="text-slate-300">H1</span>
+        <input id="cms-blog-h1" type="text" class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100" />
+      </label>
+      <label class="block text-sm">
+        <span class="text-slate-300">Slug *</span>
+        <input id="cms-blog-slug" type="text" placeholder="mi-slug-seo" class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100" />
+      </label>
+      <label class="block text-sm lg:col-span-2">
+        <span class="text-slate-300">Meta Description</span>
+        <textarea id="cms-blog-meta-description" rows="2" class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100"></textarea>
+      </label>
+      <label class="block text-sm lg:col-span-2">
+        <span class="text-slate-300">Canonical URL</span>
+        <input id="cms-blog-canonical-url" type="url" placeholder="https://creamvp.com/blog/[categoria]/[slug]" class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100" />
+      </label>
+      <label class="block text-sm lg:col-span-2">
+        <span class="text-slate-300">Short Description</span>
+        <textarea id="cms-blog-short-description" rows="2" class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100"></textarea>
+      </label>
+    </div>
+
+    <div class="mt-4 grid gap-4 lg:grid-cols-2">
+      <label class="block text-sm">
+        <span class="text-slate-300">Featured Image URL</span>
+        <input id="cms-blog-featured-image-url" type="url" class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100" />
+      </label>
+      <label class="block text-sm">
+        <span class="text-slate-300">Featured Image ALT</span>
+        <input id="cms-blog-featured-image-alt" type="text" class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100" />
+      </label>
+      <label class="block text-sm">
+        <span class="text-slate-300">Categoria *</span>
+        <select id="cms-blog-category-id" class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100"></select>
+      </label>
+      <label class="block text-sm">
+        <span class="text-slate-300">Autor</span>
+        <select id="cms-blog-author-id" class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100"></select>
+      </label>
+      <label class="block text-sm lg:col-span-2">
+        <span class="text-slate-300">Tags (multiseleccion)</span>
+        <select id="cms-blog-tag-ids" multiple size="6" class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100"></select>
+      </label>
+    </div>
+
+    <div class="mt-4 grid gap-4 lg:grid-cols-2">
+      <label class="block text-sm lg:col-span-2">
+        <span class="text-slate-300">Contenido Markdown</span>
+        <textarea id="cms-blog-content-markdown" rows="12" class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100 font-mono text-xs"></textarea>
+      </label>
+      <label class="block text-sm">
+        <span class="text-slate-300">Schema Auto (solo lectura)</span>
+        <textarea id="cms-blog-schema-auto" rows="8" readonly class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950/60 px-3 py-2 text-slate-300 font-mono text-xs"></textarea>
+      </label>
+      <label class="block text-sm">
+        <span class="text-slate-300">Schema Override (JSON)</span>
+        <textarea id="cms-blog-schema-override" rows="8" placeholder='{"@type":"BlogPosting"}' class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100 font-mono text-xs"></textarea>
+      </label>
+    </div>
+
+    <div class="mt-4 rounded-lg border border-slate-800 bg-slate-950/70 p-3 space-y-3">
+      <div class="flex items-center justify-between">
+        <p class="font-semibold">FAQs (visibles y para IA)</p>
+        <button id="cms-blog-faq-add" type="button" class="rounded-md border border-slate-700 px-3 py-1.5 text-xs hover:bg-slate-800">
+          Agregar FAQ
+        </button>
+      </div>
+      <div id="cms-blog-faq-list" class="space-y-2"></div>
+    </div>
+
+    <div class="mt-4 rounded-lg border border-slate-800 bg-slate-950/70 p-3">
+      <label class="block text-sm max-w-sm">
+        <span class="text-slate-300">Fecha para scheduled (opcional)</span>
+        <input id="cms-blog-scheduled-at" type="datetime-local" class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100" />
+      </label>
+    </div>
+
+    <div class="mt-4 flex flex-wrap gap-2">
+      <button id="cms-blog-save-draft" type="button" class="rounded-lg bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-400">
+        Save Draft
+      </button>
+      <button id="cms-blog-schedule" type="button" class="rounded-lg border border-amber-500/60 px-4 py-2 text-sm text-amber-300 hover:bg-amber-500/10">
+        Schedule
+      </button>
+      <button id="cms-blog-publish" type="button" class="rounded-lg border border-emerald-500/60 px-4 py-2 text-sm text-emerald-300 hover:bg-emerald-500/10">
+        Publish
+      </button>
+      <button id="cms-blog-revert" type="button" class="rounded-lg border border-slate-700 px-4 py-2 text-sm hover:bg-slate-800">
+        Revert to Draft
+      </button>
+      {!isCreate && (
+        <button id="cms-blog-delete" type="button" class="rounded-lg border border-rose-500/60 px-4 py-2 text-sm text-rose-300 hover:bg-rose-500/10">
+          Eliminar entrada
+        </button>
+      )}
+      <button id="cms-blog-preview-generate" type="button" class="rounded-lg border border-indigo-500/60 px-4 py-2 text-sm text-indigo-300 hover:bg-indigo-500/10">
+        Generar Preview
+      </button>
+      <a
+        id="cms-blog-preview-link"
+        href="#"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="hidden rounded-lg border border-indigo-400/70 bg-indigo-500/10 px-4 py-2 text-sm text-indigo-200 hover:bg-indigo-500/20"
+      >
+        Abrir Preview
+      </a>
+    </div>
+
+    <p id="cms-blog-preview-meta" class="mt-2 text-xs text-indigo-300"></p>
+    <p id="cms-blog-message" class="mt-3 text-sm text-slate-300"></p>
+    <p id="cms-blog-error" class="mt-1 text-sm text-rose-400"></p>
+  </section>
+</section>

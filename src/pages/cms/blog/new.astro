@@ -1,0 +1,14 @@
+---
+import CmsLayout from "@/layouts/CmsLayout.astro";
+import BlogEditorPanel from "@/components/cms/BlogEditorPanel.astro";
+---
+
+<CmsLayout title="Nuevo Post Blog">
+  <BlogEditorPanel mode="create" />
+
+  <script>
+    import { initCmsBlogEditorPage } from "@/features/cms/blog/ui/blog-editor-page";
+
+    await initCmsBlogEditorPage("create");
+  </script>
+</CmsLayout>

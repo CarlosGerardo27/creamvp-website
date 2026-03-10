@@ -1,0 +1,129 @@
+---
+import { marked } from "marked";
+import {
+  getPreviewPostById,
+  readCmsServerPreviewEnv,
+} from "@/features/cms/preview/data/preview-repository";
+import { verifyPreviewToken } from "@/features/cms/preview/domain/preview-token";
+import "@/styles/global.css";
+
+export const prerender = false;
+
+const postId = Astro.params.id?.trim() ?? "";
+const token = Astro.url.searchParams.get("pt")?.trim() ?? "";
+
+let accessGranted = false;
+let accessError = "";
+let previewPost: Awaited<ReturnType<typeof getPreviewPostById>> = null;
+let markdownHtml = "<p class='text-slate-300'>Sin contenido.</p>";
+let expiresAtText = "";
+
+if (!postId || !token) {
+  accessError = "Token o postId no proporcionado.";
+  Astro.response.status = 401;
+} else {
+  try {
+    const env = readCmsServerPreviewEnv();
+    const payload = await verifyPreviewToken(token, env.previewTokenSecret, postId);
+    expiresAtText = new Date(payload.exp * 1000).toISOString();
+
+    previewPost = await getPreviewPostById(postId);
+    if (!previewPost) {
+      accessError = "No se encontró el post solicitado.";
+      Astro.response.status = 404;
+    } else {
+      accessGranted = true;
+      const markdown = previewPost.post.content_markdown?.trim() ?? "";
+      if (markdown) {
+        markdownHtml = marked.parse(markdown) as string;
+      }
+      Astro.response.status = 200;
+    }
+  } catch (error) {
+    accessError = error instanceof Error ? error.message : "No fue posible validar token preview.";
+    Astro.response.status = 401;
+  }
+}
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>
+      {
+        accessGranted && previewPost
+          ? `Preview CMS | ${previewPost.post.h1 ?? previewPost.post.slug}`
+          : "Preview CMS | Acceso restringido"
+      }
+    </title>
+  </head>
+  <body class="bg-slate-950 text-slate-100 min-h-screen">
+    <main class="max-w-4xl mx-auto px-5 py-8">
+      <section class="rounded-xl border border-slate-800 bg-slate-900/70 p-4 mb-6">
+        <p class="text-xs uppercase tracking-widest text-amber-300">Preview tokenizado</p>
+        {
+          accessGranted && previewPost ? (
+            <>
+              <h1 class="text-2xl font-semibold mt-2">
+                {previewPost.post.h1 ?? "(sin H1)"}
+              </h1>
+              <p class="text-sm text-slate-300 mt-2">
+                Estado: <strong>{previewPost.post.status}</strong>
+              </p>
+              <p class="text-sm text-slate-400 mt-1">
+                Ruta objetivo: /blog/{previewPost.post.category_slug}/{previewPost.post.slug}
+              </p>
+              <p class="text-xs text-slate-500 mt-2">Token expira en: {expiresAtText}</p>
+            </>
+          ) : (
+            <>
+              <h1 class="text-2xl font-semibold mt-2">Acceso restringido</h1>
+              <p class="text-sm text-rose-300 mt-2">{accessError}</p>
+            </>
+          )
+        }
+      </section>
+
+      {
+        accessGranted && previewPost && (
+          <article class="space-y-6">
+            {previewPost.post.featured_image_url && (
+              <img
+                src={previewPost.post.featured_image_url}
+                alt={previewPost.post.featured_image_alt ?? "Imagen destacada"}
+                class="w-full rounded-lg border border-slate-800"
+              />
+            )}
+
+            <section class="rounded-xl border border-slate-800 bg-slate-900/70 p-6">
+              <h2 class="text-lg font-semibold mb-2">Meta description</h2>
+              <p class="text-slate-300">{previewPost.post.meta_description ?? "(sin meta description)"}</p>
+            </section>
+
+            <section class="rounded-xl border border-slate-800 bg-slate-900/70 p-6">
+              <h2 class="text-lg font-semibold mb-4">Contenido</h2>
+              <div class="prose prose-invert max-w-none" set:html={markdownHtml}></div>
+            </section>
+
+            {previewPost.faqs.length > 0 && (
+              <section class="rounded-xl border border-slate-800 bg-slate-900/70 p-6">
+                <h2 class="text-lg font-semibold mb-4">FAQs</h2>
+                <div class="space-y-3">
+                  {previewPost.faqs.map((faq) => (
+                    <article class="rounded-lg border border-slate-800 bg-slate-950/70 p-3">
+                      <h3 class="font-medium">{faq.question}</h3>
+                      <p class="text-sm text-slate-300 mt-1">{faq.answer}</p>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            )}
+          </article>
+        )
+      }
+    </main>
+  </body>
+</html>

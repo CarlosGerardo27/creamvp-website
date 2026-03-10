@@ -1,15 +1,24 @@
 ---
-import { getCollection } from "astro:content";
 import { Picture } from "astro:assets";
 import Layout from "@/layouts/Layout.astro";
 import Container from "@/components/container.astro";
 import Sectionhead from "@/components/sectionhead.astro";
+import { listPublishedBlogPosts } from "@/features/public-blog/data/public-blog-repository";
 
-// Función para formatear fechas en español
 function formatDateSpanish(date: Date): string {
   const months = [
-    "enero", "febrero", "marzo", "abril", "mayo", "junio",
-    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+    "enero",
+    "febrero",
+    "marzo",
+    "abril",
+    "mayo",
+    "junio",
+    "julio",
+    "agosto",
+    "septiembre",
+    "octubre",
+    "noviembre",
+    "diciembre",
   ];
   const day = date.getDate();
   const month = months[date.getMonth()];
@@ -17,15 +26,7 @@ function formatDateSpanish(date: Date): string {
   return `${day} de ${month}, ${year}`;
 }
 
-// Filter blog entries with 'draft: false' & date before current date
-const publishedBlogEntries = await getCollection("blog", ({ data }) => {
-  return !data.draft && data.publishDate < new Date();
-});
-
-// Sort content entries by publication date
-publishedBlogEntries.sort(function (a, b) {
-  return b.data.publishDate.valueOf() - a.data.publishDate.valueOf();
-});
+const publishedBlogEntries = await listPublishedBlogPosts();
 ---
 
 <Layout title="Blog">
@@ -33,7 +34,7 @@ publishedBlogEntries.sort(function (a, b) {
     <Sectionhead>
       <Fragment slot="title">Blog</Fragment>
       <Fragment slot="desc">
-        Aprende sobre automatización, No-Code e IA para hacer crecer tu negocio. Casos reales, ejemplos prácticos y estrategias que funcionan.
+        Aprende sobre automatizacion, No-Code e IA para hacer crecer tu negocio. Casos reales, ejemplos practicos y estrategias que funcionan.
       </Fragment>
     </Sectionhead>
     <main class="mt-16">
@@ -41,36 +42,48 @@ publishedBlogEntries.sort(function (a, b) {
         {
           publishedBlogEntries.map((blogPostEntry, index) => (
             <li>
-              <a href={`/blog/${blogPostEntry.slug}`}>
+              <a href={`/blog/${blogPostEntry.categorySlug}/${blogPostEntry.slug}`}>
                 <div class="grid md:grid-cols-2 gap-5 md:gap-10 items-center">
-                  <Picture
-                    src={blogPostEntry.data.image.src}
-                    alt={blogPostEntry.data.image.alt}
-                    sizes="(max-width: 800px) 100vw, 800px"
-                    width={800}
-                    height={600}
-                    loading={index <= 2 ? "eager" : "lazy"}
-                    decoding={index <= 2 ? "sync" : "async"}
-                    class="w-full rounded-md object-cover object-center bg-white"
-                  />
+                  {
+                    blogPostEntry.imageSrc.startsWith("http") ? (
+                      <img
+                        src={blogPostEntry.imageSrc}
+                        alt={blogPostEntry.imageAlt}
+                        loading={index <= 2 ? "eager" : "lazy"}
+                        decoding={index <= 2 ? "sync" : "async"}
+                        class="w-full rounded-md object-cover object-center bg-white aspect-[4/3]"
+                      />
+                    ) : (
+                      <Picture
+                        src={blogPostEntry.imageSrc}
+                        alt={blogPostEntry.imageAlt}
+                        sizes="(max-width: 800px) 100vw, 800px"
+                        width={800}
+                        height={600}
+                        loading={index <= 2 ? "eager" : "lazy"}
+                        decoding={index <= 2 ? "sync" : "async"}
+                        class="w-full rounded-md object-cover object-center bg-white"
+                      />
+                    )
+                  }
                   <div>
                     <span class="text-blue-400 uppercase tracking-wider text-sm font-medium">
-                      {blogPostEntry.data.category}
+                      {blogPostEntry.categoryName}
                     </span>
 
                     <h2 class="text-3xl font-semibold leading-snug tracking-tight mt-1 ">
-                      {blogPostEntry.data.title}
+                      {blogPostEntry.title}
                     </h2>
 
                     <div class="flex gap-2 mt-3">
                       <span class="text-gray-400">
-                        {blogPostEntry.data.author}
+                        {blogPostEntry.authorName}
                       </span>
                       <span class="text-gray-400">• </span>
                       <time
                         class="text-gray-400"
-                        datetime={blogPostEntry.data.publishDate.toISOString()}>
-                        {formatDateSpanish(blogPostEntry.data.publishDate)}
+                        datetime={blogPostEntry.publishDate.toISOString()}>
+                        {formatDateSpanish(blogPostEntry.publishDate)}
                       </time>
                     </div>
                   </div>
