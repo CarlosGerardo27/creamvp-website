@@ -269,28 +269,168 @@ seo
 
 # Blog
 
-Campos:
+Campos (modelo final):
 
 ```
-draft (boolean)
-title
-snippet
-image
+status (draft|scheduled|published)
+h1
+metaDescription
+slug
+canonicalUrl
+shortDescription
+featuredImage
 publishDate
-author
-category
+updatedDate
+authorId
+categoryId
+categorySlug
 tags[]
+schemaAuto
+schemaOverride
 faqs[]
-content
+contentMarkdown
 seo
 ```
 
-El campo `content` será compatible con:
+Detalle de campos editoriales:
+
+```
+h1
+Texto principal del artículo (equivale al H1 visible en página)
+
+metaDescription
+Texto SEO para snippet de resultados en buscadores
+
+slug
+Identificador del post dentro de su categoría
+
+canonicalUrl
+URL canónica editable. Debe resolverse a /blog/[categoria]/[slug]
+
+shortDescription
+Resumen corto para tarjetas/listados (preview)
+
+featuredImage
+Imagen principal del post y miniaturas de listados (incluye alt obligatorio)
+
+categoryId + categorySlug
+Relación con colección Categories y slug de categoría para URL pública
+
+tags[]
+Relación de tags editoriales
+
+contentMarkdown
+Cuerpo del artículo en Markdown
+
+schemaAuto
+JSON-LD generado automáticamente al guardar
+
+schemaOverride
+Edición manual opcional del marcado Schema cuando se requiera
+
+faqs[]
+Sección de preguntas frecuentes para render en página y consumo por agentes de IA
+```
+
+Reglas obligatorias de publicación:
+
+```
+status inicial = draft
+publish permitido solo si h1/metaDescription/slug/canonicalUrl/featuredImage/category/contentMarkdown están completos
+unique key = (categorySlug, slug)
+```
+
+El campo `contentMarkdown` será compatible con:
 
 ```
 markdown
 rich blocks
 ```
+
+---
+
+# Estructura de URLs del Blog (obligatoria)
+
+La estructura canónica de entradas del blog será:
+
+```
+https://creamvp.com/blog/[categoria]/[slug]
+```
+
+Ejemplo:
+
+```
+https://creamvp.com/blog/automatizacion/como-ahorrar-10-horas-semanales
+```
+
+Reglas de routing:
+
+* Ruta de listado general: `/blog`
+* Ruta de listado por categoría: `/blog/[categoria]`
+* Ruta de detalle: `/blog/[categoria]/[slug]`
+* Se debe crear ruta Astro equivalente: `src/pages/blog/[categoria]/[slug].astro`
+
+Reglas de slugs:
+
+* `categoria` y `slug` son obligatorios para publicar.
+* Solo minúsculas, números y guiones (`a-z`, `0-9`, `-`).
+* Sin acentos, sin espacios, sin caracteres especiales.
+* Unicidad compuesta obligatoria en CMS: `(categoria_slug, post_slug)`.
+
+Compatibilidad y transición:
+
+* Si existe tráfico histórico en `/blog/[slug]`, debe redirigir con `301` a `/blog/[categoria]/[slug]`.
+* Canonical siempre debe apuntar a la nueva ruta con categoría.
+
+---
+
+# Requisitos SEO + descubribilidad para motores e IA
+
+Cada entrada de blog publicada debe cumplir:
+
+* `h1`, `metaDescription`, `categorySlug`, `slug`, `author`, `publishDate`, `featuredImage.alt`.
+* `canonical` a `https://creamvp.com/blog/[categoria]/[slug]`.
+* Open Graph y Twitter Card consistentes con canonical e imagen principal.
+* JSON-LD `BlogPosting` obligatorio.
+* JSON-LD `BreadcrumbList` obligatorio (`Inicio > Blog > Categoría > Artículo`).
+* JSON-LD `FAQPage` cuando el post tenga FAQs.
+* Inclusión automática en sitemap de todas las URLs publicadas.
+* Noindex prohibido para posts `published` (salvo caso editorial explícito).
+
+Para facilitar consumo por agentes de IA:
+
+* HTML semántico limpio (`article`, `header`, `main`, `section`, `time`).
+* Un único `h1` por post.
+* Fecha de publicación y fecha de actualización visibles en markup.
+* Enlaces internos a categoría y contenidos relacionados.
+* Evitar contenido clave solo en JS cliente; contenido principal debe renderizarse en HTML estático.
+
+---
+
+# Administración CMS del Blog (tipo Webflow)
+
+La pantalla de administración de entradas de blog debe permitir editar, como mínimo:
+
+* H1
+* metaDescription
+* slug
+* canonicalUrl
+* shortDescription
+* featuredImage
+* category
+* tags
+* contentMarkdown
+* author
+* schemaAuto/schemaOverride
+* faqs
+* status editorial (`draft`, `scheduled`, `published`)
+
+Comportamientos obligatorios:
+
+* Guardado crea entradas como `draft` por defecto.
+* Botones editoriales visibles: `Save Draft`, `Publish`, `Revert to Draft`.
+* Validaciones antes de publicar: campos requeridos + slug/canonical válidos.
+* Preview en `desktop/tablet/mobile` con token para contenido no publicado.
 
 ---
 
@@ -303,7 +443,13 @@ name
 slug
 bio
 photo
-socialLinks[]
+socialLinks
+facebookUrl
+instagramUrl
+xUrl
+tiktokUrl
+linkedinUrl
+personalUrl
 ```
 
 ---
@@ -446,6 +592,44 @@ editor
 reviewer
 developer
 ```
+
+---
+
+# API editorial (ingesta por IA + control de estado)
+
+Se debe permitir creación y actualización de entradas de blog vía API para automatización (incluyendo agentes de IA).
+
+Endpoints mínimos (implementados como Supabase Edge Functions):
+
+```
+POST   /functions/v1/cms-blog-create
+PATCH  /functions/v1/cms-blog-update
+PATCH  /functions/v1/cms-blog-status
+```
+
+Contrato esperado:
+
+* `cms-blog-create` crea posts en estado `draft` siempre.
+* `cms-blog-status` permite transición:
+
+```
+draft -> published
+published -> draft
+draft -> scheduled
+scheduled -> published
+```
+
+* `cms-blog-update` permite actualizar campos editoriales sin publicar.
+* Todas las operaciones deben validar esquema de entrada antes de escribir en DB.
+* Todas las operaciones deben registrar `createdBy`, `updatedBy` y `updatedAt`.
+
+Seguridad y gobernanza:
+
+* Autenticación obligatoria para endpoints de escritura.
+* `admin` y `editor` pueden crear/editar borradores.
+* `admin` y `reviewer` pueden publicar/despublicar.
+* Rate limit y logging para prevenir abuso de generación automática.
+* Webhook de publicación dispara rebuild al pasar a `published`.
 
 ---
 
@@ -608,7 +792,8 @@ Tareas:
 * crear tablas CMS en Supabase
 * configurar storage
 * roles editoriales
-* APIs
+* APIs editoriales (`cms-blog-create`, `cms-blog-update`, `cms-blog-status`)
+* políticas RLS y permisos por rol para creación/publicación
 
 ---
 
@@ -655,7 +840,8 @@ Duración:
 Tareas:
 
 * migrar landings
-* mantener blog en Markdown inicialmente
+* migrar blog al CMS con rutas `/blog/[categoria]/[slug]`
+* habilitar redirecciones `301` desde rutas legacy
 * pruebas de publicación
 
 ---
@@ -694,6 +880,9 @@ Mapear:
 
 ```
 frontmatter → schema CMS
+slug legacy → (categorySlug + slug)
+excerpt legacy → shortDescription
+image legacy → featuredImage
 ```
 
 ---
@@ -718,6 +907,8 @@ Verificar:
 * imágenes
 * enlaces
 * SEO metadata
+* canonical en formato `/blog/[categoria]/[slug]`
+* Schema JSON-LD (`BlogPosting`, `BreadcrumbList`, `FAQPage` cuando aplique)
 
 ---
 
@@ -730,6 +921,17 @@ categorías
 años
 bloques
 ```
+
+---
+
+## 6. Migración de rutas SEO
+
+Implementar y validar:
+
+* generación de nuevas rutas `/blog/[categoria]/[slug]`
+* redirecciones `301` desde rutas legacy `/blog/[slug]`
+* actualización de enlaces internos del sitio hacia nueva estructura
+* regeneración de sitemap con nuevas URLs canónicas
 
 ---
 
@@ -754,6 +956,34 @@ El MVP será considerado completo cuando:
 
 * render correcto de bloques
 * SEO metadata funcional
+
+---
+
+### Rutas y SEO del blog
+
+* posts publicados disponibles en `/blog/[categoria]/[slug]`
+* redirects `301` funcionales desde `/blog/[slug]`
+* canonical correcto por entrada
+* `BlogPosting` + `BreadcrumbList` válidos en JSON-LD
+* URLs de blog indexadas en sitemap
+
+---
+
+### Administración CMS del blog
+
+* formulario editorial incluye `h1`, `metaDescription`, `slug`, `canonicalUrl`, `shortDescription`, `featuredImage`, `category`, `tags`, `contentMarkdown`, `author`, `schemaAuto/schemaOverride`, `faqs`
+* `status` inicial de toda entrada creada es `draft`
+* transición `published -> draft` disponible desde panel editorial
+* vista previa funcional antes de publicar
+
+---
+
+### API y automatización por IA
+
+* endpoint de creación API genera entradas en `draft`
+* endpoint de cambio de estado permite publicar y volver a draft
+* validación de esquema obligatoria en endpoints de escritura
+* endpoints protegidos con autenticación + permisos por rol
 
 ---
 

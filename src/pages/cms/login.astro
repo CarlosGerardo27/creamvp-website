@@ -1,0 +1,121 @@
+---
+import CmsLayout from "@/layouts/CmsLayout.astro";
+---
+
+<CmsLayout title="Login" requireAuth={false}>
+  <section class="max-w-md mx-auto mt-8">
+    <div class="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl">
+      <p class="text-xs uppercase tracking-wider text-cyan-400">CMS CreaMVP</p>
+      <h1 class="text-2xl font-bold mt-2">Iniciar sesión</h1>
+      <p class="text-sm text-slate-400 mt-2">
+        Accede con tu cuenta editorial para administrar contenido del CMS.
+      </p>
+
+      <form id="cms-login-form" class="mt-6 space-y-4">
+        <label class="block text-sm">
+          <span class="text-slate-300">Correo</span>
+          <input
+            id="cms-email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+            class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100 focus:border-cyan-500 focus:outline-hidden"
+          />
+        </label>
+
+        <label class="block text-sm">
+          <span class="text-slate-300">Contraseña</span>
+          <input
+            id="cms-password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            required
+            class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100 focus:border-cyan-500 focus:outline-hidden"
+          />
+        </label>
+
+        <button
+          id="cms-login-submit"
+          type="submit"
+          class="w-full rounded-lg bg-cyan-500 px-4 py-2 font-semibold text-slate-950 hover:bg-cyan-400 transition"
+        >
+          Entrar al CMS
+        </button>
+      </form>
+
+      <p id="cms-login-message" class="mt-4 text-sm text-slate-300" />
+      <p id="cms-login-error" class="mt-2 text-sm text-rose-400" />
+    </div>
+  </section>
+
+  <script>
+    import { createCmsSupabaseBrowserClient } from "@/features/cms/auth/supabase-browser";
+    import { fetchCurrentCmsProfile } from "@/features/cms/auth/session";
+
+    const form = document.getElementById("cms-login-form");
+    const submitButton = document.getElementById("cms-login-submit");
+    const messageEl = document.getElementById("cms-login-message");
+    const errorEl = document.getElementById("cms-login-error");
+
+    const params = new URLSearchParams(window.location.search);
+    const nextRaw = params.get("next") || "/cms";
+    const nextPath = nextRaw.startsWith("/cms") ? nextRaw : "/cms";
+
+    const supabase = createCmsSupabaseBrowserClient();
+    if (!supabase) {
+      if (messageEl) messageEl.textContent = "";
+      if (errorEl) {
+        errorEl.textContent =
+          "Faltan variables PUBLIC_SUPABASE_URL o PUBLIC_SUPABASE_ANON_KEY.";
+      }
+      if (submitButton) submitButton.setAttribute("disabled", "disabled");
+    } else {
+      const currentProfile = await fetchCurrentCmsProfile();
+      if (currentProfile?.is_active) {
+        window.location.href = nextPath;
+      }
+    }
+
+    form?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!supabase) return;
+
+      const emailInput = document.getElementById("cms-email");
+      const passwordInput = document.getElementById("cms-password");
+      if (!(emailInput instanceof HTMLInputElement) || !(passwordInput instanceof HTMLInputElement)) {
+        return;
+      }
+
+      if (errorEl) errorEl.textContent = "";
+      if (messageEl) messageEl.textContent = "Validando credenciales...";
+      if (submitButton) submitButton.setAttribute("disabled", "disabled");
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email: emailInput.value.trim(),
+        password: passwordInput.value,
+      });
+
+      if (error) {
+        if (messageEl) messageEl.textContent = "";
+        if (errorEl) errorEl.textContent = error.message;
+        if (submitButton) submitButton.removeAttribute("disabled");
+        return;
+      }
+
+      const profile = await fetchCurrentCmsProfile();
+      if (!profile?.is_active) {
+        await supabase.auth.signOut();
+        if (messageEl) messageEl.textContent = "";
+        if (errorEl) errorEl.textContent = "Tu usuario no tiene acceso editorial activo.";
+        if (submitButton) submitButton.removeAttribute("disabled");
+        return;
+      }
+
+      if (messageEl) messageEl.textContent = "Acceso correcto. Redirigiendo...";
+      window.location.href = nextPath;
+    });
+  </script>
+</CmsLayout>
+

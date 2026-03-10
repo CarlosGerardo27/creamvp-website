@@ -1,0 +1,54 @@
+---
+import "@fontsource-variable/inter/index.css";
+import "../styles/global.css";
+import type { CmsRole } from "@/features/cms/auth/types";
+
+export interface Props {
+  title: string;
+  description?: string;
+  requireAuth?: boolean;
+  allowedRoles?: CmsRole[];
+}
+
+const {
+  title,
+  description = "Panel CMS de CreaMVP",
+  requireAuth = true,
+  allowedRoles = ["admin", "editor", "reviewer", "developer"],
+} = Astro.props;
+
+const guardConfig = {
+  requireAuth,
+  allowedRoles,
+  loginPath: "/cms/login",
+  forbiddenPath: "/cms/forbidden",
+};
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>{title} | CMS CreaMVP</title>
+  </head>
+  <body class="bg-slate-950 text-slate-100 min-h-screen">
+    <main class="max-w-6xl mx-auto px-5 py-8">
+      <slot />
+    </main>
+
+    <script type="application/json" id="cms-guard-config" set:html={JSON.stringify(guardConfig)} />
+    <script>
+      import { enforceCmsAccess } from "@/features/cms/auth/guard";
+
+      const guardConfigScript = document.getElementById("cms-guard-config");
+      if (guardConfigScript?.textContent) {
+        const parsedConfig = JSON.parse(guardConfigScript.textContent);
+        void enforceCmsAccess(parsedConfig);
+      }
+    </script>
+  </body>
+</html>
+

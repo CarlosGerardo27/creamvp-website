@@ -224,6 +224,75 @@
       "Documentacion minima actualizada (README o docs/metodos)."
     ]
   },
+  "supabase_migration_rules": {
+    "scope": "Toda migracion SQL aplicada al proyecto en Supabase",
+    "folder": "supabase/",
+    "naming_policy": {
+      "required_pattern": "NN_nombre_claro.sql",
+      "start_index": "01",
+      "number_format": "2 digitos con cero a la izquierda",
+      "name_format": "snake_case descriptivo y orientado al cambio real",
+      "examples": [
+        "01_schema_inicial_cms.sql",
+        "02_rls_politicas_editoriales.sql",
+        "03_indices_blog_y_performance.sql"
+      ]
+    },
+    "mandatory_rules": [
+      "No modificar una migracion ya aplicada; crear una nueva migracion incremental.",
+      "Cada migracion debe cubrir un objetivo claro y acotado.",
+      "Toda migracion debe ser idempotente cuando sea posible (IF EXISTS / IF NOT EXISTS).",
+      "Toda migracion debe incluir comentarios iniciales con objetivo y alcance.",
+      "Usar transacciones BEGIN/COMMIT cuando el tipo de cambio lo permita.",
+      "Toda funcion SQL/PLpgSQL creada o alterada en migraciones debe declarar explicitamente `search_path` (por ejemplo `set search_path = public`) para evitar warnings de seguridad.",
+      "Si una migracion cambia contratos de datos, actualizar docs/roadmap/cms.md y docs/roadmap/ruta-implementacion-cms.md.",
+      "Registrar cada nueva migracion en un archivo de registro dentro de supabase/."
+    ],
+    "validation_before_merge": [
+      "Verificar sintaxis SQL.",
+      "Probar la migracion en entorno limpio.",
+      "Probar compatibilidad con estado actual del esquema.",
+      "Ejecutar Database Linter y confirmar 0 warnings `function_search_path_mutable`.",
+      "Confirmar que no rompe rutas/publicacion SEO ni flujos editoriales."
+    ],
+    "quality_gate": "Ningun PR de DB se considera completo sin migracion versionada y nombre consistente con la politica."
+  },
+  "supabase_edge_function_rules": {
+    "scope": "Todas las Supabase Edge Functions del proyecto",
+    "mandatory_architecture": [
+      "Cada edge function debe ser modular: el archivo index solo actua como punto de entrada y orquestacion.",
+      "No se permite concentrar validacion, logica de negocio, acceso a datos y manejo de respuesta en un unico index.",
+      "Separar al menos en modulos: router/handler, validators (schemas), services (negocio), repositories/adapters (acceso Supabase o externos).",
+      "Toda validacion de payload debe ocurrir antes de ejecutar logica de negocio.",
+      "Toda logica reutilizable entre funciones debe moverse a modulos compartidos, no duplicarse en multiples index.",
+      "Manejo de errores estandarizado en helper comun (codigos HTTP, mensaje controlado, logging y trazabilidad).",
+      "Cada endpoint debe exponer contratos de request/response claros y tipados."
+    ],
+    "directory_convention": {
+      "base": "supabase/functions/<function-name>/",
+      "suggested_structure": [
+        "index.ts",
+        "handlers/<action>.ts",
+        "services/<domain-service>.ts",
+        "validators/<schema>.ts",
+        "repositories/<provider-repo>.ts",
+        "shared/http.ts",
+        "shared/errors.ts",
+        "shared/types.ts"
+      ]
+    },
+    "maintenance_policy": [
+      "Si index.ts supera complejidad media (ramas multiples o mas de 120 lineas), se debe refactorizar antes de merge.",
+      "Ninguna nueva funcionalidad debe agregarse directo en index.ts si existe modulo de dominio donde corresponde.",
+      "Refactors de modularidad son obligatorios cuando una funcion existente impida pruebas unitarias claras."
+    ],
+    "testing_requirements": [
+      "Tests unitarios para validators y services.",
+      "Tests de integracion para handlers (request -> response) con casos de exito y error.",
+      "Al agregar una accion nueva, se debe agregar o actualizar test del router/dispatch."
+    ],
+    "quality_gate": "No se aprueba una edge function nueva o modificada si la logica principal vive en index.ts."
+  },
   "quality_gates": {
     "pre_merge_required": [
       "npm run build",

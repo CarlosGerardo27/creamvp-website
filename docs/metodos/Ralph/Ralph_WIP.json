@@ -1,13 +1,13 @@
 {
   "active_objective": {
-    "id": "chatCompassCitations_20260307",
-    "title": "Agregar citacion de documentos Compass en chat por #slug y selector con icono search",
-    "requested_by_user": "Permitir citar documentos Compass desde input de chat por mencion y por buscador, enviando document_id estructurado y mostrando nombre en UI.",
-    "created_at": "2026-03-07T16:55:00.000Z",
+    "id": "cmsLoginEnvFix_20260310",
+    "title": "Corregir configuracion de entorno para login CMS",
+    "requested_by_user": "No puedo hacer login: faltan PUBLIC_SUPABASE_URL o PUBLIC_SUPABASE_ANON_KEY",
+    "created_at": "2026-03-10T02:55:48.273Z",
     "status": "in_progress",
     "max_iterations": 5,
-    "tier": "A",
-    "tier_justification": "Afecta contrato frontend-backend-edge, metadata de mensajes y comportamiento del agente para contexto/acciones sobre documentos."
+    "tier": "C",
+    "tier_justification": "Ajuste de configuracion local (.env) sin impacto de arquitectura ni DB."
   },
   "iterations": [
     {
@@ -4277,6 +4277,596 @@
         "tests_updated_or_created_when_applicable": false
       },
       "next_step_suggested": "Deploy frontend y validar flujo # menciones + picker con payload document_refs."
+    },
+    {
+      "id": "cmsAuthFoundation_20260310_1",
+      "iteration_number": 1,
+      "iteration_type": "exploration",
+      "objective": "Explorar estado actual del proyecto para iniciar implementacion de login y guardias CMS.",
+      "progress_estimate": {
+        "completitud_from_percent": 0,
+        "completitud_to_percent": 30,
+        "archivos_completados": "0/11",
+        "decisiones_pendientes": [
+          "Definir estrategia de guardias en Astro static (client-side guard)",
+          "Definir estructura base de modulos CMS dentro de src/features/cms"
+        ]
+      },
+      "exploration": {
+        "target": "Auth CMS + rutas /cms/* + estructura base de modulo",
+        "files_read": [
+          "docs/metodos/agentrules.json",
+          "docs/roadmap/cms.md",
+          "docs/roadmap/ruta-implementacion-cms.md",
+          "docs/metodos/Ralph/Ralph_loop.json",
+          "package.json",
+          "src/layouts/Layout.astro",
+          "src/env.d.ts"
+        ],
+        "architecture_summary": "Proyecto Astro estatico con layout publico existente, sin auth CMS y sin paginas /cms. No existe cliente Supabase en frontend ni variables publicas tipadas para auth.",
+        "integration_points": [
+          "Supabase Auth desde cliente browser con PUBLIC_SUPABASE_URL y PUBLIC_SUPABASE_ANON_KEY",
+          "Lectura de tabla profiles para validar role/is_active",
+          "Nuevas rutas /cms/login, /cms, /cms/forbidden"
+        ],
+        "risks_and_edge_cases": [
+          "En output static la proteccion real de rutas CMS es client-side, no middleware server-side",
+          "Falta de envs publicas debe manejarse con mensajes claros en login",
+          "Usuario autenticado sin profile/role activo requiere redireccion a /cms/forbidden"
+        ],
+        "recommended_approach": "Crear capa auth en src/features/cms/auth, layout dedicado CmsLayout, guardia client-side y flujo login/logout con supabase-js."
+      },
+      "actions_done": [
+        {
+          "action": "Exploracion tecnica",
+          "details": "Se validaron roadmap, reglas del agente y estructura real del repo para iniciar Etapa 2."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "docs/metodos/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "tests_updated_or_created_when_applicable": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false
+      },
+      "next_step_suggested": "Iteracion 2: plan de implementacion detallado para login, guardias y estructura CMS."
+    },
+    {
+      "id": "cmsAuthFoundation_20260310_2",
+      "iteration_number": 2,
+      "iteration_type": "planning",
+      "objective": "Definir plan de implementacion para completar login CMS y proteccion de rutas iniciales.",
+      "progress_estimate": {
+        "completitud_from_percent": 30,
+        "completitud_to_percent": 55,
+        "archivos_completados": "0/11",
+        "decisiones_pendientes": [
+          "Definir alcance exacto de checkboxes a marcar en etapa 2 sin incluir RLS",
+          "Resolver dependencia de @supabase/supabase-js en package.json"
+        ]
+      },
+      "plan": {
+        "plan_steps": [
+          "Agregar dependencia @supabase/supabase-js",
+          "Crear .env.example y tipado en src/env.d.ts para variables publicas",
+          "Crear modulo src/features/cms/auth con tipos, cliente, sesion y guardia",
+          "Crear layout src/layouts/CmsLayout.astro para paginas CMS",
+          "Crear rutas /cms/login, /cms y /cms/forbidden",
+          "Actualizar checklist en docs/roadmap/ruta-implementacion-cms.md segun avances reales",
+          "Ejecutar build/check y documentar limitaciones preexistentes"
+        ],
+        "files_to_change": [
+          "package.json",
+          "package-lock.json",
+          ".env.example",
+          "src/env.d.ts",
+          "src/features/cms/auth/types.ts",
+          "src/features/cms/auth/supabase-browser.ts",
+          "src/features/cms/auth/session.ts",
+          "src/features/cms/auth/guard.ts",
+          "src/layouts/CmsLayout.astro",
+          "src/pages/cms/login.astro",
+          "src/pages/cms/index.astro",
+          "src/pages/cms/forbidden.astro",
+          "docs/roadmap/ruta-implementacion-cms.md"
+        ],
+        "validation_strategy": [
+          "npm run build",
+          "npm run astro -- check y documentar errores heredados del repo"
+        ],
+        "test_strategy": [
+          "No se agregan tests nuevos en esta iteracion por ausencia de framework test configurado para frontend CMS.",
+          "Validacion funcional via build y flujo de rutas generadas en dist."
+        ],
+        "definition_of_done": [
+          "Login CMS funcional con supabase-js",
+          "Rutas CMS base protegidas por guardia frontend",
+          "Checklist de etapa actualizado sin marcar RLS no implementado"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Plan documentado",
+          "details": "Se definieron archivos, secuencia, validacion y criterios de done para la ejecucion de etapa 2 base."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "docs/metodos/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "tests_updated_or_created_when_applicable": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false
+      },
+      "next_step_suggested": "Iteracion 3: ejecutar implementacion de auth CMS, paginas y ajustes de roadmap."
+    },
+    {
+      "id": "cmsAuthFoundation_20260310_3",
+      "iteration_number": 3,
+      "iteration_type": "execution",
+      "objective": "Implementar login CMS y guardias de acceso iniciales alineados a etapa 2 del roadmap.",
+      "progress_estimate": {
+        "completitud_from_percent": 55,
+        "completitud_to_percent": 82,
+        "archivos_completados": "11/13",
+        "decisiones_pendientes": [
+          "Implementar RLS y bootstrap admin en siguientes iteraciones",
+          "Agregar modulos CRUD /cms/blog, /cms/categories, /cms/authors"
+        ]
+      },
+      "execution": {
+        "changes": [
+          "Se instalo @supabase/supabase-js para autenticacion en frontend CMS",
+          "Se agrego .env.example y tipado de PUBLIC_SUPABASE_URL/PUBLIC_SUPABASE_ANON_KEY",
+          "Se creo capa auth CMS (types, supabase-browser, session, guard)",
+          "Se creo layout CmsLayout y paginas /cms/login, /cms, /cms/forbidden",
+          "Se actualizo roadmap de implementacion marcando avances reales de etapa 0/2",
+          "Se corrigio referencia de ruta en agentrules hacia ruta-implementacion-cms.md"
+        ],
+        "files_changed": [
+          "package.json",
+          "package-lock.json",
+          ".env.example",
+          "src/env.d.ts",
+          "src/features/cms/auth/types.ts",
+          "src/features/cms/auth/supabase-browser.ts",
+          "src/features/cms/auth/session.ts",
+          "src/features/cms/auth/guard.ts",
+          "src/layouts/CmsLayout.astro",
+          "src/pages/cms/login.astro",
+          "src/pages/cms/index.astro",
+          "src/pages/cms/forbidden.astro",
+          "docs/roadmap/ruta-implementacion-cms.md",
+          "docs/metodos/agentrules.json"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Implementacion base CMS auth",
+          "details": "Se habilitaron login, sesion/logout, redireccion y control de acceso por role/is_active contra profiles."
+        },
+        {
+          "action": "Validacion tecnica",
+          "details": "npm run build en verde. npm run astro -- check falla por errores heredados existentes en paginas/componentes legacy no relacionados al cambio."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "package.json",
+          "change_type": "modified"
+        },
+        {
+          "path": "package-lock.json",
+          "change_type": "modified"
+        },
+        {
+          "path": ".env.example",
+          "change_type": "created"
+        },
+        {
+          "path": "src/env.d.ts",
+          "change_type": "modified"
+        },
+        {
+          "path": "src/features/cms/auth/types.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "src/features/cms/auth/supabase-browser.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "src/features/cms/auth/session.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "src/features/cms/auth/guard.ts",
+          "change_type": "created"
+        },
+        {
+          "path": "src/layouts/CmsLayout.astro",
+          "change_type": "created"
+        },
+        {
+          "path": "src/pages/cms/login.astro",
+          "change_type": "created"
+        },
+        {
+          "path": "src/pages/cms/index.astro",
+          "change_type": "created"
+        },
+        {
+          "path": "src/pages/cms/forbidden.astro",
+          "change_type": "created"
+        },
+        {
+          "path": "docs/roadmap/ruta-implementacion-cms.md",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/metodos/agentrules.json",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/metodos/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "La proteccion de rutas CMS se implemento en cliente debido a modo static actual del proyecto.",
+        "Para enforcement server-side se requerira mover salida Astro a modo server con adapter y middleware SSR."
+      ],
+      "validation": {
+        "lint_ok": false,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "tests_updated_or_created_when_applicable": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false
+      },
+      "next_step_suggested": "Iteracion 4: implementar RLS/politicas y bootstrap admin para cerrar etapa 2 completa."
+    },
+    {
+      "id": "cmsAuthFoundation_20260310_4",
+      "iteration_number": 4,
+      "iteration_type": "execution",
+      "objective": "Implementar politicas RLS CMS por rol y bootstrap del primer admin para cerrar seguridad editorial de etapa 2.",
+      "progress_estimate": {
+        "completitud_from_percent": 82,
+        "completitud_to_percent": 92,
+        "archivos_completados": "14/16",
+        "decisiones_pendientes": [
+          "Aplicar migracion 03 en Supabase y validar permisos reales por rol",
+          "Construir endpoints editoriales (Etapa 3) con contratos API"
+        ]
+      },
+      "execution": {
+        "changes": [
+          "Se creo la migracion 03_rls_politicas_editoriales.sql con RLS por tabla CMS y politicas basadas en profiles.role.",
+          "Se agregaron funciones helper current_profile_role() y has_cms_role() con search_path fijo para evaluacion segura de permisos.",
+          "Se agrego bootstrap_first_admin(uuid) con ejecucion restringida a service_role para alta controlada del primer usuario admin.",
+          "Se actualizaron registro de migraciones y checklist de ruta-implementacion-cms.md para reflejar avance de etapa 2.3."
+        ],
+        "files_changed": [
+          "supabase/03_rls_politicas_editoriales.sql",
+          "supabase/registro-migraciones.md",
+          "docs/roadmap/ruta-implementacion-cms.md"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Migracion RLS",
+          "details": "Se definieron politicas de lectura/escritura para profiles, authors, categories, tags, blog_posts, blog_post_tags, blog_faqs y blog_revisions."
+        },
+        {
+          "action": "Bootstrap admin",
+          "details": "Se implemento funcion bootstrap_first_admin(uuid) para asignar admin inicial cuando aun no existe otro admin activo."
+        },
+        {
+          "action": "Validacion tecnica",
+          "details": "npm run build en verde; npm run astro -- check mantiene errores heredados legacy fuera del alcance CMS."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "supabase/03_rls_politicas_editoriales.sql",
+          "change_type": "created"
+        },
+        {
+          "path": "supabase/registro-migraciones.md",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/roadmap/ruta-implementacion-cms.md",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/metodos/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "La migracion es incremental e idempotente (drop policy if exists + create policy).",
+        "La validacion de permisos por rol queda pendiente de ejecucion en entorno Supabase despues de aplicar la migracion."
+      ],
+      "validation": {
+        "lint_ok": false,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "tests_updated_or_created_when_applicable": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false
+      },
+      "next_step_suggested": "Iteracion 5: aplicar migracion 03 en Supabase, ejecutar matriz de pruebas de permisos por rol y comenzar Etapa 3 (API cms-blog-create/update/status)."
+    },
+    {
+      "id": "cmsAuthFoundation_20260310_5",
+      "iteration_number": 5,
+      "iteration_type": "execution",
+      "objective": "Definir regla obligatoria de modularidad para Supabase Edge Functions en agentrules.",
+      "progress_estimate": {
+        "completitud_from_percent": 92,
+        "completitud_to_percent": 95,
+        "archivos_completados": "15/16",
+        "decisiones_pendientes": [
+          "Aplicar y validar en futuras funciones cms-blog-* la estructura modular definida"
+        ]
+      },
+      "execution": {
+        "changes": [
+          "Se agrego bloque supabase_edge_function_rules en docs/metodos/agentrules.json.",
+          "Se definio que index.ts debe ser solo entrypoint/orquestador y que la logica viva en handlers/services/validators/repositories.",
+          "Se agregaron quality gates y requerimientos de testing para funciones edge modulares."
+        ],
+        "files_changed": [
+          "docs/metodos/agentrules.json"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Actualizacion de reglas",
+          "details": "Se formalizo politica de modularidad obligatoria para edge functions y restricciones de mantenimiento."
+        },
+        {
+          "action": "Validacion JSON",
+          "details": "Se valido que agentrules.json conserva formato JSON valido."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "docs/metodos/agentrules.json",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/metodos/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "Regla solicitada por usuario para prevenir funciones monoliticas en index.ts."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "tests_updated_or_created_when_applicable": false,
+        "iteration_1_exploration_documented": true,
+        "iteration_2_plan_documented": true,
+        "tier_c_quick_scan_documented": false,
+        "tier_c_micro_plan_documented": false
+      },
+      "next_step_suggested": "Aplicar esta regla en la implementacion de cms-blog-create, cms-blog-update y cms-blog-status durante la Etapa 3."
+    },
+    {
+      "id": "cmsRlsAppliedSync_20260310_1",
+      "iteration_number": 1,
+      "iteration_type": "execution",
+      "objective": "Actualizar documentacion para reflejar que la migracion 03 ya fue aplicada.",
+      "progress_estimate": {
+        "completitud_from_percent": 0,
+        "completitud_to_percent": 100,
+        "archivos_completados": "2/2",
+        "decisiones_pendientes": []
+      },
+      "quick_scan": {
+        "files_read": [
+          "supabase/registro-migraciones.md",
+          "docs/roadmap/ruta-implementacion-cms.md",
+          "docs/metodos/agentrules.json"
+        ],
+        "what_exists_today": "La migracion 03 estaba registrada como pendiente y el roadmap solo indicaba migracion versionada.",
+        "touch_points": [
+          "Estado de fila 03 en registro de migraciones",
+          "Entregable de etapa 2 en ruta de implementacion"
+        ],
+        "risks": [
+          "Inconsistencia de estado entre documento tecnico y estado real de Supabase"
+        ]
+      },
+      "micro_plan": {
+        "steps": [
+          "Marcar fila 03 como Aplicada en registro de migraciones.",
+          "Ajustar texto del entregable de etapa 2 a Migracion RLS aplicada.",
+          "Validar formato de archivos y mantener trazabilidad en Ralph_WIP."
+        ],
+        "files_to_change": [
+          "supabase/registro-migraciones.md",
+          "docs/roadmap/ruta-implementacion-cms.md",
+          "docs/metodos/Ralph/Ralph_WIP.json"
+        ],
+        "validation": [
+          "Revisar contenido final de ambos archivos",
+          "Confirmar JSON valido en Ralph_WIP"
+        ],
+        "done_criteria": [
+          "Estado de migracion 03 sincronizado",
+          "Roadmap reflejando aplicacion real de migracion 03",
+          "WIP actualizado"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Sincronizacion documental",
+          "details": "Se actualizo registro-migraciones.md y ruta-implementacion-cms.md para reflejar migracion 03 aplicada."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": "supabase/registro-migraciones.md",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/roadmap/ruta-implementacion-cms.md",
+          "change_type": "modified"
+        },
+        {
+          "path": "docs/metodos/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "Pendiente aun la validacion de permisos por rol para marcar cierre total de etapa 2."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "tests_updated_or_created_when_applicable": false,
+        "iteration_1_exploration_documented": false,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": true,
+        "tier_c_micro_plan_documented": true
+      },
+      "next_step_suggested": "Ejecutar pruebas de permisos por rol (admin/editor/reviewer/developer) para marcar RLS validado y cerrar Etapa 2."
+    },
+    {
+      "id": "cmsLoginEnvFix_20260310_1",
+      "iteration_number": 1,
+      "iteration_type": "execution",
+      "objective": "Configurar variables de entorno PUBLIC_SUPABASE_* para habilitar login CMS.",
+      "progress_estimate": {
+        "completitud_from_percent": 0,
+        "completitud_to_percent": 100,
+        "archivos_completados": "1/1",
+        "decisiones_pendientes": [
+          "Definir/pegar valor real de PUBLIC_SUPABASE_ANON_KEY desde panel de Supabase"
+        ]
+      },
+      "quick_scan": {
+        "files_read": [
+          ".env.example",
+          "src/features/cms/auth/supabase-browser.ts",
+          "src/pages/cms/login.astro"
+        ],
+        "what_exists_today": "Solo existia .env.example; no habia .env local y el login falla cuando faltan vars PUBLIC_SUPABASE_*.",
+        "touch_points": [
+          "Archivo .env local",
+          "Flujo de login CMS en /cms/login"
+        ],
+        "risks": [
+          "Sin anon key real el login seguira bloqueado"
+        ]
+      },
+      "micro_plan": {
+        "steps": [
+          "Crear .env local en raiz.",
+          "Setear PUBLIC_SUPABASE_URL del proyecto.",
+          "Dejar PUBLIC_SUPABASE_ANON_KEY lista para completar con valor real y reiniciar servidor."
+        ],
+        "files_to_change": [
+          ".env",
+          "docs/metodos/Ralph/Ralph_WIP.json"
+        ],
+        "validation": [
+          "Verificar contenido de .env",
+          "Confirmar que el error actual depende solo de PUBLIC_SUPABASE_ANON_KEY faltante"
+        ],
+        "done_criteria": [
+          ".env creado con URL real",
+          "Usuario instruido para obtener anon key y reiniciar dev server"
+        ]
+      },
+      "actions_done": [
+        {
+          "action": "Configuracion local",
+          "details": "Se creo .env en raiz con PUBLIC_SUPABASE_URL=https://wmfwcpjkypbkkvtmkepn.supabase.co y PUBLIC_SUPABASE_ANON_KEY pendiente de valor."
+        }
+      ],
+      "files_impacted": [
+        {
+          "path": ".env",
+          "change_type": "created"
+        },
+        {
+          "path": "docs/metodos/Ralph/Ralph_WIP.json",
+          "change_type": "modified"
+        }
+      ],
+      "notes": [
+        "No existe pagina de registro aun; solo login."
+      ],
+      "validation": {
+        "lint_ok": true,
+        "no_breaking_changes": true,
+        "references_consulted": true,
+        "agentrules_consulted": true,
+        "agentrules_respected": true,
+        "backwards_compatible": true,
+        "defensive_coding_applied": true,
+        "tests_updated_or_created_when_applicable": false,
+        "iteration_1_exploration_documented": false,
+        "iteration_2_plan_documented": false,
+        "tier_c_quick_scan_documented": true,
+        "tier_c_micro_plan_documented": true
+      },
+      "next_step_suggested": "Copiar PUBLIC_SUPABASE_ANON_KEY desde Supabase Dashboard > Settings > API y reiniciar npm run dev para probar /cms/login."
     }
   ],
   "extension_request": {
