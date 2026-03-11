@@ -1,0 +1,87 @@
+---
+import CmsLayout from "@/layouts/CmsLayout.astro";
+---
+
+<CmsLayout title="Autores CMS">
+  <section class="space-y-6">
+    <header class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      <div>
+        <p class="text-xs uppercase tracking-widest text-cyan-400">CMS Editorial</p>
+        <h1 class="text-3xl font-bold mt-1">Autores</h1>
+        <p class="text-slate-400 mt-2">Listado central para crear, buscar y editar autores del blog.</p>
+      </div>
+      <div class="flex gap-2">
+        <a href="/cms/authors/new" class="rounded-lg bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-400">
+          Nuevo autor
+        </a>
+        <a href="/cms" class="rounded-lg border border-slate-700 px-4 py-2 text-sm hover:bg-slate-800">
+          Dashboard
+        </a>
+      </div>
+    </header>
+
+    <nav class="flex flex-wrap gap-2 text-sm">
+      <a href="/cms/blog" class="rounded-md border border-slate-700 px-3 py-1.5 hover:bg-slate-800">Blog</a>
+      <a href="/cms/categories" class="rounded-md border border-slate-700 px-3 py-1.5 hover:bg-slate-800">Categorias</a>
+      <a href="/cms/tags" class="rounded-md border border-slate-700 px-3 py-1.5 hover:bg-slate-800">Tags</a>
+      <a href="/cms/authors" class="rounded-md border border-cyan-500/70 bg-cyan-500/10 px-3 py-1.5 text-cyan-300">Autores</a>
+    </nav>
+
+    <section class="rounded-xl border border-slate-800 bg-slate-900/70 p-4 space-y-4">
+      <div class="grid gap-3 md:grid-cols-4">
+        <label class="block text-sm md:col-span-2">
+          <span class="text-slate-300">Buscar</span>
+          <input
+            id="cms-authors-search"
+            type="text"
+            placeholder="Nombre o slug"
+            class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100"
+          />
+        </label>
+        <label class="block text-sm">
+          <span class="text-slate-300">Estado</span>
+          <select
+            id="cms-authors-status-filter"
+            class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100"
+          >
+            <option value="all">Todos</option>
+            <option value="active">Activos</option>
+            <option value="inactive">Inactivos</option>
+          </select>
+        </label>
+        <div class="flex items-end">
+          <button id="cms-authors-refresh" class="w-full rounded-md border border-slate-700 px-3 py-2 text-sm hover:bg-slate-800">
+            Refrescar
+          </button>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between gap-3">
+        <p id="cms-authors-summary" class="text-sm text-slate-300">-</p>
+        <p id="cms-authors-error" class="text-sm text-rose-400"></p>
+      </div>
+
+      <div class="overflow-x-auto rounded-lg border border-slate-800">
+        <table class="w-full min-w-[920px] text-sm">
+          <thead class="bg-slate-900/90 text-slate-300">
+            <tr>
+              <th class="px-4 py-2 text-left font-medium">Autor</th>
+              <th class="px-4 py-2 text-left font-medium">Foto</th>
+              <th class="px-4 py-2 text-left font-medium">Redes</th>
+              <th class="px-4 py-2 text-left font-medium">Estado</th>
+              <th class="px-4 py-2 text-left font-medium">Actualizado</th>
+              <th class="px-4 py-2 text-right font-medium">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="cms-authors-table-rows" class="bg-slate-950/80"></tbody>
+        </table>
+      </div>
+    </section>
+  </section>
+
+  <script>
+    import { initAuthorsListPage } from "@/features/cms/taxonomy/ui/taxonomy-page";
+
+    await initAuthorsListPage();
+  </script>
+</CmsLayout>

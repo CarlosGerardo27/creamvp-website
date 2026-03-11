@@ -1,0 +1,363 @@
+---
+import CmsLayout from "@/layouts/CmsLayout.astro";
+---
+
+<CmsLayout title="CMS API Docs">
+  <section class="space-y-6">
+    <header class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      <div>
+        <p class="text-xs uppercase tracking-widest text-cyan-400">CMS Documentation</p>
+        <h1 class="text-3xl font-bold mt-1">API Editorial (Blog CMS)</h1>
+        <p class="text-slate-400 mt-2">
+          Guia tecnica completa para integrar creacion, actualizacion, cambios de estado,
+          eliminacion y preview tokenizado del Blog CMS.
+        </p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2 md:flex-nowrap">
+        <a href="/cms/blog" class="inline-flex items-center justify-center whitespace-nowrap rounded-lg border border-slate-700 px-4 py-2 text-sm hover:bg-slate-800">Ir a Blog</a>
+        <a href="/cms" class="inline-flex items-center justify-center whitespace-nowrap rounded-lg border border-slate-700 px-4 py-2 text-sm hover:bg-slate-800">Dashboard</a>
+      </div>
+    </header>
+
+    <nav class="flex flex-wrap gap-2 text-sm">
+      <a href="/cms/blog" class="rounded-md border border-slate-700 px-3 py-1.5 hover:bg-slate-800">Blog</a>
+      <a href="/cms/categories" class="rounded-md border border-slate-700 px-3 py-1.5 hover:bg-slate-800">Categorias</a>
+      <a href="/cms/tags" class="rounded-md border border-slate-700 px-3 py-1.5 hover:bg-slate-800">Tags</a>
+      <a href="/cms/authors" class="rounded-md border border-slate-700 px-3 py-1.5 hover:bg-slate-800">Autores</a>
+      <a href="/cms/documentation/api" class="rounded-md border border-cyan-500/70 bg-cyan-500/10 px-3 py-1.5 text-cyan-300">API Docs</a>
+    </nav>
+
+    <article class="rounded-xl border border-slate-800 bg-slate-900/70 p-5 space-y-4">
+      <h2 class="text-xl font-semibold">1) Base URL y Endpoints</h2>
+      <p class="text-sm text-slate-300">
+        Las escrituras editoriales se hacen por Supabase Edge Functions.
+      </p>
+      <div class="grid gap-3 lg:grid-cols-2">
+        <div class="rounded-lg border border-slate-800 bg-slate-950/70 p-3">
+          <p class="text-xs uppercase tracking-wide text-slate-400">Functions Base URL</p>
+          <pre class="mt-2 overflow-x-auto rounded-md bg-slate-950 p-3 text-xs text-slate-200">https://&lt;project-ref&gt;.functions.supabase.co</pre>
+        </div>
+        <div class="rounded-lg border border-slate-800 bg-slate-950/70 p-3">
+          <p class="text-xs uppercase tracking-wide text-slate-400">Auth URL (login)</p>
+          <pre class="mt-2 overflow-x-auto rounded-md bg-slate-950 p-3 text-xs text-slate-200">POST https://&lt;project-ref&gt;.supabase.co/auth/v1/token?grant_type=password</pre>
+        </div>
+      </div>
+      <div class="overflow-x-auto rounded-lg border border-slate-800">
+        <table class="w-full min-w-[760px] text-sm">
+          <thead class="bg-slate-900/90 text-slate-300">
+            <tr>
+              <th class="px-3 py-2 text-left font-medium">Metodo</th>
+              <th class="px-3 py-2 text-left font-medium">Path</th>
+              <th class="px-3 py-2 text-left font-medium">Descripcion</th>
+            </tr>
+          </thead>
+          <tbody class="bg-slate-950/80">
+            <tr class="border-t border-slate-800">
+              <td class="px-3 py-2 text-cyan-300">POST</td>
+              <td class="px-3 py-2">/cms-blog-create</td>
+              <td class="px-3 py-2">Crear post en <code>draft</code>.</td>
+            </tr>
+            <tr class="border-t border-slate-800">
+              <td class="px-3 py-2 text-cyan-300">PATCH</td>
+              <td class="px-3 py-2">/cms-blog-update</td>
+              <td class="px-3 py-2">Actualizar campos de contenido/SEO en draft o scheduled.</td>
+            </tr>
+            <tr class="border-t border-slate-800">
+              <td class="px-3 py-2 text-cyan-300">PATCH</td>
+              <td class="px-3 py-2">/cms-blog-status</td>
+              <td class="px-3 py-2">Transiciones de estado editorial.</td>
+            </tr>
+            <tr class="border-t border-slate-800">
+              <td class="px-3 py-2 text-cyan-300">DELETE</td>
+              <td class="px-3 py-2">/cms-blog-delete</td>
+              <td class="px-3 py-2">Eliminar post por ID (solo admin).</td>
+            </tr>
+            <tr class="border-t border-slate-800">
+              <td class="px-3 py-2 text-cyan-300">POST</td>
+              <td class="px-3 py-2">/api/cms/preview-token</td>
+              <td class="px-3 py-2">Generar URL de preview tokenizada para draft/scheduled.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="rounded-xl border border-slate-800 bg-slate-900/70 p-5 space-y-4">
+      <h2 class="text-xl font-semibold">2) Autenticacion y Headers</h2>
+      <p class="text-sm text-slate-300">
+        Todos los endpoints de escritura requieren JWT de usuario autenticado en Supabase Auth
+        + perfil activo en <code>profiles</code> con rol editorial.
+      </p>
+      <pre class="overflow-x-auto rounded-lg bg-slate-950 p-3 text-xs text-slate-200"><code>{`curl -X POST "https://<project-ref>.supabase.co/auth/v1/token?grant_type=password" \
+  -H "apikey: &lt;PUBLIC_SUPABASE_ANON_KEY&gt;" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"usuario@dominio.com","password":"tu-password"}'`}</code></pre>
+
+      <div class="overflow-x-auto rounded-lg border border-slate-800">
+        <table class="w-full min-w-[760px] text-sm">
+          <thead class="bg-slate-900/90 text-slate-300">
+            <tr>
+              <th class="px-3 py-2 text-left font-medium">Header</th>
+              <th class="px-3 py-2 text-left font-medium">Requerido</th>
+              <th class="px-3 py-2 text-left font-medium">Uso</th>
+            </tr>
+          </thead>
+          <tbody class="bg-slate-950/80">
+            <tr class="border-t border-slate-800">
+              <td class="px-3 py-2"><code>Authorization: Bearer &lt;jwt&gt;</code></td>
+              <td class="px-3 py-2">Si</td>
+              <td class="px-3 py-2">Valida usuario y carga <code>profiles.role</code>.</td>
+            </tr>
+            <tr class="border-t border-slate-800">
+              <td class="px-3 py-2"><code>apikey: &lt;anon-key&gt;</code></td>
+              <td class="px-3 py-2">Si</td>
+              <td class="px-3 py-2">Requerido por Supabase gateway/functions.</td>
+            </tr>
+            <tr class="border-t border-slate-800">
+              <td class="px-3 py-2"><code>Content-Type: application/json</code></td>
+              <td class="px-3 py-2">Si</td>
+              <td class="px-3 py-2">Todos los bodies son JSON.</td>
+            </tr>
+            <tr class="border-t border-slate-800">
+              <td class="px-3 py-2"><code>x-request-id: &lt;uuid&gt;</code></td>
+              <td class="px-3 py-2">Opcional</td>
+              <td class="px-3 py-2">Trazabilidad y correlacion en logs.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="rounded-xl border border-slate-800 bg-slate-900/70 p-5 space-y-4">
+      <h2 class="text-xl font-semibold">3) Envelope de Respuesta</h2>
+      <p class="text-sm text-slate-300">Las respuestas exitosas y de error tienen forma estable.</p>
+
+      <div class="grid gap-4 lg:grid-cols-2">
+        <div>
+          <p class="text-sm font-medium text-slate-200 mb-2">Exito</p>
+          <pre class="overflow-x-auto rounded-lg bg-slate-950 p-3 text-xs text-slate-200"><code>{`{
+  "data": { ... },
+  "meta": {
+    "requestId": "uuid",
+    "endpoint": "cms-blog-create"
+  }
+}`}</code></pre>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-slate-200 mb-2">Error</p>
+          <pre class="overflow-x-auto rounded-lg bg-slate-950 p-3 text-xs text-slate-200"><code>{`{
+  "error": {
+    "code": "INVALID_SLUG",
+    "message": "Field 'slug' must use slug format a-z0-9-",
+    "details": null
+  }
+}`}</code></pre>
+        </div>
+      </div>
+    </article>
+
+    <article class="rounded-xl border border-slate-800 bg-slate-900/70 p-5 space-y-4">
+      <h2 class="text-xl font-semibold">4) Endpoint: POST /cms-blog-create</h2>
+      <p class="text-sm text-slate-300">
+        Crea un post en estado <code>draft</code>. Permite incluir tags y FAQs desde el primer write.
+      </p>
+      <ul class="list-disc pl-5 text-sm text-slate-300 space-y-1">
+        <li>Rol permitido: <code>admin</code>, <code>editor</code>.</li>
+        <li>Rate limit: 30 req/min por usuario.</li>
+        <li>Status HTTP: <code>201</code> en exito.</li>
+      </ul>
+
+      <pre class="overflow-x-auto rounded-lg bg-slate-950 p-3 text-xs text-slate-200"><code>{`{
+  "slug": "mi-slug-seo",
+  "categoryId": "uuid",
+  "h1": "Titulo H1",
+  "metaDescription": "Meta description",
+  "canonicalUrl": "https://creamvp.com/blog/categoria/mi-slug-seo",
+  "shortDescription": "Texto corto para listados",
+  "featuredImage": {
+    "url": "https://cdn.com/imagen.jpg",
+    "alt": "Texto ALT",
+    "metadata": { "width": 1200, "height": 630 }
+  },
+  "authorId": "uuid",
+  "contentMarkdown": "# Contenido",
+  "schemaOverride": { "@type": "BlogPosting" },
+  "seo": { "title": "SEO title" },
+  "tags": ["uuid", "uuid"],
+  "faqs": [
+    { "question": "Pregunta", "answer": "Respuesta", "position": 0 }
+  ]
+}`}</code></pre>
+
+      <p class="text-sm text-slate-300">Campos clave:</p>
+      <div class="overflow-x-auto rounded-lg border border-slate-800">
+        <table class="w-full min-w-[860px] text-sm">
+          <thead class="bg-slate-900/90 text-slate-300">
+            <tr>
+              <th class="px-3 py-2 text-left font-medium">Campo</th>
+              <th class="px-3 py-2 text-left font-medium">Tipo</th>
+              <th class="px-3 py-2 text-left font-medium">Req.</th>
+              <th class="px-3 py-2 text-left font-medium">Regla</th>
+            </tr>
+          </thead>
+          <tbody class="bg-slate-950/80">
+            <tr class="border-t border-slate-800"><td class="px-3 py-2"><code>slug</code></td><td class="px-3 py-2">string</td><td class="px-3 py-2">Si</td><td class="px-3 py-2">Regex slug: <code>a-z0-9-</code>.</td></tr>
+            <tr class="border-t border-slate-800"><td class="px-3 py-2"><code>categoryId</code></td><td class="px-3 py-2">UUID</td><td class="px-3 py-2">Si</td><td class="px-3 py-2">Debe existir categoria.</td></tr>
+            <tr class="border-t border-slate-800"><td class="px-3 py-2"><code>featuredImage</code></td><td class="px-3 py-2">obj|null</td><td class="px-3 py-2">No</td><td class="px-3 py-2">Si existe, <code>url</code> y <code>alt</code> son obligatorios.</td></tr>
+            <tr class="border-t border-slate-800"><td class="px-3 py-2"><code>authorId</code></td><td class="px-3 py-2">UUID|null</td><td class="px-3 py-2">No</td><td class="px-3 py-2">Si viene string, debe ser UUID.</td></tr>
+            <tr class="border-t border-slate-800"><td class="px-3 py-2"><code>tags</code></td><td class="px-3 py-2">UUID[]</td><td class="px-3 py-2">No</td><td class="px-3 py-2">Array de UUID validos.</td></tr>
+            <tr class="border-t border-slate-800"><td class="px-3 py-2"><code>faqs</code></td><td class="px-3 py-2">array</td><td class="px-3 py-2">No</td><td class="px-3 py-2"><code>question</code> y <code>answer</code> obligatorios.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="rounded-xl border border-slate-800 bg-slate-900/70 p-5 space-y-4">
+      <h2 class="text-xl font-semibold">5) Endpoint: PATCH /cms-blog-update</h2>
+      <p class="text-sm text-slate-300">
+        Aplica cambios de contenido/SEO sobre posts en <code>draft</code> o <code>scheduled</code>.
+      </p>
+      <ul class="list-disc pl-5 text-sm text-slate-300 space-y-1">
+        <li>Rol permitido: <code>admin</code>, <code>editor</code>.</li>
+        <li>Rate limit: 60 req/min por usuario.</li>
+        <li>Status HTTP: <code>200</code> en exito.</li>
+        <li>No permite cambiar <code>status</code> (usar <code>cms-blog-status</code>).</li>
+      </ul>
+
+      <pre class="overflow-x-auto rounded-lg bg-slate-950 p-3 text-xs text-slate-200"><code>{`{
+  "postId": "uuid",
+  "patch": {
+    "h1": "H1 actualizado",
+    "metaDescription": "Meta actualizada",
+    "slug": "nuevo-slug",
+    "categoryId": "uuid",
+    "canonicalUrl": "https://creamvp.com/blog/categoria/nuevo-slug",
+    "shortDescription": "Resumen corto",
+    "featuredImage": { "url": "https://...", "alt": "ALT" },
+    "authorId": "uuid",
+    "contentMarkdown": "## Markdown",
+    "schemaOverride": { "@type": "BlogPosting" },
+    "seo": { "title": "SEO title" }
+  },
+  "tags": ["uuid"],
+  "faqs": [{ "question": "Q", "answer": "A", "position": 0 }]
+}`}</code></pre>
+
+      <p class="text-sm text-slate-300">
+        Reglas criticas:
+      </p>
+      <ul class="list-disc pl-5 text-sm text-slate-300 space-y-1">
+        <li><code>patch</code> debe tener al menos 1 campo editable.</li>
+        <li>Si envias <code>tags</code>, reemplaza el set completo de tags actuales.</li>
+        <li>Si envias <code>faqs</code>, reemplaza el set completo de FAQs actuales.</li>
+        <li>Si el post esta <code>published</code>, responde <code>409 UPDATE_REQUIRES_DRAFT_OR_SCHEDULED</code>.</li>
+      </ul>
+    </article>
+
+    <article class="rounded-xl border border-slate-800 bg-slate-900/70 p-5 space-y-4">
+      <h2 class="text-xl font-semibold">6) Endpoint: PATCH /cms-blog-status</h2>
+      <p class="text-sm text-slate-300">Gestiona transiciones editoriales de estado.</p>
+      <ul class="list-disc pl-5 text-sm text-slate-300 space-y-1">
+        <li>Rate limit: 30 req/min por usuario.</li>
+        <li>Status HTTP: <code>200</code> en exito.</li>
+      </ul>
+
+      <pre class="overflow-x-auto rounded-lg bg-slate-950 p-3 text-xs text-slate-200"><code>{`{
+  "postId": "uuid",
+  "status": "draft | scheduled | published",
+  "scheduledPublishAt": "2026-03-10T22:00:00.000Z",
+  "publishDate": "2026-02-10T10:00:00.000Z",
+  "changeReason": "Motivo de cambio"
+}`}</code></pre>
+
+      <p class="text-sm text-slate-300">Reglas de validacion:</p>
+      <ul class="list-disc pl-5 text-sm text-slate-300 space-y-1">
+        <li>Si <code>status = scheduled</code>, <code>scheduledPublishAt</code> es obligatorio (ISO valido).</li>
+        <li><code>publishDate</code> solo se permite cuando <code>status = published</code>.</li>
+        <li>No permite pedir el mismo estado actual (<code>409 STATUS_UNCHANGED</code>).</li>
+      </ul>
+
+      <div class="overflow-x-auto rounded-lg border border-slate-800">
+        <table class="w-full min-w-[820px] text-sm">
+          <thead class="bg-slate-900/90 text-slate-300">
+            <tr>
+              <th class="px-3 py-2 text-left font-medium">Transicion</th>
+              <th class="px-3 py-2 text-left font-medium">Roles permitidos</th>
+            </tr>
+          </thead>
+          <tbody class="bg-slate-950/80">
+            <tr class="border-t border-slate-800"><td class="px-3 py-2"><code>draft -&gt; published</code></td><td class="px-3 py-2">admin, reviewer</td></tr>
+            <tr class="border-t border-slate-800"><td class="px-3 py-2"><code>published -&gt; draft</code></td><td class="px-3 py-2">admin, reviewer</td></tr>
+            <tr class="border-t border-slate-800"><td class="px-3 py-2"><code>draft -&gt; scheduled</code></td><td class="px-3 py-2">admin, editor</td></tr>
+            <tr class="border-t border-slate-800"><td class="px-3 py-2"><code>scheduled -&gt; published</code></td><td class="px-3 py-2">admin, reviewer</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="rounded-xl border border-slate-800 bg-slate-900/70 p-5 space-y-4">
+      <h2 class="text-xl font-semibold">7) Endpoint: DELETE /cms-blog-delete</h2>
+      <p class="text-sm text-slate-300">Elimina un post por ID.</p>
+      <ul class="list-disc pl-5 text-sm text-slate-300 space-y-1">
+        <li>Rol permitido: <code>admin</code>.</li>
+        <li>Rate limit: 10 req/min por usuario.</li>
+        <li>Status HTTP: <code>200</code> en exito.</li>
+      </ul>
+      <pre class="overflow-x-auto rounded-lg bg-slate-950 p-3 text-xs text-slate-200"><code>{`{
+  "postId": "uuid",
+  "changeReason": "Motivo opcional"
+}`}</code></pre>
+    </article>
+
+    <article class="rounded-xl border border-slate-800 bg-slate-900/70 p-5 space-y-4">
+      <h2 class="text-xl font-semibold">8) Endpoint interno: POST /api/cms/preview-token</h2>
+      <p class="text-sm text-slate-300">
+        Endpoint Astro (no edge function) para generar URL de preview de posts no publicados.
+      </p>
+      <ul class="list-disc pl-5 text-sm text-slate-300 space-y-1">
+        <li>Requiere JWT valido y perfil editorial activo.</li>
+        <li>Solo aplica para estados <code>draft</code> y <code>scheduled</code>.</li>
+        <li>TTL actual del token: 30 minutos.</li>
+      </ul>
+      <pre class="overflow-x-auto rounded-lg bg-slate-950 p-3 text-xs text-slate-200"><code>{`{
+  "postId": "uuid"
+}`}</code></pre>
+      <pre class="overflow-x-auto rounded-lg bg-slate-950 p-3 text-xs text-slate-200"><code>{`{
+  "data": {
+    "postId": "uuid",
+    "status": "draft",
+    "previewUrl": "https://creamvp.com/blog/preview/uuid?pt=token",
+    "token": "token",
+    "expiresAt": "2026-03-10T23:00:00.000Z"
+  },
+  "meta": {
+    "generatedBy": "user-id",
+    "generatedRole": "admin"
+  }
+}`}</code></pre>
+    </article>
+
+    <article class="rounded-xl border border-slate-800 bg-slate-900/70 p-5 space-y-4">
+      <h2 class="text-xl font-semibold">9) Errores comunes y diagnostico</h2>
+      <div class="overflow-x-auto rounded-lg border border-slate-800">
+        <table class="w-full min-w-[860px] text-sm">
+          <thead class="bg-slate-900/90 text-slate-300">
+            <tr>
+              <th class="px-3 py-2 text-left font-medium">HTTP</th>
+              <th class="px-3 py-2 text-left font-medium">Code</th>
+              <th class="px-3 py-2 text-left font-medium">Causa comun</th>
+              <th class="px-3 py-2 text-left font-medium">Accion</th>
+            </tr>
+          </thead>
+          <tbody class="bg-slate-950/80">
+            <tr class="border-t border-slate-800"><td class="px-3 py-2">400</td><td class="px-3 py-2"><code>INVALID_JSON</code>, <code>INVALID_SLUG</code>, <code>EMPTY_PATCH</code></td><td class="px-3 py-2">Payload invalido.</td><td class="px-3 py-2">Corregir body segun validadores.</td></tr>
+            <tr class="border-t border-slate-800"><td class="px-3 py-2">401</td><td class="px-3 py-2"><code>MISSING_AUTHORIZATION</code>, <code>INVALID_TOKEN</code></td><td class="px-3 py-2">JWT ausente/expirado.</td><td class="px-3 py-2">Renovar sesion y reenviar Bearer token.</td></tr>
+            <tr class="border-t border-slate-800"><td class="px-3 py-2">403</td><td class="px-3 py-2"><code>EDITORIAL_ACCESS_DENIED</code>, <code>INSUFFICIENT_ROLE</code></td><td class="px-3 py-2">Perfil sin permisos.</td><td class="px-3 py-2">Revisar <code>profiles.role</code> e <code>is_active</code>.</td></tr>
+            <tr class="border-t border-slate-800"><td class="px-3 py-2">409</td><td class="px-3 py-2"><code>STATUS_TRANSITION_NOT_ALLOWED</code>, <code>STATUS_UNCHANGED</code></td><td class="px-3 py-2">Transicion invalida o redundante.</td><td class="px-3 py-2">Validar estado actual antes de llamar.</td></tr>
+            <tr class="border-t border-slate-800"><td class="px-3 py-2">429</td><td class="px-3 py-2"><code>RATE_LIMIT_EXCEEDED</code></td><td class="px-3 py-2">Exceso de requests en ventana corta.</td><td class="px-3 py-2">Aplicar retry con backoff.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+</CmsLayout>

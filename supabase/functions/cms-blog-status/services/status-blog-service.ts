@@ -54,9 +54,9 @@ export async function changeBlogPostStatus(context: AuthContext, input: UpdateBl
     input.postId,
     input.status,
     input.scheduledPublishAt,
+    input.publishDate,
     context.user.id,
   );
 
   return getBlogPostSummary(context.userClient, input.postId);
 }
-

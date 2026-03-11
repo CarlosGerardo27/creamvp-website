@@ -181,7 +181,9 @@ Objetivo: interfaz editorial para operaciÃ³n diaria del blog.
 - [x] `/cms/blog` listado con bÃºsqueda/filtros/estado.
 - [x] `/cms/blog/new` creaciÃ³n de entrada.
 - [x] `/cms/blog/[id]` edicion de entrada.
-- [x] `/cms/authors` gestiÃ³n de autores.
+- [x] `/cms/authors` listado de autores.
+- [x] `/cms/authors/new` creaciÃ³n de autor.
+- [x] `/cms/authors/[id]` ediciÃ³n de autor.
 - [x] `/cms/categories` gestiÃ³n de categorÃ­as.
 - [x] `/cms/tags` gestiÃ³n de tags.
 
@@ -210,6 +212,9 @@ Nota operativa UI: la ruta exacta `/cms/blog/[id]` ya esta habilitada (SSR on-de
 - [x] Boton `Revert to Draft`.
 - [x] Boton `Delete` (solo `admin`, con confirmacion).
 - [x] Preview tokenizado para entradas no publicadas (`draft`/`scheduled`).
+- [x] Acciones visibles segun estado editorial actual (sin acciones redundantes).
+- [x] Boton `Publicar cambios` para entradas en estado `published`.
+- [x] Campo editable `Fecha de publicacion (opcional)` para publicar con fecha custom.
 
 Entregables:
 

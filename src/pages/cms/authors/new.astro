@@ -1,0 +1,14 @@
+---
+import CmsLayout from "@/layouts/CmsLayout.astro";
+import AuthorEditorPanel from "@/components/cms/AuthorEditorPanel.astro";
+---
+
+<CmsLayout title="Nuevo Autor CMS">
+  <AuthorEditorPanel mode="create" />
+
+  <script>
+    import { initAuthorEditorPage } from "@/features/cms/taxonomy/ui/taxonomy-page";
+
+    await initAuthorEditorPage("create");
+  </script>
+</CmsLayout>

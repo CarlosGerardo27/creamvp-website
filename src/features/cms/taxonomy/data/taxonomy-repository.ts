@@ -108,6 +108,22 @@ export async function listAuthors(): Promise<CmsAuthorRow[]> {
   return (data ?? []) as CmsAuthorRow[];
 }
 
+export async function getAuthorById(authorId: string): Promise<CmsAuthorRow | null> {
+  const context = await getCmsRequestContext();
+  const { data, error } = await context.supabase
+    .from("authors")
+    .select(
+      "id,name,slug,bio,photo_url,facebook_url,instagram_url,x_url,tiktok_url,linkedin_url,personal_url,is_active,updated_at",
+    )
+    .eq("id", authorId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`No se pudo cargar autor: ${error.message}`);
+  }
+  return (data as CmsAuthorRow | null) ?? null;
+}
+
 export async function createAuthor(input: {
   name: string;
   slug: string;

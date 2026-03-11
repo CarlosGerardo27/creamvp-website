@@ -1,0 +1,115 @@
+---
+export interface Props {
+  mode: "create" | "edit";
+}
+
+const { mode } = Astro.props;
+const isCreate = mode === "create";
+---
+
+<section class="space-y-6">
+  <header class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+    <div>
+      <p class="text-xs uppercase tracking-widest text-cyan-400">CMS Editorial</p>
+      <h1 class="text-3xl font-bold mt-1">{isCreate ? "Nuevo autor" : "Editor de autor"}</h1>
+      <p class="text-slate-400 mt-2">
+        {isCreate
+          ? "Crea un perfil de autor para usarlo en entradas del blog."
+          : "Edita datos, foto, redes y estado del autor."}
+      </p>
+    </div>
+    <div class="flex gap-2">
+      <a href="/cms/authors" id="cms-authors-back-link" class="rounded-lg border border-slate-700 px-4 py-2 text-sm hover:bg-slate-800">
+        Volver al listado
+      </a>
+      <a href="/cms" class="rounded-lg border border-slate-700 px-4 py-2 text-sm hover:bg-slate-800">
+        Dashboard
+      </a>
+    </div>
+  </header>
+
+  <nav class="flex flex-wrap gap-2 text-sm">
+    <a href="/cms/blog" class="rounded-md border border-slate-700 px-3 py-1.5 hover:bg-slate-800">Blog</a>
+    <a href="/cms/categories" class="rounded-md border border-slate-700 px-3 py-1.5 hover:bg-slate-800">Categorias</a>
+    <a href="/cms/tags" class="rounded-md border border-slate-700 px-3 py-1.5 hover:bg-slate-800">Tags</a>
+    <a href="/cms/authors" class="rounded-md border border-cyan-500/70 bg-cyan-500/10 px-3 py-1.5 text-cyan-300">Autores</a>
+  </nav>
+
+  <section class="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
+    <div class="grid gap-3 md:grid-cols-3">
+      <article class="rounded-lg border border-slate-800 bg-slate-950/70 p-3">
+        <p class="text-xs uppercase tracking-wide text-slate-400">Author ID</p>
+        <p id="cms-authors-current-id" class="text-sm text-slate-200 mt-1">(sin ID)</p>
+      </article>
+      <article class="rounded-lg border border-slate-800 bg-slate-950/70 p-3">
+        <p class="text-xs uppercase tracking-wide text-slate-400">Estado actual</p>
+        <p id="cms-authors-current-status" class="text-sm text-slate-200 mt-1">{isCreate ? "new" : "cargando..."}</p>
+      </article>
+      <article class="rounded-lg border border-slate-800 bg-slate-950/70 p-3">
+        <p class="text-xs uppercase tracking-wide text-slate-400">Uso en blog</p>
+        <p class="text-sm text-slate-200 mt-1">Byline, bio y redes en /blog/[categoria]/[slug]</p>
+      </article>
+    </div>
+
+    <div class="mt-4 grid gap-4 lg:grid-cols-2">
+      <label class="block text-sm">
+        <span class="text-slate-300">Nombre *</span>
+        <input id="cms-authors-name" type="text" class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100" />
+      </label>
+      <label class="block text-sm">
+        <span class="text-slate-300">Slug *</span>
+        <input id="cms-authors-slug" type="text" placeholder="ralph-edwards" class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100" />
+      </label>
+      <label class="block text-sm lg:col-span-2">
+        <span class="text-slate-300">Bio</span>
+        <textarea id="cms-authors-bio" rows="3" class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100"></textarea>
+      </label>
+      <label class="block text-sm lg:col-span-2">
+        <span class="text-slate-300">Foto URL *</span>
+        <input id="cms-authors-photo" type="url" placeholder="https://..." class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100" />
+      </label>
+      <label class="block text-sm">
+        <span class="text-slate-300">Facebook URL</span>
+        <input id="cms-authors-facebook" type="url" placeholder="https://facebook.com/usuario" class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100" />
+      </label>
+      <label class="block text-sm">
+        <span class="text-slate-300">Instagram URL</span>
+        <input id="cms-authors-instagram" type="url" placeholder="https://instagram.com/usuario" class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100" />
+      </label>
+      <label class="block text-sm">
+        <span class="text-slate-300">X URL</span>
+        <input id="cms-authors-x" type="url" placeholder="https://x.com/usuario" class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100" />
+      </label>
+      <label class="block text-sm">
+        <span class="text-slate-300">TikTok URL</span>
+        <input id="cms-authors-tiktok" type="url" placeholder="https://tiktok.com/@usuario" class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100" />
+      </label>
+      <label class="block text-sm">
+        <span class="text-slate-300">LinkedIn URL</span>
+        <input id="cms-authors-linkedin" type="url" placeholder="https://linkedin.com/in/usuario" class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100" />
+      </label>
+      <label class="block text-sm">
+        <span class="text-slate-300">URL personal</span>
+        <input id="cms-authors-personal" type="url" placeholder="https://sitio.com" class="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100" />
+      </label>
+    </div>
+
+    <div class="mt-4 flex flex-wrap gap-2">
+      <button id="cms-authors-save" type="button" class="rounded-lg bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-400">
+        {isCreate ? "Crear autor" : "Guardar cambios"}
+      </button>
+      <button id="cms-authors-toggle-active" type="button" hidden class="rounded-lg border border-slate-700 px-4 py-2 text-sm hover:bg-slate-800">
+        Alternar estado
+      </button>
+      <button id="cms-authors-delete" type="button" hidden class="rounded-lg border border-rose-500/60 px-4 py-2 text-sm text-rose-300 hover:bg-rose-500/10">
+        Eliminar autor
+      </button>
+      <button id="cms-authors-refresh" type="button" class="rounded-lg border border-slate-700 px-4 py-2 text-sm hover:bg-slate-800">
+        Refrescar
+      </button>
+    </div>
+
+    <p id="cms-authors-message" class="mt-3 text-sm text-slate-300"></p>
+    <p id="cms-authors-error" class="mt-1 text-sm text-rose-400"></p>
+  </section>
+</section>

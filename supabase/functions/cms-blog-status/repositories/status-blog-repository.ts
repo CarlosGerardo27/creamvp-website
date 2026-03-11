@@ -42,6 +42,7 @@ export async function updateBlogPostStatus(
   postId: string,
   status: BlogPostStatus,
   scheduledPublishAt: string | null | undefined,
+  publishDate: string | null | undefined,
   userId: string,
 ): Promise<void> {
   const updateRow: Record<string, unknown> = {
@@ -53,6 +54,10 @@ export async function updateBlogPostStatus(
     updateRow.scheduled_publish_at = scheduledPublishAt ?? null;
   } else {
     updateRow.scheduled_publish_at = null;
+  }
+
+  if (status === "published" && publishDate !== undefined) {
+    updateRow.publish_date = publishDate;
   }
 
   const { error } = await userClient.from("blog_posts").update(updateRow).eq("id", postId);
@@ -74,4 +79,3 @@ export async function getBlogPostSummary(userClient: SupabaseClient, postId: str
 
   return data as BlogPostSummary;
 }
-

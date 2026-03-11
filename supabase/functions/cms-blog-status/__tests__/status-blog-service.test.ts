@@ -50,6 +50,22 @@ Deno.test("changeBlogPostStatus permite draft -> published para admin", async ()
   assertEquals(state.blog_posts[0]?.scheduled_publish_at, null);
 });
 
+Deno.test("changeBlogPostStatus permite publishDate custom al publicar", async () => {
+  const state = createFakeDbState({
+    blog_posts: [basePost()],
+  });
+  const context = buildContext("admin", state);
+
+  const result = await changeBlogPostStatus(context, {
+    postId: "post-1",
+    status: "published",
+    publishDate: "2026-01-20T08:15:00.000Z",
+  });
+
+  assertEquals(result.status, "published");
+  assertEquals(state.blog_posts[0]?.publish_date, "2026-01-20T08:15:00.000Z");
+});
+
 Deno.test("changeBlogPostStatus permite draft -> scheduled para editor", async () => {
   const state = createFakeDbState({
     blog_posts: [basePost()],
@@ -104,4 +120,3 @@ Deno.test("changeBlogPostStatus bloquea transicion invalida published -> schedul
   assertEquals(error.status, 409);
   assertEquals(error.code, "STATUS_TRANSITION_NOT_ALLOWED");
 });
-

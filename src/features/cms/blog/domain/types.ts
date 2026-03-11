@@ -100,5 +100,6 @@ export type CmsUpdateBlogStatusInput = {
   postId: string;
   status: CmsBlogStatus;
   scheduledPublishAt?: string | null;
+  publishDate?: string | null;
   changeReason?: string | null;
 };

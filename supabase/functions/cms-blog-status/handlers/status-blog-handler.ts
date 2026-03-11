@@ -50,6 +50,7 @@ export async function handleStatusBlogRequest(request: Request, requestId: strin
         postId: payload.postId,
         targetStatus: payload.status,
         scheduledPublishAt: payload.scheduledPublishAt ?? null,
+        publishDate: payload.publishDate ?? null,
         changeReason: payload.changeReason ?? null,
       },
       responseMeta: {
@@ -80,4 +81,3 @@ export async function handleStatusBlogRequest(request: Request, requestId: strin
     return response;
   }
 }
-

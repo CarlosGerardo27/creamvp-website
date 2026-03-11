@@ -1,0 +1,23 @@
+---
+import CmsLayout from "@/layouts/CmsLayout.astro";
+import AuthorEditorPanel from "@/components/cms/AuthorEditorPanel.astro";
+
+export const prerender = false;
+
+const { id } = Astro.params;
+---
+
+<CmsLayout title="Editar Autor CMS">
+  <AuthorEditorPanel mode="edit" />
+
+  <script type="application/json" id="cms-authors-editor-config" set:html={JSON.stringify({ authorId: id ?? null })} />
+  <script>
+    import { initAuthorEditorPage } from "@/features/cms/taxonomy/ui/taxonomy-page";
+
+    const configEl = document.getElementById("cms-authors-editor-config");
+    const config = configEl?.textContent ? JSON.parse(configEl.textContent) : {};
+    await initAuthorEditorPage("edit", {
+      authorId: config.authorId ?? undefined,
+    });
+  </script>
+</CmsLayout>

@@ -42,6 +42,7 @@ type EditorElements = {
   faqList: HTMLElement;
   faqAdd: HTMLButtonElement;
   scheduledAt: HTMLInputElement;
+  publishDate: HTMLInputElement;
   currentStatus: HTMLElement;
   currentPostId: HTMLElement;
   message: HTMLElement;
@@ -49,6 +50,7 @@ type EditorElements = {
   saveDraftButton: HTMLButtonElement;
   scheduleButton: HTMLButtonElement;
   publishButton: HTMLButtonElement;
+  publishChangesButton: HTMLButtonElement;
   revertButton: HTMLButtonElement;
   deleteButton: HTMLButtonElement | null;
   previewButton: HTMLButtonElement;
@@ -91,6 +93,7 @@ function collectElements(): EditorElements {
     faqList: getRequiredElement("cms-blog-faq-list", HTMLElement),
     faqAdd: getRequiredElement("cms-blog-faq-add", HTMLButtonElement),
     scheduledAt: getRequiredElement("cms-blog-scheduled-at", HTMLInputElement),
+    publishDate: getRequiredElement("cms-blog-publish-date", HTMLInputElement),
     currentStatus: getRequiredElement("cms-blog-current-status", HTMLElement),
     currentPostId: getRequiredElement("cms-blog-current-post-id", HTMLElement),
     message: getRequiredElement("cms-blog-message", HTMLElement),
@@ -98,6 +101,7 @@ function collectElements(): EditorElements {
     saveDraftButton: getRequiredElement("cms-blog-save-draft", HTMLButtonElement),
     scheduleButton: getRequiredElement("cms-blog-schedule", HTMLButtonElement),
     publishButton: getRequiredElement("cms-blog-publish", HTMLButtonElement),
+    publishChangesButton: getRequiredElement("cms-blog-publish-changes", HTMLButtonElement),
     revertButton: getRequiredElement("cms-blog-revert", HTMLButtonElement),
     deleteButton: deleteButtonElement instanceof HTMLButtonElement ? deleteButtonElement : null,
     previewButton: getRequiredElement("cms-blog-preview-generate", HTMLButtonElement),
@@ -366,10 +370,49 @@ function readFeaturedImage(elements: EditorElements):
   };
 }
 
+function setElementVisibility(element: HTMLElement | null, visible: boolean): void {
+  if (!element) {
+    return;
+  }
+  element.classList.toggle("hidden", !visible);
+}
+
+function updateEditorialActionVisibility(
+  elements: EditorElements,
+  status: CmsBlogStatus | "new",
+  hasPersistedPost: boolean,
+): void {
+  if (!hasPersistedPost || status === "new") {
+    setElementVisibility(elements.saveDraftButton, true);
+    setElementVisibility(elements.scheduleButton, false);
+    setElementVisibility(elements.publishButton, false);
+    setElementVisibility(elements.publishChangesButton, false);
+    setElementVisibility(elements.revertButton, false);
+    setElementVisibility(elements.previewButton, false);
+    setElementVisibility(elements.tagsApplyButton, false);
+    setElementVisibility(elements.deleteButton, false);
+    return;
+  }
+
+  const isDraft = status === "draft";
+  const isScheduled = status === "scheduled";
+  const isPublished = status === "published";
+
+  setElementVisibility(elements.saveDraftButton, isDraft || isScheduled);
+  setElementVisibility(elements.scheduleButton, isDraft);
+  setElementVisibility(elements.publishButton, isDraft || isScheduled);
+  setElementVisibility(elements.publishChangesButton, isPublished);
+  setElementVisibility(elements.revertButton, isPublished);
+  setElementVisibility(elements.previewButton, isDraft || isScheduled);
+  setElementVisibility(elements.tagsApplyButton, true);
+  setElementVisibility(elements.deleteButton, true);
+}
+
 function setButtonsDisabled(elements: EditorElements, disabled: boolean): void {
   elements.saveDraftButton.disabled = disabled;
   elements.scheduleButton.disabled = disabled;
   elements.publishButton.disabled = disabled;
+  elements.publishChangesButton.disabled = disabled;
   elements.revertButton.disabled = disabled;
   elements.tagsApplyButton.disabled = disabled;
   if (elements.deleteButton) {
@@ -406,6 +449,52 @@ function updateCanonicalPreviewOnInputs(elements: EditorElements): void {
   }
 }
 
+type BlogFormSnapshot = {
+  slug: string;
+  categoryId: string;
+  h1: string | null;
+  metaDescription: string | null;
+  canonicalUrl: string | null;
+  shortDescription: string | null;
+  featuredImage: { url: string; alt: string; metadata?: Record<string, unknown> } | null;
+  authorId: string | null;
+  contentMarkdown: string | null;
+  schemaOverride: Record<string, unknown> | null;
+  tags: string[];
+  faqs: CmsBlogFaqItem[];
+};
+
+function readBlogFormSnapshot(elements: EditorElements, selectedTagIds: Set<string>): BlogFormSnapshot {
+  const slug = elements.slug.value.trim();
+  assertNonEmpty(slug, "slug");
+  assertValidSlug(slug);
+
+  const categoryId = elements.categoryId.value.trim();
+  assertNonEmpty(categoryId, "categoria");
+
+  const canonicalUrl = getFormCanonical(elements);
+  const featuredImage = readFeaturedImage(elements);
+  const schemaOverride = parseJsonObject(elements.schemaOverride.value, "schemaOverride");
+  const faqs = readFaqs(elements);
+  const tags = Array.from(selectedTagIds);
+  const authorId = elements.authorId.value.trim() || null;
+
+  return {
+    slug,
+    categoryId,
+    h1: elements.h1.value.trim() || null,
+    metaDescription: elements.metaDescription.value.trim() || null,
+    canonicalUrl,
+    shortDescription: elements.shortDescription.value.trim() || null,
+    featuredImage,
+    authorId,
+    contentMarkdown: elements.contentMarkdown.value.trim() || null,
+    schemaOverride,
+    tags,
+    faqs,
+  };
+}
+
 function resolvePostIdFromPathname(pathname: string): string | null {
   const normalized = pathname.replace(/\/+$/, "");
   const match = normalized.match(/^\/cms\/blog\/([^/]+)$/);
@@ -426,19 +515,42 @@ function formatDateText(value: string): string {
   }).format(parsed);
 }
 
+function syncPublishDateInput(elements: EditorElements, value: string | null | undefined): void {
+  if (!value) {
+    return;
+  }
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return;
+  }
+  elements.publishDate.value = parsed.toISOString().slice(0, 16);
+}
+
 export async function initCmsBlogEditorPage(initialMode: EditorMode, options: EditorOptions = {}): Promise<void> {
   const elements = collectElements();
   const mode = initialMode;
   let postId: string | null = null;
+  let currentEditorStatus: CmsBlogStatus | "new" = "new";
   let tagsDropdownOpen = false;
   let tagsSearchTerm = "";
   const selectedTagIds = new Set<string>();
   let availableTags: CmsOption[] = [];
   let availableTagsById = new Map<string, CmsOption>();
 
+  const syncEditorialActions = (): void => {
+    updateEditorialActionVisibility(elements, currentEditorStatus, Boolean(postId));
+  };
+
+  const setEditorStatus = (status: CmsBlogStatus | "new"): void => {
+    currentEditorStatus = status;
+    setCurrentStatus(elements, status);
+    syncEditorialActions();
+  };
+
   try {
     clearMessages(elements);
     setInfo(elements, "Cargando catalogos...");
+    syncEditorialActions();
 
     const [categories, authors, tags] = await Promise.all([
       listCategoryOptions(),
@@ -468,6 +580,7 @@ export async function initCmsBlogEditorPage(initialMode: EditorMode, options: Ed
       setError(elements, "No se detecto id de post. Usa /cms/blog/<id>.");
       setInfo(elements, "");
       setButtonsDisabled(elements, true);
+      syncEditorialActions();
       return;
     }
 
@@ -480,7 +593,7 @@ export async function initCmsBlogEditorPage(initialMode: EditorMode, options: Ed
 
       postId = post.id;
       setCurrentPostId(elements, post.id);
-      setCurrentStatus(elements, post.status);
+      setEditorStatus(post.status);
 
       elements.slug.value = post.slug;
       elements.categoryId.value = post.category_id;
@@ -512,9 +625,17 @@ export async function initCmsBlogEditorPage(initialMode: EditorMode, options: Ed
           elements.scheduledAt.value = scheduled.toISOString().slice(0, 16);
         }
       }
+      if (post.publish_date) {
+        const publishDate = new Date(post.publish_date);
+        if (!Number.isNaN(publishDate.getTime())) {
+          elements.publishDate.value = publishDate.toISOString().slice(0, 16);
+        }
+      }
     } else {
-      setCurrentStatus(elements, "new");
       setCurrentPostId(elements, null);
+      setEditorStatus("new");
+      elements.scheduledAt.value = "";
+      elements.publishDate.value = "";
       elements.faqList.innerHTML = "";
       elements.faqList.appendChild(createFaqRow());
       setInfo(elements, "Completa campos y guarda como draft.");
@@ -615,7 +736,7 @@ export async function initCmsBlogEditorPage(initialMode: EditorMode, options: Ed
           },
           tags: Array.from(selectedTagIds),
         });
-        setCurrentStatus(elements, updated.status);
+        setEditorStatus(updated.status);
         setInfo(elements, "Tags actualizados correctamente.");
       } catch (error) {
         const message = error instanceof Error ? error.message : "Error al actualizar tags";
@@ -633,34 +754,26 @@ export async function initCmsBlogEditorPage(initialMode: EditorMode, options: Ed
       setInfo(elements, "Guardando draft...");
 
       try {
-        const slug = elements.slug.value.trim();
-        assertNonEmpty(slug, "slug");
-        assertValidSlug(slug);
+        if (postId && currentEditorStatus === "published") {
+          throw new Error("Para contenido publicado usa 'Publicar cambios' o 'Revert to Draft'.");
+        }
 
-        const categoryId = elements.categoryId.value.trim();
-        assertNonEmpty(categoryId, "categoria");
-
-        const canonicalUrl = getFormCanonical(elements);
-        const featuredImage = readFeaturedImage(elements);
-        const schemaOverride = parseJsonObject(elements.schemaOverride.value, "schemaOverride");
-        const faqs = readFaqs(elements);
-        const tags = Array.from(selectedTagIds);
-        const authorId = elements.authorId.value.trim() || null;
+        const snapshot = readBlogFormSnapshot(elements, selectedTagIds);
 
         if (mode === "create" || !postId) {
           const created = await createBlogDraft({
-            slug,
-            categoryId,
-            h1: elements.h1.value.trim() || null,
-            metaDescription: elements.metaDescription.value.trim() || null,
-            canonicalUrl,
-            shortDescription: elements.shortDescription.value.trim() || null,
-            featuredImage,
-            authorId,
-            contentMarkdown: elements.contentMarkdown.value.trim() || null,
-            schemaOverride,
-            tags,
-            faqs,
+            slug: snapshot.slug,
+            categoryId: snapshot.categoryId,
+            h1: snapshot.h1,
+            metaDescription: snapshot.metaDescription,
+            canonicalUrl: snapshot.canonicalUrl,
+            shortDescription: snapshot.shortDescription,
+            featuredImage: snapshot.featuredImage,
+            authorId: snapshot.authorId,
+            contentMarkdown: snapshot.contentMarkdown,
+            schemaOverride: snapshot.schemaOverride,
+            tags: snapshot.tags,
+            faqs: snapshot.faqs,
           });
 
           setInfo(elements, "Draft creado. Redirigiendo al editor...");
@@ -671,22 +784,22 @@ export async function initCmsBlogEditorPage(initialMode: EditorMode, options: Ed
         const updated = await updateBlogPost({
           postId,
           patch: {
-            slug,
-            categoryId,
-            h1: elements.h1.value.trim() || null,
-            metaDescription: elements.metaDescription.value.trim() || null,
-            canonicalUrl,
-            shortDescription: elements.shortDescription.value.trim() || null,
-            featuredImage,
-            authorId,
-            contentMarkdown: elements.contentMarkdown.value.trim() || null,
-            schemaOverride,
+            slug: snapshot.slug,
+            categoryId: snapshot.categoryId,
+            h1: snapshot.h1,
+            metaDescription: snapshot.metaDescription,
+            canonicalUrl: snapshot.canonicalUrl,
+            shortDescription: snapshot.shortDescription,
+            featuredImage: snapshot.featuredImage,
+            authorId: snapshot.authorId,
+            contentMarkdown: snapshot.contentMarkdown,
+            schemaOverride: snapshot.schemaOverride,
           },
-          tags,
-          faqs,
+          tags: snapshot.tags,
+          faqs: snapshot.faqs,
         });
 
-        setCurrentStatus(elements, updated.status);
+        setEditorStatus(updated.status);
         setInfo(elements, "Cambios guardados como draft/scheduled.");
       } catch (error) {
         const message = error instanceof Error ? error.message : "Error al guardar";
@@ -699,6 +812,10 @@ export async function initCmsBlogEditorPage(initialMode: EditorMode, options: Ed
     elements.scheduleButton.addEventListener("click", async () => {
       if (!postId) {
         setError(elements, "Primero guarda el draft para obtener ID.");
+        return;
+      }
+      if (currentEditorStatus !== "draft") {
+        setError(elements, "Solo puedes programar entradas en estado draft.");
         return;
       }
       clearMessages(elements);
@@ -715,7 +832,7 @@ export async function initCmsBlogEditorPage(initialMode: EditorMode, options: Ed
           scheduledPublishAt,
           changeReason: "Programado desde CMS UI",
         });
-        setCurrentStatus(elements, updated.status);
+        setEditorStatus(updated.status);
         setInfo(elements, "Post programado correctamente.");
       } catch (error) {
         const message = error instanceof Error ? error.message : "Error al programar";
@@ -730,6 +847,10 @@ export async function initCmsBlogEditorPage(initialMode: EditorMode, options: Ed
         setError(elements, "Primero guarda el draft para obtener ID.");
         return;
       }
+      if (!(currentEditorStatus === "draft" || currentEditorStatus === "scheduled")) {
+        setError(elements, "Publish solo esta disponible para estados draft o scheduled.");
+        return;
+      }
       clearMessages(elements);
       setButtonsDisabled(elements, true);
       setInfo(elements, "Publicando post...");
@@ -737,12 +858,75 @@ export async function initCmsBlogEditorPage(initialMode: EditorMode, options: Ed
         const updated = await updateBlogPostStatus({
           postId,
           status: "published",
+          publishDate: parseOptionalIsoDate(elements.publishDate.value),
           changeReason: "Publicacion desde CMS UI",
         });
-        setCurrentStatus(elements, updated.status);
+        setEditorStatus(updated.status);
+        syncPublishDateInput(elements, updated.publish_date);
         setInfo(elements, "Post publicado.");
       } catch (error) {
         const message = error instanceof Error ? error.message : "Error al publicar";
+        setError(elements, message);
+      } finally {
+        setButtonsDisabled(elements, false);
+      }
+    });
+
+    elements.publishChangesButton.addEventListener("click", async () => {
+      if (!postId) {
+        setError(elements, "Primero guarda el draft para obtener ID.");
+        return;
+      }
+      if (currentEditorStatus !== "published") {
+        setError(elements, "Publicar cambios solo aplica en estado published.");
+        return;
+      }
+
+      clearMessages(elements);
+      setButtonsDisabled(elements, true);
+      setInfo(elements, "Publicando cambios...");
+
+      try {
+        const snapshot = readBlogFormSnapshot(elements, selectedTagIds);
+        const publishDate = parseOptionalIsoDate(elements.publishDate.value);
+
+        const reverted = await updateBlogPostStatus({
+          postId,
+          status: "draft",
+          changeReason: "Revert temporal para publicar cambios",
+        });
+        setEditorStatus(reverted.status);
+
+        const updated = await updateBlogPost({
+          postId,
+          patch: {
+            slug: snapshot.slug,
+            categoryId: snapshot.categoryId,
+            h1: snapshot.h1,
+            metaDescription: snapshot.metaDescription,
+            canonicalUrl: snapshot.canonicalUrl,
+            shortDescription: snapshot.shortDescription,
+            featuredImage: snapshot.featuredImage,
+            authorId: snapshot.authorId,
+            contentMarkdown: snapshot.contentMarkdown,
+            schemaOverride: snapshot.schemaOverride,
+          },
+          tags: snapshot.tags,
+          faqs: snapshot.faqs,
+        });
+        setEditorStatus(updated.status);
+
+        const republished = await updateBlogPostStatus({
+          postId,
+          status: "published",
+          publishDate,
+          changeReason: "Publicar cambios desde CMS UI",
+        });
+        setEditorStatus(republished.status);
+        syncPublishDateInput(elements, republished.publish_date);
+        setInfo(elements, "Cambios publicados correctamente.");
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Error al publicar cambios";
         setError(elements, message);
       } finally {
         setButtonsDisabled(elements, false);
@@ -754,6 +938,10 @@ export async function initCmsBlogEditorPage(initialMode: EditorMode, options: Ed
         setError(elements, "Primero guarda el draft para obtener ID.");
         return;
       }
+      if (currentEditorStatus !== "published") {
+        setError(elements, "Revert to Draft solo aplica a contenido publicado.");
+        return;
+      }
       clearMessages(elements);
       setButtonsDisabled(elements, true);
       setInfo(elements, "Regresando a draft...");
@@ -763,7 +951,7 @@ export async function initCmsBlogEditorPage(initialMode: EditorMode, options: Ed
           status: "draft",
           changeReason: "Revertido desde CMS UI",
         });
-        setCurrentStatus(elements, updated.status);
+        setEditorStatus(updated.status);
         setInfo(elements, "Post regresado a draft.");
       } catch (error) {
         const message = error instanceof Error ? error.message : "Error al regresar a draft";
