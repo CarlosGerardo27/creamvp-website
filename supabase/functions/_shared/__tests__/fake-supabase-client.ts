@@ -9,6 +9,9 @@ export type FakeDbState = {
   blog_posts: FakeTableRow[];
   blog_post_tags: FakeTableRow[];
   blog_faqs: FakeTableRow[];
+  categories: FakeTableRow[];
+  authors: FakeTableRow[];
+  tags: FakeTableRow[];
   cms_api_request_log: FakeTableRow[];
 };
 
@@ -39,6 +42,9 @@ export function createFakeDbState(seed: Partial<FakeDbState> = {}): FakeDbState 
     blog_posts: cloneRows(seed.blog_posts),
     blog_post_tags: cloneRows(seed.blog_post_tags),
     blog_faqs: cloneRows(seed.blog_faqs),
+    categories: cloneRows(seed.categories),
+    authors: cloneRows(seed.authors),
+    tags: cloneRows(seed.tags),
     cms_api_request_log: cloneRows(seed.cms_api_request_log),
   };
 }
@@ -230,4 +236,3 @@ class FakeQueryBuilder {
     return { data: rows, error: null };
   }
 }
-

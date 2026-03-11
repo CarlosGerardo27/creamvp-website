@@ -6,6 +6,9 @@ Funciones implementadas:
 - `cms-blog-update`
 - `cms-blog-status`
 - `cms-blog-delete`
+- `cms-catalogs`
+- `cms-blog-post`
+- `cms-blog-posts`
 
 Convención de arquitectura:
 
@@ -35,6 +38,9 @@ supabase functions deploy cms-blog-create
 supabase functions deploy cms-blog-update
 supabase functions deploy cms-blog-status
 supabase functions deploy cms-blog-delete
+supabase functions deploy cms-catalogs
+supabase functions deploy cms-blog-post
+supabase functions deploy cms-blog-posts
 ```
 
 Prueba local (si usas Supabase CLI):
@@ -44,4 +50,7 @@ supabase functions serve cms-blog-create --env-file .env
 supabase functions serve cms-blog-update --env-file .env
 supabase functions serve cms-blog-status --env-file .env
 supabase functions serve cms-blog-delete --env-file .env
+supabase functions serve cms-catalogs --env-file .env
+supabase functions serve cms-blog-post --env-file .env
+supabase functions serve cms-blog-posts --env-file .env
 ```

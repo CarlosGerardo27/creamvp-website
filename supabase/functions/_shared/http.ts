@@ -4,7 +4,7 @@ import { HttpError, isHttpError } from "./errors.ts";
 const CORS_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-request-id",
-  "Access-Control-Allow-Methods": "OPTIONS, GET, POST, PATCH",
+  "Access-Control-Allow-Methods": "OPTIONS, GET, POST, PATCH, DELETE",
   "Content-Type": "application/json; charset=utf-8",
 };
 
@@ -72,4 +72,3 @@ export function createRequestId(request: Request): string {
   }
   return crypto.randomUUID();
 }
-
