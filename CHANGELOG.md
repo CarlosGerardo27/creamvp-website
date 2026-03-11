@@ -107,3 +107,56 @@
 ### Historial
 
 - `docs/metodos/Ralph/history/blogMarkdownMigrationStage7_20260310.md`
+
+## [2026-03-10 20:05] - Cierre de blockers Etapa 8 (astro check legacy + release readiness)
+
+**Objetivo completado:** `stage8ReleaseBlockers_20260310`
+
+**Request del usuario:**
+
+> si procede con lo siguiente Abrir nuevo objetivo Ralph para cerrar blockers de Etapa 8 (astro check legacy + release readiness).
+
+### Cambios realizados
+
+- `src/pages/about.astro`: simplificado a redirect limpio `301` hacia `/nosotros`.
+- `src/pages/contact.astro`: simplificado a redirect limpio `301` hacia `/contacto`.
+- `src/components/BlogShare.astro`: guard de `EventTarget` a `Node` para click-outside estable.
+- `src/components/ReadingProgress.astro`: tipado DOM seguro con `querySelector<HTMLElement>`.
+- `src/components/navbar/navbar.astro`: tipado explicito de menu items y `badge` opcional.
+- `src/layouts/Layout.astro`: correccion de `openGraph.article.authors` para contrato `astro-seo`.
+- `tsconfig.json`: exclusion de artefactos de build/test para checks estables.
+- `docs/roadmap/ruta-implementacion-cms.md`: Etapa 8 marcada como completada y sin blockers.
+- `docs/metodos/Ralph/history/stage8ReleaseBlockers_20260310.md`: auditoria completa del objetivo.
+- `docs/metodos/Ralph/history/test_stage8ReleaseBlockers_20260310.md`: evidencia de quality gates.
+
+### Tests
+
+- Evidencia: `docs/metodos/Ralph/history/test_stage8ReleaseBlockers_20260310.md`
+
+### Historial
+
+- `docs/metodos/Ralph/history/stage8ReleaseBlockers_20260310.md`
+
+## [2026-03-10 20:18] - Fix UX de tags en editor CMS (multidropdown + actualizar tags)
+
+**Objetivo completado:** `cmsTagMultidropdownFix_20260310`
+
+**Request del usuario:**
+
+> sntes de eso hay que hacer un casmbio en el cms para creacion de blogs , este campo debe tener un multidropdown y tener un boton para actualizar los tags , el usuario debe poder elegir y quitar tags ligados al blog , en el estado actual no esta dejando elegir o remover lo tags a voluntad de forma correcta
+
+### Cambios realizados
+
+- `src/components/cms/BlogEditorPanel.astro`: reemplazo del `select multiple` por multidropdown de tags con checkboxes, buscador, chips removibles y boton `Actualizar tags`.
+- `src/features/cms/blog/ui/blog-editor-page.ts`: nueva gestion de estado de tags seleccionados, sincronizacion UI/select hidden, soporte de fallback para tags fuera de catalogo activo y accion explicita para persistir tags.
+- `src/features/cms/blog/ui/blog-editor-page.test.ts`: nuevo test para seleccionar/remover/actualizar tags en modo edicion.
+- `docs/metodos/Ralph/history/cmsTagMultidropdownFix_20260310.md`: auditoria completa del objetivo.
+- `docs/metodos/Ralph/history/test_cmsTagMultidropdownFix_20260310.md`: evidencia de pruebas.
+
+### Tests
+
+- Evidencia: `docs/metodos/Ralph/history/test_cmsTagMultidropdownFix_20260310.md`
+
+### Historial
+
+- `docs/metodos/Ralph/history/cmsTagMultidropdownFix_20260310.md`

@@ -79,7 +79,7 @@ const resolvedImage = image
           alt: image ? "Imagen del artículo" : "CreaMVP - Automatización y No-Code",
         },
         article: type === "article" ? {
-          author: author || "CreaMVP",
+          authors: [author || "CreaMVP"],
           publishedTime: publishDate?.toISOString(),
         } : undefined,
       }}

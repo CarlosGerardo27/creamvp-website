@@ -13,7 +13,7 @@
 <script>
   function updateReadingProgress() {
     // Buscar el contenido del artículo
-    const article = document.querySelector('.prose') || document.querySelector('main');
+    const article = document.querySelector<HTMLElement>('.prose') ?? document.querySelector<HTMLElement>('main');
     if (!article) return;
 
     const articleTop = article.offsetTop;
@@ -22,7 +22,6 @@
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
     // Calcular el progreso basado en cuánto del artículo ha sido visto
-    const articleBottom = articleTop + articleHeight;
     const windowBottom = scrollTop + windowHeight;
 
     let progress = 0;

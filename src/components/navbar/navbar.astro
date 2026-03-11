@@ -4,7 +4,19 @@ import Link from "@/components/ui/link.astro";
 import Dropdown from "./dropdown.astro";
 import { Astronav, MenuItems, MenuIcon } from "astro-navbar";
 
-const menuitems = [
+type NavChild = {
+  title: string;
+  path: string;
+};
+
+type NavItem = {
+  title: string;
+  path: string;
+  children?: NavChild[];
+  badge?: string;
+};
+
+const menuitems: NavItem[] = [
   {
     title: "Servicios",
     path: "/servicios",

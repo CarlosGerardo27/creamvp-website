@@ -29,6 +29,13 @@ type EditorElements = {
   featuredImageAlt: HTMLInputElement;
   authorId: HTMLSelectElement;
   tagIds: HTMLSelectElement;
+  tagsToggleButton: HTMLButtonElement;
+  tagsDropdown: HTMLElement;
+  tagsSearchInput: HTMLInputElement;
+  tagsOptions: HTMLElement;
+  tagsSelected: HTMLElement;
+  tagsEmpty: HTMLElement;
+  tagsApplyButton: HTMLButtonElement;
   contentMarkdown: HTMLTextAreaElement;
   schemaAuto: HTMLTextAreaElement;
   schemaOverride: HTMLTextAreaElement;
@@ -71,6 +78,13 @@ function collectElements(): EditorElements {
     featuredImageAlt: getRequiredElement("cms-blog-featured-image-alt", HTMLInputElement),
     authorId: getRequiredElement("cms-blog-author-id", HTMLSelectElement),
     tagIds: getRequiredElement("cms-blog-tag-ids", HTMLSelectElement),
+    tagsToggleButton: getRequiredElement("cms-blog-tags-toggle", HTMLButtonElement),
+    tagsDropdown: getRequiredElement("cms-blog-tags-dropdown", HTMLElement),
+    tagsSearchInput: getRequiredElement("cms-blog-tags-search", HTMLInputElement),
+    tagsOptions: getRequiredElement("cms-blog-tags-options", HTMLElement),
+    tagsSelected: getRequiredElement("cms-blog-tags-selected", HTMLElement),
+    tagsEmpty: getRequiredElement("cms-blog-tags-empty", HTMLElement),
+    tagsApplyButton: getRequiredElement("cms-blog-tags-apply", HTMLButtonElement),
     contentMarkdown: getRequiredElement("cms-blog-content-markdown", HTMLTextAreaElement),
     schemaAuto: getRequiredElement("cms-blog-schema-auto", HTMLTextAreaElement),
     schemaOverride: getRequiredElement("cms-blog-schema-override", HTMLTextAreaElement),
@@ -188,8 +202,130 @@ function readFaqs(elements: EditorElements): CmsBlogFaqItem[] {
   return parsedRows;
 }
 
-function readSelectedIds(select: HTMLSelectElement): string[] {
-  return Array.from(select.selectedOptions).map((option) => option.value);
+function setTagSelectOptions(select: HTMLSelectElement, options: CmsOption[]): void {
+  select.innerHTML = "";
+  for (const option of options) {
+    const item = document.createElement("option");
+    item.value = option.id;
+    item.dataset.slug = option.slug;
+    item.textContent = `${option.name} (${option.slug})`;
+    select.appendChild(item);
+  }
+}
+
+function syncTagSelectWithSelectedIds(
+  select: HTMLSelectElement,
+  selectedTagIds: Set<string>,
+  availableTagsById: Map<string, CmsOption>,
+): void {
+  const existingValues = new Set(Array.from(select.options).map((option) => option.value));
+  for (const tagId of selectedTagIds) {
+    if (!existingValues.has(tagId)) {
+      const option = document.createElement("option");
+      option.value = tagId;
+      option.textContent = `${tagId} (sin catalogo activo)`;
+      select.appendChild(option);
+      existingValues.add(tagId);
+    }
+  }
+
+  Array.from(select.options).forEach((option) => {
+    option.selected = selectedTagIds.has(option.value);
+    if (!availableTagsById.has(option.value) && !selectedTagIds.has(option.value)) {
+      option.remove();
+    }
+  });
+}
+
+function getTagLabel(tagId: string, availableTagsById: Map<string, CmsOption>): string {
+  const tag = availableTagsById.get(tagId);
+  if (!tag) {
+    return `${tagId} (sin catalogo activo)`;
+  }
+  return `${tag.name} (${tag.slug})`;
+}
+
+function renderTagSelectionSummary(
+  elements: EditorElements,
+  selectedTagIds: Set<string>,
+  availableTagsById: Map<string, CmsOption>,
+): void {
+  elements.tagsSelected.innerHTML = "";
+  if (!selectedTagIds.size) {
+    elements.tagsEmpty.classList.remove("hidden");
+  } else {
+    elements.tagsEmpty.classList.add("hidden");
+  }
+
+  for (const tagId of selectedTagIds) {
+    const chip = document.createElement("span");
+    chip.className = "inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-xs";
+    chip.textContent = getTagLabel(tagId, availableTagsById);
+
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.dataset.tagRemoveId = tagId;
+    removeButton.className =
+      "rounded-full border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-300 hover:bg-slate-800";
+    removeButton.textContent = "Quitar";
+    chip.appendChild(removeButton);
+    elements.tagsSelected.appendChild(chip);
+  }
+
+  elements.tagsToggleButton.textContent = selectedTagIds.size
+    ? `Seleccionar tags (${selectedTagIds.size})`
+    : "Seleccionar tags";
+}
+
+function renderTagDropdownOptions(
+  elements: EditorElements,
+  options: CmsOption[],
+  selectedTagIds: Set<string>,
+  searchTerm: string,
+): void {
+  const normalizedSearch = searchTerm.trim().toLowerCase();
+  const filtered = normalizedSearch
+    ? options.filter((option) => {
+        const haystack = `${option.name} ${option.slug}`.toLowerCase();
+        return haystack.includes(normalizedSearch);
+      })
+    : options;
+
+  elements.tagsOptions.innerHTML = "";
+  if (!filtered.length) {
+    const empty = document.createElement("p");
+    empty.className = "text-xs text-slate-400";
+    empty.textContent = "No hay tags para la busqueda actual.";
+    elements.tagsOptions.appendChild(empty);
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  for (const option of filtered) {
+    const label = document.createElement("label");
+    label.className = "flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-slate-800";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.value = option.id;
+    checkbox.dataset.tagId = option.id;
+    checkbox.checked = selectedTagIds.has(option.id);
+    checkbox.className = "h-4 w-4";
+
+    const text = document.createElement("span");
+    text.textContent = `${option.name} (${option.slug})`;
+
+    label.appendChild(checkbox);
+    label.appendChild(text);
+    fragment.appendChild(label);
+  }
+
+  elements.tagsOptions.appendChild(fragment);
+}
+
+function setTagsDropdownOpen(elements: EditorElements, isOpen: boolean): void {
+  elements.tagsDropdown.classList.toggle("hidden", !isOpen);
+  elements.tagsToggleButton.setAttribute("aria-expanded", isOpen ? "true" : "false");
 }
 
 function getCategorySlugFromSelection(categorySelect: HTMLSelectElement): string | null {
@@ -235,6 +371,7 @@ function setButtonsDisabled(elements: EditorElements, disabled: boolean): void {
   elements.scheduleButton.disabled = disabled;
   elements.publishButton.disabled = disabled;
   elements.revertButton.disabled = disabled;
+  elements.tagsApplyButton.disabled = disabled;
   if (elements.deleteButton) {
     elements.deleteButton.disabled = disabled;
   }
@@ -269,13 +406,6 @@ function updateCanonicalPreviewOnInputs(elements: EditorElements): void {
   }
 }
 
-function fillMultiSelect(select: HTMLSelectElement, selectedIds: string[]): void {
-  const selectedSet = new Set(selectedIds);
-  Array.from(select.options).forEach((option) => {
-    option.selected = selectedSet.has(option.value);
-  });
-}
-
 function resolvePostIdFromPathname(pathname: string): string | null {
   const normalized = pathname.replace(/\/+$/, "");
   const match = normalized.match(/^\/cms\/blog\/([^/]+)$/);
@@ -300,6 +430,11 @@ export async function initCmsBlogEditorPage(initialMode: EditorMode, options: Ed
   const elements = collectElements();
   const mode = initialMode;
   let postId: string | null = null;
+  let tagsDropdownOpen = false;
+  let tagsSearchTerm = "";
+  const selectedTagIds = new Set<string>();
+  let availableTags: CmsOption[] = [];
+  let availableTagsById = new Map<string, CmsOption>();
 
   try {
     clearMessages(elements);
@@ -313,9 +448,15 @@ export async function initCmsBlogEditorPage(initialMode: EditorMode, options: Ed
 
     fillSelectOptions(elements.categoryId, categories, "Selecciona categoria");
     fillSelectOptions(elements.authorId, authors, "Sin autor", true);
-    elements.tagIds.innerHTML = tags
-      .map((tag) => `<option value="${tag.id}" data-slug="${tag.slug}">${tag.name} (${tag.slug})</option>`)
-      .join("");
+    availableTags = tags;
+    availableTagsById = new Map(tags.map((tag) => [tag.id, tag]));
+    setTagSelectOptions(elements.tagIds, availableTags);
+
+    const syncTagsUi = (): void => {
+      syncTagSelectWithSelectedIds(elements.tagIds, selectedTagIds, availableTagsById);
+      renderTagDropdownOptions(elements, availableTags, selectedTagIds, tagsSearchTerm);
+      renderTagSelectionSummary(elements, selectedTagIds, availableTagsById);
+    };
 
     const searchParams = new URLSearchParams(window.location.search);
     const postIdFromQuery = searchParams.get("id");
@@ -353,7 +494,10 @@ export async function initCmsBlogEditorPage(initialMode: EditorMode, options: Ed
       elements.contentMarkdown.value = post.content_markdown ?? "";
       elements.schemaAuto.value = post.schema_auto ? JSON.stringify(post.schema_auto, null, 2) : "";
       elements.schemaOverride.value = post.schema_override ? JSON.stringify(post.schema_override, null, 2) : "";
-      fillMultiSelect(elements.tagIds, post.tags);
+      selectedTagIds.clear();
+      for (const tagId of post.tags) {
+        selectedTagIds.add(tagId);
+      }
       elements.faqList.innerHTML = "";
       if (!post.faqs.length) {
         elements.faqList.appendChild(createFaqRow());
@@ -376,12 +520,109 @@ export async function initCmsBlogEditorPage(initialMode: EditorMode, options: Ed
       setInfo(elements, "Completa campos y guarda como draft.");
     }
 
+    syncTagsUi();
+    setTagsDropdownOpen(elements, false);
     updateCanonicalPreviewOnInputs(elements);
     elements.slug.addEventListener("input", () => updateCanonicalPreviewOnInputs(elements));
     elements.categoryId.addEventListener("change", () => updateCanonicalPreviewOnInputs(elements));
 
     elements.faqAdd.addEventListener("click", () => {
       elements.faqList.appendChild(createFaqRow());
+    });
+
+    elements.tagsToggleButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      tagsDropdownOpen = !tagsDropdownOpen;
+      setTagsDropdownOpen(elements, tagsDropdownOpen);
+      if (tagsDropdownOpen) {
+        elements.tagsSearchInput.focus();
+      }
+    });
+
+    elements.tagsSearchInput.addEventListener("input", () => {
+      tagsSearchTerm = elements.tagsSearchInput.value;
+      syncTagsUi();
+    });
+
+    elements.tagsOptions.addEventListener("change", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement) || target.type !== "checkbox") {
+        return;
+      }
+      const tagId = target.dataset.tagId;
+      if (!tagId) {
+        return;
+      }
+      if (target.checked) {
+        selectedTagIds.add(tagId);
+      } else {
+        selectedTagIds.delete(tagId);
+      }
+      syncTagsUi();
+    });
+
+    elements.tagsSelected.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) {
+        return;
+      }
+      const removeButton = target.closest("button[data-tag-remove-id]");
+      if (!(removeButton instanceof HTMLButtonElement)) {
+        return;
+      }
+      const tagId = removeButton.dataset.tagRemoveId;
+      if (!tagId) {
+        return;
+      }
+      selectedTagIds.delete(tagId);
+      syncTagsUi();
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!tagsDropdownOpen) {
+        return;
+      }
+      const target = event.target;
+      if (!(target instanceof Node)) {
+        return;
+      }
+      if (elements.tagsDropdown.contains(target) || elements.tagsToggleButton.contains(target)) {
+        return;
+      }
+      tagsDropdownOpen = false;
+      setTagsDropdownOpen(elements, false);
+    });
+
+    elements.tagsApplyButton.addEventListener("click", async () => {
+      if (!postId) {
+        setError(elements, "Primero guarda el draft para obtener ID y luego actualizar tags.");
+        return;
+      }
+
+      clearMessages(elements);
+      elements.tagsApplyButton.disabled = true;
+      setInfo(elements, "Actualizando tags...");
+
+      try {
+        const slug = elements.slug.value.trim();
+        assertNonEmpty(slug, "slug");
+        assertValidSlug(slug);
+
+        const updated = await updateBlogPost({
+          postId,
+          patch: {
+            slug,
+          },
+          tags: Array.from(selectedTagIds),
+        });
+        setCurrentStatus(elements, updated.status);
+        setInfo(elements, "Tags actualizados correctamente.");
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Error al actualizar tags";
+        setError(elements, message);
+      } finally {
+        elements.tagsApplyButton.disabled = false;
+      }
     });
 
     elements.backToListLink.href = "/cms/blog";
@@ -403,7 +644,7 @@ export async function initCmsBlogEditorPage(initialMode: EditorMode, options: Ed
         const featuredImage = readFeaturedImage(elements);
         const schemaOverride = parseJsonObject(elements.schemaOverride.value, "schemaOverride");
         const faqs = readFaqs(elements);
-        const tags = readSelectedIds(elements.tagIds);
+        const tags = Array.from(selectedTagIds);
         const authorId = elements.authorId.value.trim() || null;
 
         if (mode === "create" || !postId) {

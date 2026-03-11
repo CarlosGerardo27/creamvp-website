@@ -37,6 +37,14 @@ function renderEditorDom(includeDeleteButton = true): void {
     <input id="cms-blog-featured-image-url" />
     <input id="cms-blog-featured-image-alt" />
     <select id="cms-blog-author-id"></select>
+    <button id="cms-blog-tags-toggle" type="button">Seleccionar tags</button>
+    <div id="cms-blog-tags-dropdown" class="hidden">
+      <input id="cms-blog-tags-search" />
+      <div id="cms-blog-tags-options"></div>
+    </div>
+    <div id="cms-blog-tags-selected"></div>
+    <p id="cms-blog-tags-empty"></p>
+    <button id="cms-blog-tags-apply" type="button">Actualizar tags</button>
     <select id="cms-blog-tag-ids" multiple></select>
     <textarea id="cms-blog-content-markdown"></textarea>
     <textarea id="cms-blog-schema-auto"></textarea>
@@ -197,6 +205,47 @@ describe("cms/blog/ui/blog-editor-page", () => {
       ),
     );
     expect(createBlogDraftMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("permite seleccionar, quitar y actualizar tags en modo edicion", async () => {
+    mockCatalogsAndPost();
+    listTagOptionsMock.mockResolvedValue([
+      { id: "tag-1", name: "IA", slug: "ia" },
+      { id: "tag-2", name: "Automatizacion", slug: "automatizacion" },
+    ]);
+    updateBlogPostMock.mockResolvedValue({
+      id: "post-1",
+      status: "draft",
+      slug: "post-prueba",
+      category_slug: "automatizacion",
+      publish_date: null,
+      updated_at: new Date().toISOString(),
+    });
+
+    window.history.pushState({}, "", "/cms/blog/post-1");
+    await initCmsBlogEditorPage("edit", { postId: "post-1" });
+
+    const toggleTags = document.getElementById("cms-blog-tags-toggle") as HTMLButtonElement;
+    toggleTags.click();
+
+    const addTag2 = document.querySelector('input[data-tag-id="tag-2"]') as HTMLInputElement;
+    addTag2.click();
+
+    const removeTag1 = document.querySelector('button[data-tag-remove-id="tag-1"]') as HTMLButtonElement;
+    removeTag1.click();
+
+    const applyTags = document.getElementById("cms-blog-tags-apply") as HTMLButtonElement;
+    applyTags.click();
+
+    await vi.waitFor(() =>
+      expect(updateBlogPostMock).toHaveBeenCalledWith({
+        postId: "post-1",
+        patch: {
+          slug: "post-prueba",
+        },
+        tags: ["tag-2"],
+      }),
+    );
   });
 
   it("muestra error si se intenta publicar sin postId", async () => {

@@ -126,7 +126,12 @@ const shareButtons = [
 
     // Cerrar al hacer click fuera
     document.addEventListener('click', (e) => {
-      if (isOpen && !shareBar.contains(e.target) && !toggleButton.contains(e.target)) {
+      const target = e.target;
+      if (!(target instanceof Node)) {
+        return;
+      }
+
+      if (isOpen && !shareBar.contains(target) && !toggleButton.contains(target)) {
         isOpen = false;
         shareBar.classList.remove('opacity-100', 'visible', 'translate-y-0');
         shareBar.classList.add('opacity-0', 'invisible', 'translate-y-2');

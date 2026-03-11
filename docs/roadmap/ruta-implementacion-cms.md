@@ -4,13 +4,12 @@ Documento operativo para ejecutar el CMS de CreaMVP por etapas, con pasos marcab
 
 ---
 
-## Estado actual (corte 2026-03-10 20:00 -06:00)
+## Estado actual (corte 2026-03-10 20:05 -06:00)
 
-- Etapas completadas: `1`, `3`, `5`, `6`, `7`.
-- Etapas en progreso: `4`, `8`.
+- Etapas completadas: `1`, `3`, `5`, `6`, `7`, `8`.
+- Etapas en progreso: `4`.
 - Etapas pendientes: `0`, `2`, `9`.
-- Bloqueadores activos:
-  - `npm run astro -- check` mantiene 19 errores legacy fuera del alcance CMS actual.
+- Bloqueadores activos: ninguno.
 
 ---
 
@@ -306,18 +305,21 @@ Objetivo: asegurar estabilidad antes de release.
 - [x] E2E de rutas pÃºblicas: `/blog`, `/blog/[categoria]`, `/blog/[categoria]/[slug]`.
 - [x] ValidaciÃ³n SEO automatizada de metadatos crÃ­ticos.
 - [x] Ejecutar `npm run build`.
-- [ ] Ejecutar `npm run astro -- check`.
+- [x] Ejecutar `npm run astro -- check`.
 
 Nota QA:
 
-- `npm run astro -- check` sigue reportando 19 errores legacy fuera de mÃ³dulos CMS (por ejemplo `src/pages/about.astro`, `src/pages/contact.astro`, `src/components/BlogShare.astro`, `src/layouts/Layout.astro`).
-- Los mÃ³dulos CMS y rutas pÃºblicas de blog de esta etapa validan en verde con `npm run test:api`, `npm run test:unit`, `npm run test:e2e` y `npm run build`.
+- Quality gates de cierre de etapa ejecutados el `2026-03-10`:
+  - `npm run astro -- check` -> `0 errors`, `0 warnings` (`12 hints` no bloqueantes).
+  - `npm run test:unit` -> `6 files`, `25 tests` en verde.
+  - `npm run build` -> build completo en verde.
+- Fixes legacy aplicados para cierre de blockers: `src/pages/about.astro`, `src/pages/contact.astro`, `src/components/BlogShare.astro`, `src/components/ReadingProgress.astro`, `src/components/navbar/navbar.astro`, `src/layouts/Layout.astro`, `tsconfig.json`.
 - La suite API actual cubre contratos y permisos en create/update/status y el flujo de delete via validator/service.
 
 Entregables:
 
 - [x] Evidencia de pruebas y comandos ejecutados.
-- [ ] Cero blockers abiertos para release.
+- [x] Cero blockers abiertos para release.
 
 ---
 
@@ -364,7 +366,7 @@ Orden sugerido (sin saltos):
 - [x] Etapa 5
 - [x] Etapa 6
 - [x] Etapa 7
-- [ ] Etapa 8 (en progreso)
+- [x] Etapa 8
 - [ ] Etapa 9
 
 
