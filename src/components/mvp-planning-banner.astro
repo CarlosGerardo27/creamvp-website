@@ -1,0 +1,76 @@
+---
+import { Icon } from "astro-icon/components";
+import Link from "@/components/ui/link.astro";
+
+interface Props {
+  title?: string;
+  description?: string;
+  ctaLabel?: string;
+  href?: string;
+  pillars?: string[];
+  class?: string;
+}
+
+const {
+  title = "Tu primer Product Manager es una IA",
+  description = "Deja de adivinar. Estructura, especifica y valida tu startup con la profundidad de un equipo de producto senior, en una fraccion del tiempo.",
+  ctaLabel = "Planear mi MVP",
+  href = "https://creamvp.studio/",
+  pillars = ["Claridad", "Estrategia", "Blueprint", "Validacion"],
+  class: className,
+} = Astro.props as Props;
+
+const numberedPillars = pillars.map((pillar, index) => ({
+  step: index + 1,
+  label: pillar,
+}));
+---
+
+<section
+  class:list={[
+    "relative mt-20 mx-auto max-w-5xl overflow-hidden rounded-2xl bg-[#507BFA] text-white shadow-lg",
+    className,
+  ]}>
+  <div class="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-white/15 blur-2xl"></div>
+  <div class="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-blue-900/30 blur-3xl"></div>
+
+  <div class="relative p-8 md:px-16 md:py-14">
+    <p class="inline-flex items-center gap-2 text-sm uppercase tracking-[0.2em] text-blue-100">
+      <Icon class="h-4 w-4 text-white" name="bx:bxs-rocket" />
+      CreaMVP Studio
+    </p>
+
+    <h2 class="mt-4 max-w-3xl text-4xl md:text-5xl tracking-tight">
+      {title}
+    </h2>
+
+    <p class="mt-4 text-blue-50 text-lg md:text-xl max-w-3xl">
+      {description}
+    </p>
+
+    <div class="mt-7 grid gap-2 sm:grid-cols-2 md:grid-cols-4">
+      {
+        numberedPillars.map((pillar) => (
+          <div class="rounded-xl border border-white/30 bg-white/10 px-3 py-2 text-sm text-blue-50">
+            <span class="font-semibold text-white/90">{pillar.step}.</span> {pillar.label}
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="mt-8 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+      <Link
+        href={href}
+        style="inverted"
+        class="flex items-center justify-center gap-2"
+        target="_blank"
+        rel="noopener">
+        <Icon class="h-4 w-4 text-black" name="bx:bxs-cog" />
+        {ctaLabel}
+      </Link>
+      <p class="text-sm text-blue-100">
+        Planea tu MVP antes de invertir meses de desarrollo.
+      </p>
+    </div>
+  </div>
+</section>

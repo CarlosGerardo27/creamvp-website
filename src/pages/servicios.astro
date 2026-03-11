@@ -8,6 +8,7 @@ import dashboardImage from "@/assets/dashboard.png";
 import aplicacionesInternasImage from "@/assets/aplicaciones-internas.png";
 import mvpsImage from "@/assets/mvps.png";
 import agentesConversacionalesImage from "@/assets/agentes-conversacionales.png";
+import MvpPlanningBanner from "@/components/mvp-planning-banner.astro";
 
 // SEO metadata
 const pageTitle = "Servicios de Automatización, No-Code e IA | CreaMVP";
@@ -237,5 +238,6 @@ const pageImage = Astro.site ? new URL("/opengraph.png", Astro.site).toString() 
         </section>
       </div>
     </article>
+    <MvpPlanningBanner />
   </Container>
 </Layout>

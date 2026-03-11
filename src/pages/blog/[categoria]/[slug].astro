@@ -6,6 +6,7 @@ import Container from "@/components/container.astro";
 import ReadingProgress from "@/components/ReadingProgress.astro";
 import BlogFAQs from "@/components/BlogFAQs.astro";
 import BlogShare from "@/components/BlogShare.astro";
+import MvpPlanningBanner from "@/components/mvp-planning-banner.astro";
 import { listPublishedBlogPosts } from "@/features/public-blog/data/public-blog-repository";
 import type { PublicBlogPost } from "@/features/public-blog/domain/types";
 
@@ -240,5 +241,6 @@ const breadcrumbSchema = {
         ← Volver al Blog
       </a>
     </div>
+    <MvpPlanningBanner />
   </Container>
 </Layout>
