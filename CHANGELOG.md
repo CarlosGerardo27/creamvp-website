@@ -84,3 +84,26 @@
 ### Historial
 
 - `docs/metodos/Ralph/history/cmsAuthorsStage6AndQa_20260310.md`
+
+## [2026-03-10 20:00] - Etapa 7 completada: migracion real Markdown -> CMS + validacion preview/publicacion
+
+**Objetivo completado:** `blogMarkdownMigrationStage7_20260310`
+
+**Request del usuario:**
+
+> Si procede con lo siguiente , recuerda seguir apegandote a [Ralph_loop.json](docs/metodos/Ralph/Ralph_loop.json)
+
+### Cambios realizados
+
+- `scripts/migrate-markdown-blog-to-cms.mjs`: soporte de fallback con `SUPABASE_SERVICE_ROLE_KEY` y `--actor-user-id` para ejecutar `--apply` sin password editorial en entorno local.
+- `docs/roadmap/ruta-implementacion-cms.md`: Etapa 7 marcada como completada, evidencias de migracion real y validacion productiva agregadas.
+- `docs/metodos/Ralph/history/blogMarkdownMigrationStage7_20260310.md`: auditoria completa del objetivo.
+- `docs/metodos/Ralph/history/test_blogMarkdownMigrationStage7_20260310.md`: evidencia de pruebas y validaciones.
+
+### Tests
+
+- Evidencia: `docs/metodos/Ralph/history/test_blogMarkdownMigrationStage7_20260310.md`
+
+### Historial
+
+- `docs/metodos/Ralph/history/blogMarkdownMigrationStage7_20260310.md`

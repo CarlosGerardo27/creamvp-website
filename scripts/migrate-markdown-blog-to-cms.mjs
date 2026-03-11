@@ -22,6 +22,7 @@ Opciones:
   --inventory <path>         Archivo markdown para inventario (default: docs/roadmap/blog-markdown-inventory.md)
   --email <email>            Email editorial para auth (requerido en --apply)
   --password <password>      Password editorial para auth (requerido en --apply)
+  --actor-user-id <uuid>     User ID a usar como actor cuando se usa service role fallback
   --help                     Muestra ayuda
 `);
 }
@@ -35,6 +36,7 @@ function parseArgs(argv) {
     inventory: "docs/roadmap/blog-markdown-inventory.md",
     email: "",
     password: "",
+    actorUserId: "",
     help: false,
   };
 
@@ -79,6 +81,11 @@ function parseArgs(argv) {
       index += 1;
       continue;
     }
+    if (token === "--actor-user-id") {
+      args.actorUserId = next;
+      index += 1;
+      continue;
+    }
 
     throw new Error(`Argumento no reconocido: ${token}`);
   }
@@ -117,12 +124,16 @@ function resolveConfig(args, envMap) {
   const supabaseUrl = (process.env.PUBLIC_SUPABASE_URL ?? envMap.PUBLIC_SUPABASE_URL ?? "").trim();
   const supabaseAnonKey =
     (process.env.PUBLIC_SUPABASE_ANON_KEY ?? envMap.PUBLIC_SUPABASE_ANON_KEY ?? "").trim();
+  const supabaseServiceRoleKey =
+    (process.env.SUPABASE_SERVICE_ROLE_KEY ?? envMap.SUPABASE_SERVICE_ROLE_KEY ?? "").trim();
 
   return {
     supabaseUrl,
     supabaseAnonKey,
+    supabaseServiceRoleKey,
     email: (args.email || process.env.CMS_MIGRATION_EMAIL || "").trim(),
     password: (args.password || process.env.CMS_MIGRATION_PASSWORD || "").trim(),
+    actorUserId: (args.actorUserId || process.env.CMS_MIGRATION_ACTOR_USER_ID || "").trim(),
   };
 }
 
@@ -517,38 +528,82 @@ async function main() {
   if (!config.supabaseUrl || !config.supabaseAnonKey) {
     throw new Error("Faltan PUBLIC_SUPABASE_URL o PUBLIC_SUPABASE_ANON_KEY para ejecutar apply.");
   }
-  if (!config.email || !config.password) {
-    throw new Error("Para --apply debes proporcionar --email y --password (o env CMS_MIGRATION_EMAIL/CMS_MIGRATION_PASSWORD).");
-  }
-
-  const client = createClient(config.supabaseUrl, config.supabaseAnonKey, {
+  let client = createClient(config.supabaseUrl, config.supabaseAnonKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
       detectSessionInUrl: false,
     },
   });
+  let userId = "";
+  let role = "";
 
-  const authRes = await client.auth.signInWithPassword({ email: config.email, password: config.password });
-  if (authRes.error || !authRes.data.user?.id) {
-    throw new Error(`No se pudo autenticar usuario editorial: ${authRes.error?.message ?? "sin user"}`);
+  if (config.email && config.password) {
+    const authRes = await client.auth.signInWithPassword({ email: config.email, password: config.password });
+    if (authRes.error || !authRes.data.user?.id) {
+      throw new Error(`No se pudo autenticar usuario editorial: ${authRes.error?.message ?? "sin user"}`);
+    }
+
+    userId = authRes.data.user.id;
+    const profileRes = await client
+      .from("profiles")
+      .select("role,is_active")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (profileRes.error || !profileRes.data) {
+      throw new Error(`No se pudo cargar perfil editorial: ${profileRes.error?.message ?? "sin perfil"}`);
+    }
+    if (!profileRes.data.is_active) {
+      throw new Error("El perfil editorial esta inactivo.");
+    }
+
+    role = String(profileRes.data.role ?? "");
+  } else if (config.supabaseServiceRoleKey) {
+    client = createClient(config.supabaseUrl, config.supabaseServiceRoleKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
+    });
+
+    let actorRes;
+    if (config.actorUserId) {
+      actorRes = await client
+        .from("profiles")
+        .select("id,role,is_active")
+        .eq("id", config.actorUserId)
+        .maybeSingle();
+    } else {
+      actorRes = await client
+        .from("profiles")
+        .select("id,role,is_active")
+        .in("role", ["admin", "editor"])
+        .eq("is_active", true)
+        .order("role", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+    }
+
+    if (actorRes.error || !actorRes.data?.id) {
+      throw new Error(
+        `No se pudo resolver actor editorial para service role: ${actorRes.error?.message ?? "sin perfil"}`,
+      );
+    }
+    if (!actorRes.data.is_active) {
+      throw new Error("El actor editorial seleccionado esta inactivo.");
+    }
+
+    userId = String(actorRes.data.id);
+    role = String(actorRes.data.role ?? "");
+    console.log(`[migrate-blog] Auth fallback via service role usando actor ${userId} (${role}).`);
+  } else {
+    throw new Error(
+      "Para --apply debes proporcionar --email/--password o configurar SUPABASE_SERVICE_ROLE_KEY.",
+    );
   }
 
-  const userId = authRes.data.user.id;
-  const profileRes = await client
-    .from("profiles")
-    .select("role,is_active")
-    .eq("id", userId)
-    .maybeSingle();
-
-  if (profileRes.error || !profileRes.data) {
-    throw new Error(`No se pudo cargar perfil editorial: ${profileRes.error?.message ?? "sin perfil"}`);
-  }
-  if (!profileRes.data.is_active) {
-    throw new Error("El perfil editorial esta inactivo.");
-  }
-
-  const role = String(profileRes.data.role ?? "");
   if (!["admin", "editor"].includes(role)) {
     throw new Error(`Rol '${role}' no autorizado para migracion.`);
   }
@@ -602,7 +657,9 @@ async function main() {
     }
   }
 
-  await client.auth.signOut();
+  if (config.email && config.password) {
+    await client.auth.signOut();
+  }
   printSummary(summary);
 }
 

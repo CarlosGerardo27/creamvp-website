@@ -1,6 +1,6 @@
 # Inventario Markdown Blog
 
-Generado: 2026-03-10T20:17:56.290Z
+Generado: 2026-03-11T01:51:31.217Z
 
 | Archivo | Titulo | Categoria slug | Slug | Estado origen | Tags |
 | --- | --- | --- | --- | --- | --- |

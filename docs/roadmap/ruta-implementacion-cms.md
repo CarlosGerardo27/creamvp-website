@@ -4,13 +4,12 @@ Documento operativo para ejecutar el CMS de CreaMVP por etapas, con pasos marcab
 
 ---
 
-## Estado actual (corte 2026-03-10 14:57 -06:00)
+## Estado actual (corte 2026-03-10 20:00 -06:00)
 
-- Etapas completadas: `1`, `3`, `5`, `6`.
-- Etapas en progreso: `4`, `7`, `8`.
+- Etapas completadas: `1`, `3`, `5`, `6`, `7`.
+- Etapas en progreso: `4`, `8`.
 - Etapas pendientes: `0`, `2`, `9`.
 - Bloqueadores activos:
-  - Falta ejecutar carga real de migracion markdown -> CMS: `npm run cms:migrate:blog:apply -- --email <email> --password <password>`.
   - `npm run astro -- check` mantiene 19 errores legacy fuera del alcance CMS actual.
 
 ---
@@ -277,18 +276,22 @@ Objetivo: pasar contenido existente sin pÃ©rdida SEO.
 - [x] Script de mapeo `frontmatter -> schema CMS`.
 - [x] Migrar slugs actuales a formato `(categorySlug, slug)`.
 - [x] Definir categorÃ­a para entradas sin categorÃ­a.
-- [ ] Cargar entradas iniciales en `draft` o `published` segÃºn polÃ­tica acordada.
-- [ ] Verificar imÃ¡genes, enlaces internos y metadata SEO.
+- [x] Cargar entradas iniciales en `draft` o `published` segÃºn polÃ­tica acordada.
+- [x] Verificar imÃ¡genes, enlaces internos y metadata SEO.
 
 Entregables:
 
 - [x] Script de migraciÃ³n versionado.
-- [ ] Lote inicial migrado y validado.
+- [x] Lote inicial migrado y validado.
 
 Nota operativa Etapa 7:
 
 - Script disponible: `npm run cms:migrate:blog` (dry-run) y `npm run cms:migrate:blog:apply -- --email <email> --password <password>`.
 - Inventario actual generado en `docs/roadmap/blog-markdown-inventory.md`.
+- Validacion de ejecucion real completada: `npm run cms:migrate:blog:apply` (fallback con `SUPABASE_SERVICE_ROLE_KEY`) creando 1 post, 1 categoria, 1 autor y 4 tags.
+- Validacion productiva completada:
+  - Preview tokenizado `200` para post `draft`: `https://creamvp.com/blog/preview/7a3d1acc-1bdf-4284-81b3-917942fb0fb6?pt=...`
+  - URL publica publicada `200`: `https://creamvp.com/blog/automatizacion/automatiza-tu-negocio-multiplicar-resultados`
 
 ---
 
@@ -360,7 +363,7 @@ Orden sugerido (sin saltos):
 - [ ] Etapa 4 (en progreso)
 - [x] Etapa 5
 - [x] Etapa 6
-- [ ] Etapa 7 (en progreso)
+- [x] Etapa 7
 - [ ] Etapa 8 (en progreso)
 - [ ] Etapa 9
 
